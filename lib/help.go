@@ -1,3 +1,5 @@
+// 工具函数库
+
 package lib
 
 import (
@@ -10,10 +12,11 @@ import (
 	"strings"
 )
 
+// 获取用户目录路径
 func Home() (string, error) {
-	user, err := user.Current()
+	usr, err := user.Current()
 	if nil == err {
-		return user.HomeDir, nil
+		return usr.HomeDir, nil
 	}
 
 	// cross compile support
@@ -62,6 +65,7 @@ func homeWindows() (string, error) {
 	return home, nil
 }
 
+// 确保路径存在
 func MustExist(path string) {
 	file, err := os.Open(path)
 	defer func() { _ = file.Close() }()

@@ -1,3 +1,5 @@
+// 这里提供了UserInfo结构体以及与其相关的方法
+
 package lib
 
 import (
@@ -20,6 +22,7 @@ type UserInfo struct {
 	Time     int
 }
 
+// 格式化输出用户的所有信息
 func (i *UserInfo) Print() {
 	fmt.Println(
 		"===========Info===========" + "\n" +
@@ -32,12 +35,13 @@ func (i *UserInfo) Print() {
 			"==========================")
 }
 
+// 从配置文件中解析出用户配置
 func LoadBaseInfo(info *UserInfo, path string) error {
-	fmt.Println("读取用户配置中...")
+	fmt.Println(InfoLoadUserInfo)
 	// 准备读取
 	path, err := getPath(path)
 	if err != nil {
-		return errors.New("在获取环境时出错")
+		return errors.New(ErrorGetPath)
 	}
 
 	// 读取
@@ -46,15 +50,15 @@ func LoadBaseInfo(info *UserInfo, path string) error {
 		_ = f.Close()
 	}()
 	if err != nil {
-		return errors.New("配置文件读取失败")
+		return errors.New(ErrorLoadUserInfo)
 	}
 	bytes, _ := ioutil.ReadAll(f)
 	content := string(bytes)
 
 	// 分割
-	split := strings.Split(content, ";")
+	split := strings.Split(content, Delimiter)
 	if len(split) != 2 {
-		return errors.New("配置文件格式不正确")
+		return errors.New(ErrorUserInfoFormat)
 	}
 
 	username, err := base64.StdEncoding.DecodeString(split[0])
@@ -66,12 +70,13 @@ func LoadBaseInfo(info *UserInfo, path string) error {
 	return nil
 }
 
+// 向配置文件中写入用户配置
 func SaveBaseInfo(info *UserInfo, path string) error {
-	fmt.Println("存储用户配置中...")
+	fmt.Println(InfoSaveUserInfo)
 	// 准备存储
 	path, err := getPath(path)
 	if err != nil {
-		return errors.New("在获取环境时出错")
+		return errors.New(ErrorGetPath)
 	}
 
 	// 打开
@@ -82,23 +87,27 @@ func SaveBaseInfo(info *UserInfo, path string) error {
 	w := bufio.NewWriter(f)
 
 	if err != nil {
-		return errors.New("配置文件打开失败")
+		return errors.New(ErrorOpenUserInfo)
 	}
 
+	// 写入
 	username := base64.StdEncoding.EncodeToString([]byte(info.Username))
 	password := base64.StdEncoding.EncodeToString([]byte(info.Password))
 
-	_, err = w.WriteString(username + ";" + password)
+	_, err = w.WriteString(username + Delimiter + password)
 	if err != nil {
-		return errors.New("在写入配置时出错")
+		return errors.New(ErrorSaveUserInfo)
 	}
 	_ = w.Flush()
 
-	fmt.Println("存储用户配置成功")
+	// 输出成功提示
+	fmt.Println(InfoSaveUserInfoSuccess)
 	return nil
 }
 
+// 获取配置文件路径
 func getPath(path string) (string, error) {
+	// 若路径为空则使用默认路径
 	if path == "" {
 		homeDir, err := Home()
 		if err != nil {
@@ -107,10 +116,12 @@ func getPath(path string) (string, error) {
 		path = homeDir + string(os.PathSeparator) + ".ipgw"
 	}
 
+	// 确保路径存在
 	MustExist(path)
 	return path, nil
 }
 
+// 解析已用流量数
 func getUsedFlux(flux int) string {
 	if flux > 1000*1000 {
 		return fmt.Sprintf("%.2f M", float64(flux)/(1000*1000))
@@ -118,9 +129,10 @@ func getUsedFlux(flux int) string {
 	if flux > 1000 {
 		return fmt.Sprintf("%.2f K", float64(flux)/1000)
 	}
-	return fmt.Sprintf("%.2f b", flux)
+	return fmt.Sprintf("%d b", flux)
 }
 
+// 解析已使用时长
 func getUsedTime(time int) string {
 	h := time / 3600
 	m := (time % 3600) / 60

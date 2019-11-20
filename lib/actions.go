@@ -1,3 +1,5 @@
+// 所有的网关操作都在这里实现
+
 package lib
 
 import (
@@ -17,6 +19,7 @@ var (
 	o sync.Once
 )
 
+// 单例获取client对象
 func getClient() *http.Client {
 	o.Do(func() {
 		c = &http.Client{}
@@ -27,6 +30,7 @@ func getClient() *http.Client {
 	return c
 }
 
+// 提供网关登陆操作，挂载IP, SID信息
 func Login(userInfo *UserInfo) error {
 	client := getClient()
 
@@ -95,6 +99,7 @@ func Login(userInfo *UserInfo) error {
 	return nil
 }
 
+// 提供网关信息查询操作，挂载Balance, Used, Time信息
 func GetAccountInfo(userInfo *UserInfo) error {
 	// 检查是否登陆
 	if userInfo.IP == "" {
@@ -117,7 +122,6 @@ func GetAccountInfo(userInfo *UserInfo) error {
 
 	// 发送请求
 	resp, err := client.Do(req)
-	// 发送请求
 	if err != nil {
 		return errors.New(ErrorCheckConnect)
 	}
@@ -136,5 +140,45 @@ func GetAccountInfo(userInfo *UserInfo) error {
 	userInfo.Time, err = strconv.Atoi(split[1])
 	userInfo.Balance, err = strconv.ParseFloat(split[2], 64)
 
+	return nil
+}
+
+// 提供网关登出操作（将当前SID转发到KickOut进行操作
+func Logout(userInfo *UserInfo) error {
+	// 判断是否已经登陆
+	if userInfo.SID == "" {
+		return errors.New(ErrorNotLoginYet)
+	}
+
+	return KickOut(userInfo.SID)
+}
+
+// 提供踢指定设备下线操作
+func KickOut(SID string) error {
+	// 获取client
+	client := getClient()
+
+	// 构造请求
+	url := "https://ipgw.neu.edu.cn/srun_cas.php"
+	data := "action=dm&sid=" + SID
+	req, _ := http.NewRequest("POST", url, strings.NewReader(data))
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Host", "ipgw.neu.edu.cn")
+	req.Header.Set("Origin", " https://ipgw.neu.edu.cn")
+	req.Header.Set("Referer", "https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
+
+	// 发送请求
+	resp, err := client.Do(req)
+	if err != nil {
+		return errors.New(ErrorCheckConnect)
+	}
+
+	res, err := ioutil.ReadAll(resp.Body)
+	_ = resp.Body.Close()
+	body := string(res)
+
+	if body != "下线请求已发送" {
+		return errors.New(ErrorLogoutFail)
+	}
 	return nil
 }

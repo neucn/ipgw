@@ -1,3 +1,5 @@
+// 提供了命令行交互到网关操作的转发与封装
+
 package lib
 
 import (
@@ -6,6 +8,7 @@ import (
 	"runtime"
 )
 
+// 指定用户名、密码登陆
 func LoginUP(userInfo *UserInfo, username, password string) error {
 	userInfo.Username = username
 	userInfo.Password = password
@@ -13,6 +16,7 @@ func LoginUP(userInfo *UserInfo, username, password string) error {
 	return login(userInfo)
 }
 
+// 使用配置文件登陆
 func LoginINI(userInfo *UserInfo, path string) error {
 	err := LoadBaseInfo(userInfo, path)
 	if err != nil {
@@ -23,8 +27,28 @@ func LoginINI(userInfo *UserInfo, path string) error {
 	return login(userInfo)
 }
 
+// 指定用户名、密码登出
+func LogoutUP(userInfo *UserInfo, username, password string) error {
+	userInfo.Username = username
+	userInfo.Password = password
+
+	return logout(userInfo)
+}
+
+// 使用配置文件登出
+func LogoutINI(userInfo *UserInfo, path string) error {
+	err := LoadBaseInfo(userInfo, path)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	return logout(userInfo)
+}
+
+// 包装Login，并加入GetAccountInfo
 func login(userInfo *UserInfo) error {
-	fmt.Println(userInfo.Username + ", 开始登陆...")
+	fmt.Printf(InfoBeginLogin, userInfo.Username)
 	err := Login(userInfo)
 
 	if err != nil {
@@ -38,13 +62,39 @@ func login(userInfo *UserInfo) error {
 		return errors.New(ErrorFetchInfoFail)
 	}
 
-	fmt.Println(userInfo.Username + ", 登陆成功！")
+	fmt.Printf(InfoLoginSuccess, userInfo.Username)
+
+	// 输出用户信息
+	userInfo.Print()
 	return nil
 }
 
+// 包装Logout
+func logout(userInfo *UserInfo) error {
+	fmt.Printf(InfoBeginLogout, userInfo.Username)
+	// 先登陆
+	err := Login(userInfo)
+	if err != nil {
+		fmt.Println(err)
+		return errors.New(ErrorLoginFail)
+	}
+
+	// 再登出
+	err = Logout(userInfo)
+
+	if err != nil {
+		fmt.Println(err)
+		return errors.New(ErrorLogoutFail)
+	}
+
+	fmt.Printf(InfoLogoutSuccess, userInfo.Username)
+	return nil
+}
+
+// 提供pause
 func Pause() {
 	if runtime.GOOS == "windows" {
-		fmt.Println("请输入回车退出...")
+		fmt.Println(InfoPause)
 		_, _ = fmt.Scanln()
 	}
 }
