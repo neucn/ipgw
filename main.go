@@ -31,7 +31,7 @@ func init() {
 	flag.StringVar(&u, "u", "", "`username`")
 	flag.StringVar(&p, "p", "", "`password`")
 	flag.StringVar(&i, "i", "", "`path` to configuration file, default is %USER_PROFILE%/.ipgw")
-	flag.StringVar(&k, "k", "", "kick out the specific device")
+	flag.StringVar(&k, "k", "", "kick out the specific device by `sid`")
 
 	flag.Usage = usage
 }

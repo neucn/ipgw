@@ -55,6 +55,8 @@ Options:
   -h    show help info
   -i path
         path to configuration file, default is %USER_PROFILE%/.ipgw
+  -k sid
+        kick out the specific device by sid
   -o    log out
   -p password
         password
