@@ -9,7 +9,7 @@ import (
 )
 
 // 指定用户名、密码登陆
-func LoginUP(userInfo *UserInfo, username, password string) error {
+func ILoginUP(userInfo *UserInfo, username, password string) error {
 	userInfo.Username = username
 	userInfo.Password = password
 
@@ -17,7 +17,7 @@ func LoginUP(userInfo *UserInfo, username, password string) error {
 }
 
 // 使用配置文件登陆
-func LoginINI(userInfo *UserInfo, path string) error {
+func ILoginINI(userInfo *UserInfo, path string) error {
 	err := LoadBaseInfo(userInfo, path)
 	if err != nil {
 		fmt.Println(err)
@@ -28,7 +28,7 @@ func LoginINI(userInfo *UserInfo, path string) error {
 }
 
 // 指定用户名、密码登出
-func LogoutUP(userInfo *UserInfo, username, password string) error {
+func ILogoutUP(userInfo *UserInfo, username, password string) error {
 	userInfo.Username = username
 	userInfo.Password = password
 
@@ -36,7 +36,7 @@ func LogoutUP(userInfo *UserInfo, username, password string) error {
 }
 
 // 使用配置文件登出
-func LogoutINI(userInfo *UserInfo, path string) error {
+func ILogoutINI(userInfo *UserInfo, path string) error {
 	err := LoadBaseInfo(userInfo, path)
 	if err != nil {
 		fmt.Println(err)
@@ -44,6 +44,17 @@ func LogoutINI(userInfo *UserInfo, path string) error {
 	}
 
 	return logout(userInfo)
+}
+
+func IKickOut(sid string) error {
+	err := KickOut(sid)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	fmt.Printf(InfoKickOutSuccess, sid)
+	return nil
 }
 
 // 包装Login，并加入GetAccountInfo

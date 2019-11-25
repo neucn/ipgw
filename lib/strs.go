@@ -27,11 +27,12 @@ const (
 	InfoSaveUserInfoSuccess = "存储用户配置成功"
 
 	// 2.2 流程
-	InfoBeginLogin    = "%s, 开始登陆...\n"
-	InfoLoginSuccess  = "%s, 登陆成功！\n"
-	InfoBeginLogout   = "%s, 开始登出...\n"
-	InfoLogoutSuccess = "%s, 登出成功！\n"
-	InfoPause         = "请输入回车退出..."
+	InfoBeginLogin     = "%s, 开始登陆...\n"
+	InfoLoginSuccess   = "%s, 登陆成功！\n"
+	InfoBeginLogout    = "%s, 开始登出...\n"
+	InfoLogoutSuccess  = "%s, 登出成功！\n"
+	InfoKickOutSuccess = "%s, 下线成功\n"
+	InfoPause          = "请输入回车退出..."
 
 	// 0.Other
 	Title     = "IPGW Tool"

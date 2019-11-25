@@ -12,8 +12,8 @@
 - [x] Login
 - [x] Account Base Info Fetch
 - [x] Logout
+- [x] Kick out
 - [ ] Account More Info Fetch
-- [ ] Kick Off
 - [ ] Multi-user Toggle
 - [ ] Traffic Monitor
 - [ ] Fail Detail
@@ -82,5 +82,11 @@ Options:
 - Use `ipgw -u username -p password -o` to logout
 
 - If you have saved username and password then you can just use `ipgw -o` or `ipgw -o -i path/to/config` to logout
+
+### Kick out
+
+- Use `ipgw -k sid` to kick out specify device
+
+- WARNING: It can be used to kick out everyone's device without any validation, the user shall be responsible for any consequences
 
 ### More to be done
