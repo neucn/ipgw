@@ -1,6 +1,4 @@
-// 这里提供了UserInfo结构体以及与其相关的方法
-
-package lib
+package info
 
 import (
 	"bufio"
@@ -8,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"ipgw/base/file"
 	"os"
 	"strings"
 )
@@ -35,6 +34,26 @@ func (i *UserInfo) Print() {
 			"==========================")
 }
 
+// 解析已用流量数
+func getUsedFlux(flux int) string {
+	if flux > 1000*1000 {
+		return fmt.Sprintf("%.2f M", float64(flux)/(1000*1000))
+	}
+	if flux > 1000 {
+		return fmt.Sprintf("%.2f K", float64(flux)/1000)
+	}
+	return fmt.Sprintf("%d b", flux)
+}
+
+// 解析已使用时长
+func getUsedTime(time int) string {
+	h := time / 3600
+	m := (time % 3600) / 60
+	s := time % 3600 % 60
+
+	return fmt.Sprintf("%d:%02d:%02d", h, m, s)
+}
+
 // 从配置文件中解析出用户配置
 func LoadBaseInfo(info *UserInfo, path string) error {
 	fmt.Println(InfoLoadUserInfo)
@@ -56,7 +75,7 @@ func LoadBaseInfo(info *UserInfo, path string) error {
 	content := string(bytes)
 
 	// 分割
-	split := strings.Split(content, Delimiter)
+	split := strings.Split(content, file.Delimiter)
 	if len(split) != 2 {
 		return errors.New(ErrorUserInfoFormat)
 	}
@@ -94,7 +113,7 @@ func SaveBaseInfo(info *UserInfo, path string) error {
 	username := base64.StdEncoding.EncodeToString([]byte(info.Username))
 	password := base64.StdEncoding.EncodeToString([]byte(info.Password))
 
-	_, err = w.WriteString(username + Delimiter + password)
+	_, err = w.WriteString(username + file.Delimiter + password)
 	if err != nil {
 		return errors.New(ErrorSaveUserInfo)
 	}
@@ -109,7 +128,7 @@ func SaveBaseInfo(info *UserInfo, path string) error {
 func getPath(path string) (string, error) {
 	// 若路径为空则使用默认路径
 	if path == "" {
-		homeDir, err := Home()
+		homeDir, err := file.Home()
 		if err != nil {
 			return "", err
 		}
@@ -117,26 +136,6 @@ func getPath(path string) (string, error) {
 	}
 
 	// 确保路径存在
-	MustExist(path)
+	file.MustExist(path)
 	return path, nil
-}
-
-// 解析已用流量数
-func getUsedFlux(flux int) string {
-	if flux > 1000*1000 {
-		return fmt.Sprintf("%.2f M", float64(flux)/(1000*1000))
-	}
-	if flux > 1000 {
-		return fmt.Sprintf("%.2f K", float64(flux)/1000)
-	}
-	return fmt.Sprintf("%d b", flux)
-}
-
-// 解析已使用时长
-func getUsedTime(time int) string {
-	h := time / 3600
-	m := (time % 3600) / 60
-	s := time % 3600 % 60
-
-	return fmt.Sprintf("%d:%02d:%02d", h, m, s)
 }

@@ -1,6 +1,4 @@
-// 工具函数库
-
-package lib
+package file
 
 import (
 	"bytes"
@@ -10,6 +8,10 @@ import (
 	"os/user"
 	"runtime"
 	"strings"
+)
+
+var (
+	Delimiter = ";"
 )
 
 // 获取用户目录路径
