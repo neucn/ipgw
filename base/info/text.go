@@ -1,13 +1,13 @@
 package info
 
 var (
-	ErrorGetPath        = "在获取环境时出错"
-	ErrorLoadUserInfo   = "配置文件读取失败"
-	ErrorOpenUserInfo   = "配置文件打开失败"
-	ErrorSaveUserInfo   = "在写入配置时出错"
-	ErrorUserInfoFormat = "配置文件格式不正确"
+	errorGetPath    = "在获取环境时出错"
+	errorLoadInfo   = "配置文件读取失败"
+	errorOpenFile   = "配置文件打开失败"
+	errorSaveInfo   = "在写入配置时出错"
+	errorInfoFormat = "配置文件格式不正确，请尝试使用 ipgw fix 修复"
 
-	InfoLoadUserInfo        = "读取用户配置中..."
-	InfoSaveUserInfo        = "存储用户配置中..."
-	InfoSaveUserInfoSuccess = "存储用户配置成功"
+	tipLoadInfo     = "读取用户中..."
+	tipSaveInfo     = "存储用户中..."
+	successSaveInfo = "存储用户成功"
 )

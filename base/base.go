@@ -3,6 +3,7 @@ package base
 import (
 	"flag"
 	"fmt"
+	"ipgw/base/cfg"
 	"ipgw/base/str"
 	"ipgw/text"
 	"log"
@@ -42,7 +43,7 @@ type Command struct {
 
 var IPGW = &Command{
 	UsageLine: "ipgw",
-	Long:      fmt.Sprintf("IPGW Tool - 东北大学校园网关客户端\n版本: %s\n", text.Version),
+	Long:      fmt.Sprintf("IPGW Tool - 东北大学校园网关客户端\n版本: %s\n", cfg.Version),
 	// Commands initialized in package main
 }
 

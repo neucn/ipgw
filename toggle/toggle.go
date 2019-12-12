@@ -1,6 +1,8 @@
 package toggle
 
-import "ipgw/base"
+import (
+	"ipgw/base"
+)
 
 var CmdToggle = &base.Command{
 	UsageLine: "ipgw toggle [id | no.] [-v full view]",

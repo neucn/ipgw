@@ -11,11 +11,27 @@ import (
 )
 
 var (
-	Delimiter = ";"
+	Delimiter = ":"
 )
 
+// 获取配置文件路径
+func GetPath(path string) (string, error) {
+	// 若路径为空则使用默认路径
+	if path == "" {
+		homeDir, err := home()
+		if err != nil {
+			return "", err
+		}
+		path = homeDir + string(os.PathSeparator) + ".ipgw"
+	}
+
+	// 确保路径存在
+	mustExist(path)
+	return path, nil
+}
+
 // 获取用户目录路径
-func Home() (string, error) {
+func home() (string, error) {
 	usr, err := user.Current()
 	if nil == err {
 		return usr.HomeDir, nil
@@ -68,7 +84,7 @@ func homeWindows() (string, error) {
 }
 
 // 确保路径存在
-func MustExist(path string) {
+func mustExist(path string) {
 	file, err := os.Open(path)
 	defer func() { _ = file.Close() }()
 	if err != nil && os.IsNotExist(err) {

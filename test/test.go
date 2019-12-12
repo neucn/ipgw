@@ -13,8 +13,6 @@ var CmdTest = &base.Command{
 
   ipgw test
     测试是否连接校园网
-  ipgw test speed
-    校园网测速
   ipgw test -v
     测试是否连接校园网并输出详细中间信息
 `,
@@ -24,12 +22,8 @@ func init() {
 	CmdTest.Flag.BoolVar(&cfg.FullView, "v", false, "")
 
 	CmdTest.Run = runTest
-
-	CmdTest.Commands = []*base.Command{
-		CmdTestSpeed,
-	}
 }
 
 func runTest(cmd *base.Command, args []string) {
-
+	testImpl()
 }
