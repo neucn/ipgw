@@ -1,6 +1,6 @@
 BUILD_ENV := CGO_ENABLED=0
 BUILD=`date +%FT%T%z`
-LDFLAGS=-ldflags "-w -s -X main.Version=${VERSION} -X main.Build=${BUILD}"
+LDFLAGS=-ldflags "-w -s -X ipgw/base/cfg.Version=${VERSION} -X ipgw/base/cfg.Build=${BUILD}"
 
 TARGET_EXEC := ipgw
 

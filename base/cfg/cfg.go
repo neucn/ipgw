@@ -2,9 +2,9 @@ package cfg
 
 // These are flags used by many commands.
 var (
-	Version string = "v0.1.0"
+	Version string
 
-	CmdName string // "build", "install", "list", "mod tidy", etc.
+	CmdName string
 
-	FullView bool // print details
+	FullView bool
 )
