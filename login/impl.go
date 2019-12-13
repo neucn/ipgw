@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"ipgw/base/cfg"
 	"ipgw/base/ctx"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
@@ -218,4 +219,61 @@ func getDevice(name string, x *ctx.Ctx) {
 	}
 
 	x.UA = ua
+}
+
+func printNetInfo(x *ctx.Ctx) {
+	if cfg.FullView {
+		fmt.Println("获取账号信息中...")
+	}
+
+	// 检查是否登陆
+	if x.Net.IP == "" {
+		fmt.Println("登陆状态异常")
+		return
+	}
+
+	// 获取client实例
+	client := ctx.GetClient()
+
+	// 构造请求
+	k := strconv.Itoa(rand.Intn(100000 + 1))
+	data := "action=get_online_info&key=" + k
+
+	req, _ := http.NewRequest("POST", "https://ipgw.neu.edu.cn/include/auth_action.php?k="+k, strings.NewReader(data))
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+	req.Header.Add("Host", "pass.neu.edu.cn")
+	req.Header.Add("Origin", "https://pass.neu.edu.cn")
+	req.Header.Add("Referer", "https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
+
+	// 发送请求
+	resp, err := client.Do(req)
+	if err != nil {
+		if cfg.FullView {
+			fmt.Fprintf(os.Stderr, "遇到异常: %s\n", err)
+			return
+		}
+		fmt.Println("请检查网络连接")
+		return
+	}
+
+	// 读取响应内容
+	res, err := ioutil.ReadAll(resp.Body)
+	_ = resp.Body.Close()
+	body := string(res)
+
+	// 解析响应
+	split := strings.Split(body, ",")
+	if len(split) != 6 {
+		fmt.Println("登陆状态异常")
+		return
+	}
+	x.Net.Used, err = strconv.Atoi(split[0])
+	x.Net.Time, err = strconv.Atoi(split[1])
+	x.Net.Balance, err = strconv.ParseFloat(split[2], 64)
+
+	if cfg.FullView {
+		fmt.Println("获取信息成功")
+	}
+
+	x.Net.Print()
 }

@@ -12,7 +12,7 @@ import (
 var (
 	u, p, c, d string
 
-	s bool
+	s, i bool
 )
 
 func init() {
@@ -22,13 +22,14 @@ func init() {
 	CmdLogin.Flag.StringVar(&d, "d", "", "")
 
 	CmdLogin.Flag.BoolVar(&s, "s", false, "")
+	CmdLogin.Flag.BoolVar(&i, "i", false, "")
 	CmdLogin.Flag.BoolVar(&cfg.FullView, "v", false, "")
 
 	CmdLogin.Run = runLogin
 }
 
 var CmdLogin = &base.Command{
-	UsageLine: "ipgw login [-u username] [-p password] [-s save] [-c cookie] [-v full view] ",
+	UsageLine: "ipgw login [-u username] [-p password] [-s save] [-c cookie] [-d device] [-i info] [-v full view] ",
 	Short:     "基础登陆",
 	Long: `提供登陆校园网关功能
   -u    登陆账户
@@ -36,6 +37,7 @@ var CmdLogin = &base.Command{
   -s    保存该账户
   -c    使用cookie登陆
   -d	使用指定设备信息
+  -i	登陆后输出账号信息
   -v    输出所有中间信息
 
   ipgw login -u 学号 -p 密码
@@ -50,6 +52,8 @@ var CmdLogin = &base.Command{
     使用指定cookie登陆
   ipgw login -d android
     使用指定设备信息登陆，可选的有win linux osx，默认使用匿名设备信息
+  ipgw login -i
+    登陆成功后输出账号信息，包括账户余额、已使用时长、已使用流量等
   ipgw login [arguments] -v
     打印登陆过程中的每一步信息
 `,
@@ -83,6 +87,12 @@ func runLogin(cmd *base.Command, args []string) {
 		x.User.Load(".ipgw")
 		loginWithUP(x)
 	}
+
+	// 当直接ipgw进来的args是nil
+	if i || args == nil {
+		printNetInfo(x)
+	}
+
 	if s {
 		// todo 后期加上指定配置文件路径的功能
 		// todo 为方便测试，指定路径为当前目录

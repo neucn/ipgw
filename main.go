@@ -39,7 +39,7 @@ func main() {
 
 	args := flag.Args()
 	if len(args) < 1 {
-		login.CmdLogin.Run(login.CmdLogin, []string{})
+		login.CmdLogin.Run(login.CmdLogin, nil)
 		os.Exit(2)
 	}
 
