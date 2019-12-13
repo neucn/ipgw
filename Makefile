@@ -8,6 +8,8 @@ TARGET_EXEC := ipgw
 
 all: clean setup build-linux build-osx build-windows
 
+release: all pack-linux pack-osx pack-windows
+
 clean:
 	rm -rf build
 
@@ -31,3 +33,12 @@ build-osx: setup-osx
 
 build-windows: setup-windows
 	${BUILD_ENV} GOARCH=amd64 GOOS=windows go build ${LDFLAGS} -o build/windows/${TARGET_EXEC}.exe
+
+pack-linux:
+	upx build/linux/${TARGET_EXEC}
+
+pack-osx:
+	upx build/osx/${TARGET_EXEC}
+
+pack-windows:
+	upx build/windows/${TARGET_EXEC}.exe
