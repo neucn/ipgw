@@ -13,7 +13,7 @@ func testImpl() {
 	client.Timeout = time.Second
 
 	if cfg.FullView {
-		fmt.Println(testNetTip)
+		fmt.Println(tipTestNet)
 	}
 
 	// 测试是否连接上校园网
@@ -25,21 +25,21 @@ func testImpl() {
 		}
 		if strings.Contains(err.Error(), "no such host") {
 			// 没有联网
-			fmt.Println(testNoInternet)
+			fmt.Println(errNoInternet)
 			return
 		} else if strings.Contains(err.Error(), "Client.Timeout") {
 			// 没有连校园网
-			fmt.Println(testNotConnect)
+			fmt.Println(tipNotConnect)
 			return
 		}
-		fmt.Printf(testUnexpectedErr, err)
+		fmt.Printf(errUnexpected, err)
 		return
 	}
 
-	fmt.Println(testConnected)
+	fmt.Println(tipConnected)
 
 	if cfg.FullView {
-		fmt.Println(testLoggedTip)
+		fmt.Println(tipTestLogin)
 	}
 
 	// 测试是否登陆校园网
@@ -52,12 +52,12 @@ func testImpl() {
 		// todo 还有可能证书错误，再观望观望
 		if strings.Contains(err.Error(), "Client.Timeout") {
 			// 未登陆
-			fmt.Println(testNotLoggedIn)
+			fmt.Println(tipNotLoggedIn)
 			return
 		}
-		fmt.Printf(testUnexpectedErr, err)
+		fmt.Printf(errUnexpected, err)
 		return
 	}
 
-	fmt.Println(testLoggedIn)
+	fmt.Println(tipLoggedIn)
 }
