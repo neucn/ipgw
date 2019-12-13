@@ -11,12 +11,13 @@ type NetInfo struct {
 }
 
 func (i *NetInfo) Print() {
-	fmt.Println(
-		"IP: \t\t" + i.IP + "\n" +
-			"SID: \t\t" + i.SID + "\n" +
-			"Balance: \t" + fmt.Sprintf("%.2f", i.Balance) + " RMB\n" +
-			"Used: \t\t" + getUsedFlux(i.Used) + "\n" +
-			"Time: \t\t" + getUsedTime(i.Time) + "\n")
+	fmt.Print(
+		"\n========信息========\n" +
+			"IP: \t" + i.IP + "\n" +
+			"SID: \t" + i.SID + "\n" +
+			"余额: \t" + fmt.Sprintf("%.2f", i.Balance) + " 元\n" +
+			"流量: \t" + getUsedFlux(i.Used) + "\n" +
+			"时长: \t" + getUsedTime(i.Time) + "\n")
 }
 
 // 解析已用流量数
