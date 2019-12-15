@@ -1,4 +1,4 @@
-package login
+package logout
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-func loginWithUP(x *ctx.Ctx) {
+func logoutWithUP(x *ctx.Ctx) {
 	client := ctx.GetClient()
 
 	fmt.Printf(tipBeginWithUP, x.User.Username)
@@ -65,7 +65,7 @@ func loginWithUP(x *ctx.Ctx) {
 	}
 
 	if cfg.FullView {
-		fmt.Println(tipRequest)
+		fmt.Println(tipGetSID)
 	}
 
 	// 发送请求
@@ -87,31 +87,43 @@ func loginWithUP(x *ctx.Ctx) {
 	// 读取IP与SID
 	ok := share.GetSIDAndIP(body, x)
 	if !ok {
-		fmt.Fprintln(os.Stderr, wrongUOrP)
 		os.Exit(2)
 	}
 
-	cookie := client.Jar.Cookies(&url.URL{
-		Scheme: "https",
-		Host:   "ipgw.neu.edu.cn",
-	})
-
-	if len(cookie) == 0 {
-		fmt.Fprintln(os.Stderr, failGetCookie)
-	} else {
-		x.User.Cookie = cookie[0]
+	resp, err = share.Kick(x.Net.SID)
+	if err != nil {
 		if cfg.FullView {
-			fmt.Printf(successGetCookie, x.User.Cookie.Value)
+			fmt.Fprintf(os.Stderr, errWhenRequest, err)
 		}
+		fmt.Fprintln(os.Stderr, errNetwork)
+		os.Exit(2)
 	}
 
-	fmt.Printf(successLogin, x.User.Username)
+	res, err = ioutil.ReadAll(resp.Body)
+	_ = resp.Body.Close()
+	body = string(res)
+
+	if cfg.FullView {
+		fmt.Println(body)
+	}
+
+	if body != "下线请求已发送" {
+		fmt.Fprintf(os.Stderr, failLogout, x.Net.SID)
+		os.Exit(2)
+	}
+
+	fmt.Printf(successLogout, x.User.Username)
 }
 
-func loginWithC(x *ctx.Ctx) {
+func logoutWithC(x *ctx.Ctx) (ok bool) {
 	client := ctx.GetClient()
 
-	fmt.Printf(tipBeginWithC, x.User.Cookie.Value)
+	if cfg.FullView {
+		fmt.Printf("正在使用Cookie登出 %s\n", x.User.Cookie.Value)
+		fmt.Println("获取必要参数中...")
+	} else {
+		fmt.Println("正在尝试使用Cookie登出...")
+	}
 
 	// 请求获得必要参数
 	client.Jar.SetCookies(&url.URL{
@@ -119,24 +131,10 @@ func loginWithC(x *ctx.Ctx) {
 		Host:   "ipgw.neu.edu.cn",
 	}, []*http.Cookie{x.User.Cookie})
 
-	if cfg.FullView {
-		fmt.Println(tipRequest)
-	}
-
-	var resp *http.Response
-	var err error
-
-	if x.UA == "" {
-		resp, err = client.Get("https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
-	} else {
-		req, _ := http.NewRequest("GET", "https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1", nil)
-		req.Header.Add("User-Agent", x.UA)
-
-		resp, err = client.Do(req)
-	}
+	resp, err := client.Get("https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, errWhenRequest, err)
+		fmt.Fprintf(os.Stderr, "发送请求时错误: %v\n", err)
 		os.Exit(2)
 	}
 
@@ -151,20 +149,71 @@ func loginWithC(x *ctx.Ctx) {
 
 	if len(username) == 0 {
 		fmt.Fprintln(os.Stderr, failCookieExpired)
-		os.Exit(2)
+		return false
 	} else {
 		x.User.Username = username[0][1]
 		if cfg.FullView {
-			fmt.Printf(successGetUsername, x.User.Username)
+			fmt.Printf("成功获得学号: %s\n", x.User.Username)
 		}
 	}
 
-	// 读取IP与SID
-	ok := share.GetSIDAndIP(body, x)
-	if !ok {
-		os.Exit(2)
+	share.GetSIDAndIP(body, x)
+
+	if cfg.FullView {
+		fmt.Println("发送登出请求中...")
 	}
 
-	fmt.Printf(successLogin, x.User.Username)
+	resp, err = share.Kick(x.Net.SID)
 
+	if err != nil {
+		if cfg.FullView {
+			fmt.Fprintf(os.Stderr, errWhenRequest, err)
+		}
+		fmt.Fprintln(os.Stderr, errNetwork)
+		return
+	}
+
+	res, err = ioutil.ReadAll(resp.Body)
+	_ = resp.Body.Close()
+	body = string(res)
+
+	if cfg.FullView {
+		fmt.Println(body)
+	}
+
+	if body != "下线请求已发送" {
+		fmt.Fprintf(os.Stderr, failLogout, x.Net.SID)
+		return false
+	}
+
+	fmt.Printf(successLogout, x.User.Username)
+	return true
+}
+
+// Deprecated
+// 无法判断是否正确退出
+func _logoutWithC(x *ctx.Ctx) {
+	client := ctx.GetClient()
+
+	fmt.Printf("正在使用Cookie登出 %s\n", x.User.Cookie.Value)
+
+	// 请求获得必要参数
+	client.Jar.SetCookies(&url.URL{
+		Scheme: "https",
+		Host:   "ipgw.neu.edu.cn",
+	}, []*http.Cookie{x.User.Cookie})
+
+	if cfg.FullView {
+		fmt.Println("发送登出请求中...")
+	}
+
+	resp, err := client.Get("https://ipgw.neu.edu.cn/srun_cas.php?logout")
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "登出时遇到意外错误: %s", err)
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		fmt.Printf("登出成功")
+	}
 }

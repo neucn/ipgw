@@ -65,7 +65,7 @@ func (i *UserInfo) Load(path string) {
 	password, err := base64.StdEncoding.DecodeString(split[1])
 	i.Password = string(password)
 
-	cookie, err := base64.StdEncoding.DecodeString(split[2])
+	cookie := split[2]
 	i.Cookie = &http.Cookie{
 		Name:   "session_for%3Asrun_cas_php",
 		Value:  string(cookie),

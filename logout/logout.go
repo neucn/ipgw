@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"ipgw/base"
 	"ipgw/base/cfg"
+	"ipgw/base/ctx"
+	"net/http"
+	"os"
 )
 
 var (
@@ -48,5 +51,34 @@ func init() {
 }
 
 func runLogout(cmd *base.Command, args []string) {
-	fmt.Println(u, p, c)
+	x := ctx.GetCtx()
+
+	if len(u) > 0 {
+		if len(p) == 0 {
+			fmt.Fprint(os.Stderr, mustUsePWhenUseU)
+			return
+		}
+		x.User.Username = u
+		x.User.Password = p
+		logoutWithUP(x)
+	} else if len(c) > 0 {
+		x.User.Cookie = &http.Cookie{
+			Name:   "session_for%3Asrun_cas_php",
+			Value:  c,
+			Domain: "ipgw.neu.edu.cn",
+		}
+		ok := logoutWithC(x)
+		if !ok {
+			os.Exit(2)
+		}
+	} else {
+		x.User.Load(".ipgw")
+		// 这就要求不能直接在方法里os.Exit()了
+		ok := logoutWithC(x)
+		if ok {
+			return
+		}
+		// 若cookie失效，则使用手动
+		logoutWithUP(x)
+	}
 }

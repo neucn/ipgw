@@ -5,6 +5,7 @@ import (
 	"ipgw/base"
 	"ipgw/base/cfg"
 	"ipgw/base/ctx"
+	"ipgw/base/share"
 	"net/http"
 	"os"
 )
@@ -66,7 +67,7 @@ func init() {
 func runLogin(cmd *base.Command, args []string) {
 	x := ctx.GetCtx()
 
-	getDevice(d, x)
+	share.GetDevice(d, x)
 
 	if len(u) > 0 {
 		if len(p) == 0 {
@@ -90,7 +91,7 @@ func runLogin(cmd *base.Command, args []string) {
 
 	// 当直接ipgw进来的args是nil
 	if i || args == nil {
-		printNetInfo(x)
+		share.PrintNetInfo(x)
 	}
 
 	if s {
