@@ -1,4 +1,4 @@
-package info
+package ctx
 
 var (
 	errorGetPath    = "在获取环境时出错"

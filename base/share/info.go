@@ -86,7 +86,7 @@ func PrintNetInfo(x *ctx.Ctx) {
 
 	// 检查是否登陆
 	if x.Net.IP == "" {
-		fmt.Println(errState)
+		fmt.Fprintln(os.Stderr, errState)
 		return
 	}
 
@@ -122,7 +122,7 @@ func PrintNetInfo(x *ctx.Ctx) {
 	// 解析响应
 	split := strings.Split(body, ",")
 	if len(split) != 6 {
-		fmt.Println(errState)
+		fmt.Fprintln(os.Stderr, errState)
 		return
 	}
 	x.Net.Used, err = strconv.Atoi(split[0])

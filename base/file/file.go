@@ -11,7 +11,8 @@ import (
 )
 
 var (
-	Delimiter = ":"
+	LineDelimiter = "\n"
+	PartDelimiter = ":"
 )
 
 // 获取配置文件路径

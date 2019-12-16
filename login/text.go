@@ -14,7 +14,8 @@ var (
 	failGetCookie     = "获取Cookie失败"
 	failCookieExpired = "Cookie已失效"
 
-	wrongUOrP = "学号或密码错误，请重试"
+	wrongUOrP       = "学号或密码错误，请重试"
+	noStoredAccount = "没有已保存的可用账号"
 
 	successGetLT       = "获取参数成功\t: %s\n"
 	successGetCookie   = "获取Cookie成功\t: %s\n"

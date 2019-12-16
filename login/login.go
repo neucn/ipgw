@@ -85,7 +85,10 @@ func runLogin(cmd *base.Command, args []string) {
 		}
 		loginWithC(x)
 	} else {
-		x.User.Load(".ipgw")
+		x.Load(".ipgw")
+		if x.User.Username == "" {
+			fmt.Fprint(os.Stderr, noStoredAccount)
+		}
 		loginWithUP(x)
 	}
 
@@ -98,10 +101,10 @@ func runLogin(cmd *base.Command, args []string) {
 		// todo 后期加上指定配置文件路径的功能
 		// todo 为方便测试，指定路径为当前目录
 		// 若s，把账号密码Cookie写进文件里
-		x.User.SaveAll(".ipgw")
+		x.SaveAll(".ipgw")
 	} else {
 		// 否则只写入Cookie
-		x.User.SaveC(".ipgw")
+		x.SaveC(".ipgw")
 	}
 
 }
