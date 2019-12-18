@@ -2,7 +2,6 @@ package kick
 
 import (
 	"fmt"
-	"io/ioutil"
 	"ipgw/base/cfg"
 	"ipgw/base/share"
 	"os"
@@ -21,9 +20,7 @@ func kickWithSID(sid string) {
 		return
 	}
 
-	res, err := ioutil.ReadAll(resp.Body)
-	_ = resp.Body.Close()
-	body := string(res)
+	body := share.ReadBody(resp)
 
 	if cfg.FullView {
 		fmt.Println(body)

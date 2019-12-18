@@ -34,11 +34,12 @@ var CmdLogout = &base.Command{
   -c    使用cookie登出
   -v    输出所有中间信息
 
-  ipgw logout -u 学号 -p 密码
-    使用指定账号登出网关，必须和当前登陆账号相同
   ipgw logout
-    若已经使用-s保存了账户信息，且该账户就是当前登陆的账户，可直接登出
-    若没有使用-s保存账户信息，但本次登陆使用的是本工具，也可直接登出
+    若本次登陆是通过本工具，则直接登出
+    否则若已经使用-s保存了账户信息，将使用该账号登出
+    又若没有使用-s保存账户信息，但有未失效的Cookie，将使用Cookie登出
+  ipgw logout -u 学号 -p 密码
+    使用指定账号登出网关
   ipgw logout -c "ST-XXXXXX-XXXXXXXXXXXXXXXXXXXX-tpass"
     使用指定cookie登出
   ipgw logout [arguments] -v
@@ -72,13 +73,19 @@ func runLogout(cmd *base.Command, args []string) {
 			os.Exit(2)
 		}
 	} else {
-		x.User.Load(".ipgw")
+
+		x.Load(".ipgw")
 		// 这就要求不能直接在方法里os.Exit()了
 		ok := logoutWithC(x)
 		if ok {
 			return
 		}
-		// 若cookie失效，则使用手动
+
+		if x.User.Username == "" {
+			fmt.Fprint(os.Stderr, noStoredAccount)
+			os.Exit(2)
+		}
+		// 若cookie失效，则使用账号密码
 		logoutWithUP(x)
 	}
 }

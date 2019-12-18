@@ -88,6 +88,7 @@ func runLogin(cmd *base.Command, args []string) {
 		x.Load(".ipgw")
 		if x.User.Username == "" {
 			fmt.Fprint(os.Stderr, noStoredAccount)
+			os.Exit(2)
 		}
 		loginWithUP(x)
 	}

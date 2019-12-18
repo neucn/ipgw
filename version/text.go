@@ -1,7 +1,7 @@
 package version
 
 var (
-	tipQuery         = "获取最新版本信息中"
+	tipQuery         = "获取最新版本信息中..."
 	tipAlreadyLatest = "当前已是最新版本"
 	tipLatest        = "最新版本: %s\n"
 
@@ -18,8 +18,8 @@ var (
     [=]  状态持久化
   
   Logout
-    [ ]  基础登出
-    [ ]  Cookie登出
+    [=]  基础登出
+    [=]  Cookie登出
   
   List
     [ ]  账户信息
@@ -33,7 +33,7 @@ var (
     [ ]  基础切换
 
   Kick
-    [ ]  指定设备下线
+    [=]  指定设备下线
 
   Test
     [=]  校园网连通性测试

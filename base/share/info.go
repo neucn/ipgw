@@ -13,19 +13,17 @@ import (
 	"strings"
 )
 
-func GetSIDAndIP(body string, x *ctx.Ctx) (ok bool) {
+func GetIPAndSID(body string, x *ctx.Ctx) (ok bool) {
 	// 挂载IP信息
 	ipExp := regexp.MustCompile(`get_online_info\('(.+?)'\)`)
 	ip := ipExp.FindAllStringSubmatch(body, -1)
 
 	if len(ip) == 0 {
-		fmt.Fprintln(os.Stderr, errState)
 		return false
-	} else {
-		x.Net.IP = ip[0][1]
-		if cfg.FullView {
-			fmt.Printf(successGetIP, x.Net.IP)
-		}
+	}
+	x.Net.IP = ip[0][1]
+	if cfg.FullView {
+		fmt.Printf(successGetIP, x.Net.IP)
 	}
 
 	// 挂载SID信息
@@ -34,19 +32,50 @@ func GetSIDAndIP(body string, x *ctx.Ctx) (ok bool) {
 	sidExp := regexp.MustCompile(`background:lightgreen[\w\W]+?onclick="do_drop\('(\d+)'\)`)
 	sidList := sidExp.FindAllStringSubmatch(body, -1)
 	if len(sidList) < 1 {
-		fmt.Fprintln(os.Stderr, failGetSID)
-	} else {
-		sid := sidList[len(sidList)-1][1]
-		if sid == "" {
-			fmt.Fprintln(os.Stderr, failGetSID)
-		} else {
-			x.Net.SID = sid
-			if cfg.FullView {
-				fmt.Printf(successGetSID, x.Net.SID)
-			}
-		}
+		return false
 	}
+
+	x.Net.SID = sidList[0][1]
+	if cfg.FullView {
+		fmt.Printf(successGetSID, x.Net.SID)
+	}
+
 	return true
+}
+
+func GetIDAndSIDWhenCollision(body string) (id string, sid string) {
+	idExp := regexp.MustCompile(`aaa\n(\d+?)ccc`)
+	idList := idExp.FindAllStringSubmatch(body, -1)
+	if len(idList) < 1 {
+		return "", ""
+	}
+
+	id = idList[0][1]
+
+	sidExp := regexp.MustCompile(`btn-dark" href="javascript\(0\);" onclick="do_drop\('(\d+?)'\);`)
+	sidList := sidExp.FindAllStringSubmatch(body, -1)
+	if len(sidList) < 1 {
+		return id, ""
+	}
+
+	return id, sidList[0][1]
+}
+
+func GetTitle(body string) string {
+	titleExp := regexp.MustCompile(`<title>(.+?)</title>`)
+	title := titleExp.FindAllStringSubmatch(body, -1)
+	if len(title) < 1 {
+		fmt.Fprintln(os.Stderr, failGetResp)
+		os.Exit(2)
+	}
+
+	return title[0][1]
+}
+
+func ReadBody(resp *http.Response) (body string) {
+	res, _ := ioutil.ReadAll(resp.Body)
+	_ = resp.Body.Close()
+	return string(res)
 }
 
 func GetDevice(name string, x *ctx.Ctx) {
@@ -73,7 +102,7 @@ func GetDevice(name string, x *ctx.Ctx) {
 	//case "android":
 	//	ua = "Mozilla/5.0 (Linux; Android 8.0; DUK-AL20 Build/HUAWEIDUK-AL20; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 MQQBrowser/6.2 TBS/044353 Mobile Safari/537.36 MicroMessenger/6.7.3.1360(0x26070333) NetType/WIFI Language/zh_CN Process/tools"
 	default:
-		fmt.Printf(tipDeviceNotFound, name)
+		fmt.Printf(deviceNotFound, name)
 	}
 
 	x.UA = ua
@@ -81,7 +110,7 @@ func GetDevice(name string, x *ctx.Ctx) {
 
 func PrintNetInfo(x *ctx.Ctx) {
 	if cfg.FullView {
-		fmt.Println(tipGetInfo)
+		fmt.Println(gettingInfo)
 	}
 
 	// 检查是否登陆
@@ -105,19 +134,9 @@ func PrintNetInfo(x *ctx.Ctx) {
 
 	// 发送请求
 	resp, err := client.Do(req)
-	if err != nil {
-		if cfg.FullView {
-			fmt.Fprintf(os.Stderr, errUnexpected, err)
-			return
-		}
-		fmt.Println(errNetwork)
-		return
-	}
-
+	ErrWhenReqHandler(err)
 	// 读取响应内容
-	res, err := ioutil.ReadAll(resp.Body)
-	_ = resp.Body.Close()
-	body := string(res)
+	body := ReadBody(resp)
 
 	// 解析响应
 	split := strings.Split(body, ",")

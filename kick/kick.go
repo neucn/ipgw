@@ -33,7 +33,7 @@ func runKick(cmd *base.Command, args []string) {
 		return
 	}
 
-	pattern := "^\\d+$"
+	pattern := "^\\d{8}$"
 	for _, sid := range args {
 		matched, _ := regexp.MatchString(pattern, sid)
 		if len(sid) != 8 || !matched {

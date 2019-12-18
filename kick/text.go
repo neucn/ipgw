@@ -1,14 +1,14 @@
 package kick
 
 var (
-	wrongSIDFormat = "SID不正确: %s\n"
+	wrongSIDFormat = "SID不正确\t%s\n"
 
-	tipBeginKick = "强制 %s 下线中...\n"
+	tipBeginKick = "强制下线中...\t%s\n"
 	tipCheckNet  = "请检查网络连接"
 
-	errWhenKick = "下线时遇到错误: %s\n"
+	errWhenKick = "下线时遇到错误\t%s\n"
 
-	failKick = "强制 %s 下线失败\n"
+	failKick = "强制下线失败\t%s\n"
 
-	successKick = "强制 %s 下线成功\n"
+	successKick = "强制下线成功\t%s\n"
 )
