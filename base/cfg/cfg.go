@@ -8,5 +8,5 @@ var (
 
 	FullView bool
 
-	SavePath string = ".ipgw"
+	SavePath = ".ipgw"
 )

@@ -11,8 +11,6 @@ import (
 
 var (
 	u, p, c string
-
-	s bool
 )
 
 func init() {
@@ -29,15 +27,15 @@ var CmdLogout = &base.Command{
 	UsageLine: "ipgw logout [-u username] [-p password] [-c cookie] [-v full view]",
 	Short:     "基础登陆",
 	Long: `提供登出校园网关功能
-  -u    登出账户
+  -u    登出账号
   -p    登出密码
   -c    使用cookie登出
   -v    输出所有中间信息
 
   ipgw logout
     若本次登陆是通过本工具，则直接登出
-    否则若已经使用-s保存了账户信息，将使用该账号登出
-    又若没有使用-s保存账户信息，但有未失效的Cookie，将使用Cookie登出
+    若直接登出失败，且有未失效的Cookie，将使用Cookie登出
+    若Cookie登出失败，且已使用-s保存了账号信息，将使用该账号登出
   ipgw logout -u 学号 -p 密码
     使用指定账号登出网关
   ipgw logout -c "ST-XXXXXX-XXXXXXXXXXXXXXXXXXXX-tpass"
@@ -56,7 +54,7 @@ func runLogout(cmd *base.Command, args []string) {
 
 	if len(u) > 0 {
 		if len(p) == 0 {
-			fmt.Fprint(os.Stderr, mustUsePWhenUseU)
+			fmt.Fprintln(os.Stderr, mustUsePWhenUseU)
 			return
 		}
 		x.User.Username = u
@@ -86,7 +84,7 @@ func runLogout(cmd *base.Command, args []string) {
 		}
 
 		if x.User.Username == "" {
-			fmt.Fprint(os.Stderr, noStoredAccount)
+			fmt.Fprintln(os.Stderr, noStoredAccount)
 			os.Exit(2)
 		}
 		// 若cookie失效，则使用账号密码

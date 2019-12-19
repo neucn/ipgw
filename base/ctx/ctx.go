@@ -30,14 +30,14 @@ func (i *Ctx) Load() {
 	// 准备读取
 	path, err := file.GetPath(cfg.SavePath)
 	if err != nil {
-		fmt.Fprint(os.Stderr, errorGetPath)
+		fmt.Fprintln(os.Stderr, errorGetPath)
 		os.Exit(2)
 	}
 
 	// 读取
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
-		fmt.Fprint(os.Stderr, errorLoadInfo)
+		fmt.Fprintln(os.Stderr, errorLoadInfo)
 		os.Exit(2)
 	}
 	content := string(bytes)
@@ -45,14 +45,14 @@ func (i *Ctx) Load() {
 	// 分割
 	lines := strings.Split(content, file.LineDelimiter)
 	if len(lines) < 2 {
-		fmt.Fprint(os.Stderr, errorInfoFormat)
+		fmt.Fprintln(os.Stderr, errorInfoFormat)
 		os.Exit(2)
 	}
 
 	// 载入session部分
 	session := strings.Split(lines[0], file.PartDelimiter)
 	if len(session) < 3 {
-		fmt.Fprint(os.Stderr, errorInfoFormat)
+		fmt.Fprintln(os.Stderr, errorInfoFormat)
 		os.Exit(2)
 	}
 
@@ -72,7 +72,7 @@ func (i *Ctx) Load() {
 	// 载入用户信息部分
 	user := strings.Split(lines[1], file.PartDelimiter)
 	if len(user) < 2 {
-		fmt.Fprint(os.Stderr, errorInfoFormat)
+		fmt.Fprintln(os.Stderr, errorInfoFormat)
 		os.Exit(2)
 	}
 
@@ -89,7 +89,7 @@ func (i *Ctx) SaveAll() {
 	// 准备存储
 	path, err := file.GetPath(cfg.SavePath)
 	if err != nil {
-		fmt.Fprint(os.Stderr, errorGetPath)
+		fmt.Fprintln(os.Stderr, errorGetPath)
 		os.Exit(2)
 	}
 
@@ -102,7 +102,7 @@ func (i *Ctx) SaveAll() {
 	w := bufio.NewWriter(f)
 
 	if err != nil {
-		fmt.Fprint(os.Stderr, errorOpenFile)
+		fmt.Fprintln(os.Stderr, errorOpenFile)
 		os.Exit(2)
 	}
 
@@ -113,12 +113,12 @@ func (i *Ctx) SaveAll() {
 	sid := i.Net.SID
 	ip := i.Net.IP
 
-	// 如果保存账户
+	// 如果保存账号
 	_, err = w.WriteString(cookie + file.PartDelimiter + sid + file.PartDelimiter + ip + file.LineDelimiter +
 		username + file.PartDelimiter + password)
 
 	if err != nil {
-		fmt.Fprint(os.Stderr, errorSaveInfo)
+		fmt.Fprintln(os.Stderr, errorSaveInfo)
 		os.Exit(2)
 	}
 	_ = w.Flush()

@@ -22,7 +22,7 @@ var (
     [=]  Cookie登出
   
   List
-    [ ]  账户信息
+    [ ]  账号信息
     [ ]  登陆设备
     [ ]  使用日志
     [ ]  当前Cookie
@@ -41,7 +41,6 @@ var (
 
   Version
     [=]  检查版本
-    [ ]  自动更新
-    [=]  有功能想法请发送邮件至 i@shangyes.net
-`
+
+    [=]  有功能想法请发送邮件至 i@shangyes.net`
 )

@@ -13,7 +13,6 @@ import (
 	"ipgw/logout"
 	"ipgw/test"
 	"ipgw/text"
-	"ipgw/toggle"
 	"ipgw/version"
 	"log"
 	"os"
@@ -25,7 +24,7 @@ func init() {
 		version.CmdVersion,
 		login.CmdLogin,
 		logout.CmdLogout,
-		toggle.CmdToggle,
+		//toggle.CmdToggle,
 		list.CmdList,
 		kick.CmdKick,
 		test.CmdTest,

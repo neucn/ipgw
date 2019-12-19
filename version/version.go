@@ -39,7 +39,7 @@ func runVersion(cmd *base.Command, args []string) {
 	fmt.Println(base.IPGW.Long)
 
 	if cfg.FullView {
-		fmt.Print(detail)
+		fmt.Println(detail)
 	}
 
 	if u {
@@ -48,7 +48,7 @@ func runVersion(cmd *base.Command, args []string) {
 
 		resp, err := client.Get("https://api.github.com/repos/imyown/ipgw/releases/latest")
 		if err != nil {
-			fmt.Fprint(os.Stderr, errNet)
+			fmt.Fprintln(os.Stderr, errNet)
 			os.Exit(2)
 		}
 
