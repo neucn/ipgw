@@ -12,12 +12,12 @@ type NetInfo struct {
 
 func (i *NetInfo) Print() {
 	fmt.Printf(
-		`=========信息=========
-IP	%14s
-SID	%14s
-余额	%14s
-流量	%14s
-时长	%14s
+		`==========信息==========
+IP	%16s
+SID	%16s
+余额	%16s
+流量	%16s
+时长	%16s
 `, i.IP, i.SID, getBalance(i.Balance), getUsedFlux(i.Used), getUsedTime(i.Time))
 }
 

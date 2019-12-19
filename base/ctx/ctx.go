@@ -44,33 +44,13 @@ func (i *Ctx) Load() {
 
 	// 分割
 	lines := strings.Split(content, file.LineDelimiter)
-	if len(lines) < 2 {
+	if len(lines) < 3 {
 		fmt.Fprintln(os.Stderr, errorInfoFormat)
 		os.Exit(2)
 	}
-
-	// 载入session部分
-	session := strings.Split(lines[0], file.PartDelimiter)
-	if len(session) < 3 {
-		fmt.Fprintln(os.Stderr, errorInfoFormat)
-		os.Exit(2)
-	}
-
-	cookie := session[0]
-	i.User.Cookie = &http.Cookie{
-		Name:   "session_for%3Asrun_cas_php",
-		Value:  string(cookie),
-		Domain: "ipgw.neu.edu.cn",
-	}
-
-	sid := session[1]
-	i.Net.SID = sid
-
-	ip := session[2]
-	i.Net.IP = ip
 
 	// 载入用户信息部分
-	user := strings.Split(lines[1], file.PartDelimiter)
+	user := strings.Split(lines[0], file.PartDelimiter)
 	if len(user) < 2 {
 		fmt.Fprintln(os.Stderr, errorInfoFormat)
 		os.Exit(2)
@@ -81,6 +61,34 @@ func (i *Ctx) Load() {
 
 	password, err := base64.StdEncoding.DecodeString(user[1])
 	i.User.Password = string(password)
+
+	// 载入session部分
+	session := strings.Split(lines[1], file.PartDelimiter)
+	if len(session) < 3 {
+		fmt.Fprintln(os.Stderr, errorInfoFormat)
+		os.Exit(2)
+	}
+
+	cookie := session[0]
+	i.User.Cookie = &http.Cookie{
+		Name:   "session_for%3Asrun_cas_php",
+		Value:  cookie,
+		Domain: "ipgw.neu.edu.cn",
+	}
+
+	sid := session[1]
+	i.Net.SID = sid
+
+	ip := session[2]
+	i.Net.IP = ip
+
+	cas := lines[2]
+	i.User.CAS = &http.Cookie{
+		Name:   "CASTGC",
+		Value:  cas,
+		Domain: "pass.neu.edu.cn",
+		Path:   "/tpass/",
+	}
 }
 
 // 向配置文件中写入用户配置
@@ -110,12 +118,14 @@ func (i *Ctx) SaveAll() {
 	username := base64.StdEncoding.EncodeToString([]byte(i.User.Username))
 	password := base64.StdEncoding.EncodeToString([]byte(i.User.Password))
 	cookie := i.User.Cookie.Value
+	cas := i.User.CAS.Value
 	sid := i.Net.SID
 	ip := i.Net.IP
 
 	// 如果保存账号
-	_, err = w.WriteString(cookie + file.PartDelimiter + sid + file.PartDelimiter + ip + file.LineDelimiter +
-		username + file.PartDelimiter + password)
+	_, err = w.WriteString(username + file.PartDelimiter + password + file.LineDelimiter +
+		cookie + file.PartDelimiter + sid + file.PartDelimiter + ip + file.LineDelimiter +
+		cas)
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, errorSaveInfo)
@@ -144,11 +154,11 @@ func (i *Ctx) SaveSession() {
 	/*for ; len(lines) < 2; {
 		lines = append(lines, "::")
 	}*/
-	if len(lines) < 2 {
-		lines = []string{"::", ":"}
+	if len(lines) < 3 {
+		lines = []string{":", "::", ""}
 	}
 
-	session := strings.Split(lines[0], file.PartDelimiter)
+	session := strings.Split(lines[1], file.PartDelimiter)
 	if len(session) < 3 {
 		os.Exit(2)
 	}
@@ -163,7 +173,8 @@ func (i *Ctx) SaveSession() {
 	}()
 	w := bufio.NewWriter(f)
 
-	_, _ = w.WriteString(strings.Join(session, file.PartDelimiter) + file.LineDelimiter +
-		lines[1])
+	_, _ = w.WriteString(lines[0] + file.LineDelimiter +
+		strings.Join(session, file.PartDelimiter) + file.LineDelimiter +
+		i.User.CAS.Value)
 	_ = w.Flush()
 }

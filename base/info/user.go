@@ -8,4 +8,5 @@ type UserInfo struct {
 	Username string
 	Password string
 	Cookie   *http.Cookie
+	CAS      *http.Cookie
 }

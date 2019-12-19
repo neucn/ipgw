@@ -110,6 +110,19 @@ func loginWithUP(x *ctx.Ctx) {
 		Host:   "ipgw.neu.edu.cn",
 	})
 
+	cases := client.Jar.Cookies(&url.URL{
+		Scheme: "https",
+		Host:   "pass.neu.edu.cn",
+		Path:   "/tpass/",
+	})
+
+	for _, cas := range cases {
+		if cas.Name == "CASTGC" {
+			x.User.CAS = cas
+			break
+		}
+	}
+
 	if len(cookie) == 0 {
 		fmt.Fprintln(os.Stderr, failGetCookie)
 	} else {
