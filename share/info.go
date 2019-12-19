@@ -61,6 +61,11 @@ func GetIDAndSIDWhenCollision(body string) (id string, sid string) {
 	return id, sidList[0][1]
 }
 
+func GetIfOut(body string) (out bool) {
+	outExp := regexp.MustCompile(`余额不足月租`)
+	return outExp.MatchString(body)
+}
+
 func GetTitle(body string) string {
 	titleExp := regexp.MustCompile(`<title>(.+?)</title>`)
 	title := titleExp.FindAllStringSubmatch(body, -1)

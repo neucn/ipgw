@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"ipgw/base/cfg"
 	"ipgw/base/ctx"
-	"ipgw/base/share"
+	"ipgw/share"
 	"net/http"
 	"net/url"
 	"os"
@@ -92,6 +92,12 @@ func loginWithUP(x *ctx.Ctx) {
 		body = share.CollisionHandler(body)
 	}
 
+	out := share.GetIfOut(body)
+	if out {
+		fmt.Println(failBalanceOut)
+		os.Exit(2)
+	}
+
 	// 读取IP与SID
 	ok := share.GetIPAndSID(body, x)
 	if !ok {
@@ -170,6 +176,12 @@ func loginWithC(x *ctx.Ctx) {
 		if cfg.FullView {
 			fmt.Printf(successGetUsername, x.User.Username)
 		}
+	}
+
+	out := share.GetIfOut(body)
+	if out {
+		fmt.Println(failBalanceOut)
+		os.Exit(2)
 	}
 
 	// 读取IP与SID

@@ -3,7 +3,7 @@ package kick
 import (
 	"fmt"
 	"ipgw/base/cfg"
-	"ipgw/base/share"
+	"ipgw/share"
 	"os"
 )
 

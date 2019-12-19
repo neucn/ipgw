@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"ipgw/base/cfg"
 	"ipgw/base/ctx"
-	"ipgw/base/share"
+	"ipgw/share"
 	"net/http"
 	"net/url"
 	"os"
@@ -13,10 +13,39 @@ import (
 	"strings"
 )
 
+func logoutWithSID(x *ctx.Ctx) (ok bool) {
+	if x.Net.SID == "" {
+		return false
+	}
+
+	if cfg.FullView {
+		fmt.Printf(usingSID, x.Net.SID)
+	}
+	resp, err := share.Kick(x.Net.SID)
+	share.ErrWhenReqHandler(err)
+	body := share.ReadBody(resp)
+
+	if cfg.FullView {
+		fmt.Println(body)
+	}
+
+	if body == "下线请求发送失败" {
+		if cfg.FullView {
+			fmt.Fprintf(os.Stderr, failLogoutBySID, x.Net.SID)
+		}
+		return false
+	}
+
+	fmt.Println(successLogoutBySID)
+	return true
+}
+
 func logoutWithUP(x *ctx.Ctx) {
 	client := ctx.GetClient()
 
-	fmt.Printf(usingUP, x.User.Username)
+	if cfg.FullView {
+		fmt.Printf(usingUP, x.User.Username)
+	}
 
 	// 请求获得必要参数
 	resp, err := client.Get("https://pass.neu.edu.cn/tpass/login?service=https%3A%2F%2Fipgw.neu.edu.cn%2Fsrun_cas.php%3Fac_id%3D1")
@@ -116,8 +145,20 @@ func logoutWithUP(x *ctx.Ctx) {
 		// 读取响应内容
 		body = share.ReadBody(resp)
 
+		out := share.GetIfOut(body)
+		if out {
+			fmt.Printf(successLogout, id)
+			os.Exit(0)
+		}
+
 		share.GetIPAndSID(body, x)
 	} else {
+		out := share.GetIfOut(body)
+		if out {
+			fmt.Println(balanceOut)
+			os.Exit(0)
+		}
+
 		// 读取IP与SID
 		ok := share.GetIPAndSID(body, x)
 		if !ok {
@@ -148,9 +189,7 @@ func logoutWithC(x *ctx.Ctx) (ok bool) {
 	client := ctx.GetClient()
 
 	if cfg.FullView {
-		fmt.Printf(usingCV, x.User.Cookie.Value)
-	} else {
-		fmt.Println(usingC)
+		fmt.Printf(usingC, x.User.Cookie.Value)
 	}
 
 	// 请求获得必要参数
@@ -169,7 +208,9 @@ func logoutWithC(x *ctx.Ctx) (ok bool) {
 	// 检查标题
 	t := share.GetTitle(body)
 	if t == "智慧东大--统一身份认证" {
-		fmt.Fprintln(os.Stderr, failCookieExpired)
+		if cfg.FullView {
+			fmt.Fprintln(os.Stderr, failCookieExpired)
+		}
 		return false
 	}
 

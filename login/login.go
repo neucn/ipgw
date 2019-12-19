@@ -5,7 +5,7 @@ import (
 	"ipgw/base"
 	"ipgw/base/cfg"
 	"ipgw/base/ctx"
-	"ipgw/base/share"
+	"ipgw/share"
 	"net/http"
 	"os"
 )
@@ -104,8 +104,8 @@ func runLogin(cmd *base.Command, args []string) {
 		// 若s，把账号密码Cookie写进文件里
 		x.SaveAll(".ipgw")
 	} else {
-		// 否则只写入Cookie
-		x.SaveC(".ipgw")
+		// 否则只写入Session
+		x.SaveSession(".ipgw")
 	}
 
 }

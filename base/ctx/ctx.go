@@ -127,7 +127,7 @@ func (i *Ctx) SaveAll(path string) {
 	fmt.Println(successSaveInfo)
 }
 
-func (i *Ctx) SaveC(path string) {
+func (i *Ctx) SaveSession(path string) {
 	// 静默式，不需要输出
 	path, err := file.GetPath(path)
 	if err != nil {
@@ -154,6 +154,8 @@ func (i *Ctx) SaveC(path string) {
 	}
 
 	session[0] = i.User.Cookie.Value
+	session[1] = i.Net.SID
+	session[2] = i.Net.IP
 
 	f, _ := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	defer func() {

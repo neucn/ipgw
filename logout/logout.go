@@ -73,10 +73,14 @@ func runLogout(cmd *base.Command, args []string) {
 			os.Exit(2)
 		}
 	} else {
-
 		x.Load(".ipgw")
+		ok := logoutWithSID(x)
+		if ok {
+			return
+		}
+
 		// 这就要求不能直接在方法里os.Exit()了
-		ok := logoutWithC(x)
+		ok = logoutWithC(x)
 		if ok {
 			return
 		}
@@ -88,4 +92,5 @@ func runLogout(cmd *base.Command, args []string) {
 		// 若cookie失效，则使用账号密码
 		logoutWithUP(x)
 	}
+
 }

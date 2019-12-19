@@ -14,6 +14,7 @@ var (
 	failCookieExpired = "Cookie已失效"
 	failLogin         = "登陆失败"
 	failGetInfo       = "用户身份获取失败"
+	failBalanceOut    = "余额不足 请充值"
 
 	wrongUOrP       = "学号或密码错误 请重试"
 	wrongLock       = "一网通设置有误 请打开网页登陆查看"
