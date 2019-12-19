@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
+	"ipgw/base/cfg"
 	"ipgw/base/file"
 	"ipgw/base/info"
 	"net/http"
@@ -24,10 +25,10 @@ type Ctx struct {
 // b64(username):b64(password)
 
 // 从配置文件中解析出用户配置
-func (i *Ctx) Load(path string) {
+func (i *Ctx) Load() {
 	fmt.Println(tipLoadInfo)
 	// 准备读取
-	path, err := file.GetPath(path)
+	path, err := file.GetPath(cfg.SavePath)
 	if err != nil {
 		fmt.Fprint(os.Stderr, errorGetPath)
 		os.Exit(2)
@@ -83,11 +84,10 @@ func (i *Ctx) Load(path string) {
 }
 
 // 向配置文件中写入用户配置
-func (i *Ctx) SaveAll(path string) {
+func (i *Ctx) SaveAll() {
 	fmt.Println(tipSaveInfo)
-
 	// 准备存储
-	path, err := file.GetPath(path)
+	path, err := file.GetPath(cfg.SavePath)
 	if err != nil {
 		fmt.Fprint(os.Stderr, errorGetPath)
 		os.Exit(2)
@@ -127,9 +127,9 @@ func (i *Ctx) SaveAll(path string) {
 	fmt.Println(successSaveInfo)
 }
 
-func (i *Ctx) SaveSession(path string) {
+func (i *Ctx) SaveSession() {
 	// 静默式，不需要输出
-	path, err := file.GetPath(path)
+	path, err := file.GetPath(cfg.SavePath)
 	if err != nil {
 		os.Exit(2)
 	}

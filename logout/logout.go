@@ -73,7 +73,7 @@ func runLogout(cmd *base.Command, args []string) {
 			os.Exit(2)
 		}
 	} else {
-		x.Load(".ipgw")
+		x.Load()
 		ok := logoutWithSID(x)
 		if ok {
 			return

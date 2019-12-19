@@ -7,7 +7,7 @@ var (
 	errorSaveInfo   = "在写入配置时出错"
 	errorInfoFormat = "配置文件格式不正确，请尝试使用 ipgw fix 修复"
 
-	tipLoadInfo     = "读取用户中..."
-	tipSaveInfo     = "存储用户中..."
-	successSaveInfo = "存储用户成功"
+	tipLoadInfo     = "读取配置中..."
+	tipSaveInfo     = "存储配置中..."
+	successSaveInfo = "存储配置成功"
 )

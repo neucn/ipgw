@@ -7,4 +7,6 @@ var (
 	CmdName string
 
 	FullView bool
+
+	SavePath string = ".ipgw"
 )
