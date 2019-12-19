@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"ipgw/base"
 	"ipgw/base/cfg"
+	"ipgw/fix"
 	"ipgw/help"
 	"ipgw/kick"
 	"ipgw/list"
@@ -28,6 +29,7 @@ func init() {
 		list.CmdList,
 		kick.CmdKick,
 		test.CmdTest,
+		fix.CmdFix,
 	}
 	base.Usage = mainUsage
 }
