@@ -30,12 +30,12 @@ var CmdList = &base.Command{
 
   ipgw list
     效果等同于 ipgw list -l
-  ipgw list -a
-    效果等同于 ipgw list -birdh 1
-    列出当前登陆账号所有信息，必须是使用本工具登陆
   ipgw list -l
     列出本地保存的账号及会话信息
     包括 已保存账号 Cookie CAS
+  ipgw list -a
+    效果等同于 ipgw list -birdh 1
+    列出当前登陆账号所有信息，必须是使用本工具登陆
   ipgw list -i
     查看当前登陆账号的校园网套餐信息
     包括 套餐 使用流量 使用时长 余额 使用次数
@@ -106,13 +106,11 @@ func runList(cmd *base.Command, args []string) {
 		ib = fetchIndexBodyByCAS(x)
 	}
 
-	if l {
-		x.Load()
-		processLocal(x)
-	}
-
 	if a || i || d || h || b || r {
 		processUser(ib)
+	} else {
+		x.Load()
+		processLocal(x)
 	}
 
 	if a || i {

@@ -129,7 +129,7 @@ func processDevice(body string) {
 		}
 	} else {
 		for i, d := range ds {
-			fmt.Printf("   No.%d\t%s\t%s\t%s\n", i, d[1], d[4], d[2])
+			fmt.Printf("   No.%d\t%s\t%s\t%s\n", i, d[2], d[1], d[4])
 		}
 	}
 

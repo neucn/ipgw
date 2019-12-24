@@ -87,11 +87,7 @@ BigCmdLoop:
 			base.Exit()
 			return
 		}
-		helpArg := ""
-		if i := strings.LastIndex(cfg.CmdName, " "); i >= 0 {
-			helpArg = " " + cfg.CmdName[:i]
-		}
-		fmt.Fprintf(os.Stderr, text.HelpNotFound, cfg.CmdName, helpArg)
+		fmt.Fprintf(os.Stderr, text.HelpNotFound, cfg.CmdName, "ipgw help")
 		base.SetExitStatus(2)
 		base.Exit()
 	}

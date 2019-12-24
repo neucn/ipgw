@@ -1,7 +1,7 @@
 package text
 
 var (
-	HelpNotFound  = "ipgw help %s: 无此命令. 请使用 '%s' 查看完整帮助信息。\n"
+	HelpNotFound  = "无此命令: ipgw %s\n请使用 %s 查看帮助信息\n"
 	HelpSeeDetail = "使用 'ipgw help %s' 获取命令的完整帮助信息。\n"
 	HelpUsage     = "用法: %s\n"
 
