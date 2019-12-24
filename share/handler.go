@@ -58,3 +58,17 @@ func CollisionHandler(body string) string {
 	ErrWhenReqHandler(err)
 	return ReadBody(resp)
 }
+
+func TitleAfterLoginHandler(t string) {
+	switch t {
+	case "智慧东大--统一身份认证":
+		fmt.Fprintln(os.Stderr, wrongUOrP)
+		os.Exit(2)
+	case "智慧东大":
+		fmt.Fprintln(os.Stderr, wrongLock)
+		os.Exit(2)
+	case "系统提示":
+		fmt.Fprintln(os.Stderr, wrongBan)
+		os.Exit(2)
+	}
+}

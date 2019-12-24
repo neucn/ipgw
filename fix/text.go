@@ -1,7 +1,7 @@
 package fix
 
-var(
-	fixing = "修复中..."
+var (
+	fixing = "重置中..."
 
-	successFix = "修复成功"
+	successFix = "重置成功"
 )

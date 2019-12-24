@@ -5,7 +5,6 @@ import (
 	"ipgw/base"
 	"ipgw/base/cfg"
 	"ipgw/base/ctx"
-	"net/http"
 	"os"
 )
 
@@ -61,11 +60,7 @@ func runLogout(cmd *base.Command, args []string) {
 		x.User.Password = p
 		logoutWithUP(x)
 	} else if len(c) > 0 {
-		x.User.Cookie = &http.Cookie{
-			Name:   "session_for%3Asrun_cas_php",
-			Value:  c,
-			Domain: "ipgw.neu.edu.cn",
-		}
+		x.User.SetCookie(c)
 		ok := logoutWithC(x)
 		if !ok {
 			os.Exit(2)

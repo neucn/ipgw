@@ -159,3 +159,38 @@ func PrintNetInfo(x *ctx.Ctx) {
 
 	x.Net.Print()
 }
+
+func GetLTAndURL(reqUrl string) (lt, postUrl string) {
+	client := ctx.GetClient()
+	resp, err := client.Get(reqUrl)
+	if err != nil {
+		if cfg.FullView {
+			fmt.Fprintf(os.Stderr, errWhenReadLT, err)
+		}
+		fmt.Fprintln(os.Stderr, errNetwork)
+		os.Exit(2)
+	}
+
+	// 读取响应内容
+	body := ReadBody(resp)
+
+	// 读取lt
+	ltExp := regexp.MustCompile(`name="lt" value="(.+?)"`)
+	lts := ltExp.FindAllStringSubmatch(body, -1)
+
+	postUrlExp := regexp.MustCompile(`id="loginForm" action="(.+?)"`)
+	postUrls := postUrlExp.FindAllStringSubmatch(body, -1)
+
+	if len(lts) < 1 || len(postUrls) < 1 {
+		fmt.Fprintln(os.Stderr, errNoLT)
+		os.Exit(2)
+	}
+	lt = lts[0][1]
+	postUrl = postUrls[0][1]
+
+	if cfg.FullView {
+		fmt.Printf(successGetLT, lt)
+	}
+
+	return
+}

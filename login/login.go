@@ -6,7 +6,6 @@ import (
 	"ipgw/base/cfg"
 	"ipgw/base/ctx"
 	"ipgw/share"
-	"net/http"
 	"os"
 )
 
@@ -79,11 +78,7 @@ func runLogin(cmd *base.Command, args []string) {
 		x.User.Password = p
 		loginWithUP(x)
 	} else if len(c) > 0 {
-		x.User.Cookie = &http.Cookie{
-			Name:   "session_for%3Asrun_cas_php",
-			Value:  c,
-			Domain: "ipgw.neu.edu.cn",
-		}
+		x.User.SetCookie(c)
 		loginWithC(x)
 	} else {
 		x.Load()

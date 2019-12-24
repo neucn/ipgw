@@ -8,7 +8,6 @@ import (
 	"ipgw/base/cfg"
 	"ipgw/base/file"
 	"ipgw/base/info"
-	"net/http"
 	"os"
 	"strings"
 )
@@ -70,11 +69,7 @@ func (i *Ctx) Load() {
 	}
 
 	cookie := session[0]
-	i.User.Cookie = &http.Cookie{
-		Name:   "session_for%3Asrun_cas_php",
-		Value:  cookie,
-		Domain: "ipgw.neu.edu.cn",
-	}
+	i.User.SetCookie(cookie)
 
 	sid := session[1]
 	i.Net.SID = sid
@@ -83,12 +78,7 @@ func (i *Ctx) Load() {
 	i.Net.IP = ip
 
 	cas := lines[2]
-	i.User.CAS = &http.Cookie{
-		Name:   "CASTGC",
-		Value:  cas,
-		Domain: "pass.neu.edu.cn",
-		Path:   "/tpass/",
-	}
+	i.User.SetCAS(cas)
 }
 
 // 向配置文件中写入用户配置

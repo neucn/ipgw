@@ -9,85 +9,18 @@ import (
 	"net/url"
 	"os"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
 func loginWithUP(x *ctx.Ctx) {
 	client := ctx.GetClient()
+	reqUrl := "https://pass.neu.edu.cn/tpass/login?service=https%3A%2F%2Fipgw.neu.edu.cn%2Fsrun_cas.php%3Fac_id%3D1"
 
 	fmt.Printf(usingUP, x.User.Username)
 
-	// 请求获得必要参数
-	resp, err := client.Get("https://pass.neu.edu.cn/tpass/login?service=https%3A%2F%2Fipgw.neu.edu.cn%2Fsrun_cas.php%3Fac_id%3D1")
-	if err != nil {
-		if cfg.FullView {
-			fmt.Fprintf(os.Stderr, errWhenReadLT, err)
-		}
-		fmt.Fprintln(os.Stderr, errNetwork)
-		os.Exit(2)
-	}
+	body := share.Login(reqUrl, x)
 
-	// 读取响应内容
-	body := share.ReadBody(resp)
-
-	// 读取lt
-	ltExp := regexp.MustCompile(`name="lt" value="(.+?)"`)
-	lt := ltExp.FindAllStringSubmatch(body, -1)[0][1]
-
-	if cfg.FullView {
-		fmt.Printf(successGetLT, lt)
-	}
-
-	// 拼接data
-	data := "rsa=" + x.User.Username + x.User.Password + lt +
-		"&ul=" + strconv.Itoa(len(x.User.Username)) +
-		"&pl=" + strconv.Itoa(len(x.User.Password)) +
-		"&lt=" + lt +
-		"&execution=e1s1" +
-		"&_eventId=submit"
-
-	// 构造请求
-	req, _ := http.NewRequest("POST",
-		"https://pass.neu.edu.cn/tpass/login?service=https%3A%2F%2Fipgw.neu.edu.cn%2Fsrun_cas.php%3Fac_id%3D1",
-		strings.NewReader(data))
-
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Host", "pass.neu.edu.cn")
-	req.Header.Add("Origin", "https://pass.neu.edu.cn")
-	req.Header.Add("Referer", "https://pass.neu.edu.cn/tpass/login?service=https%3A%2F%2Fipgw.neu.edu.cn%2Fsrun_cas.php%3Fac_id%3D3")
-	if x.UA != "" {
-		req.Header.Add("User-Agent", x.UA)
-	}
-
-	if cfg.FullView {
-		fmt.Println(sendingRequest)
-	}
-
-	// 发送请求
-	resp, err = client.Do(req)
-	share.ErrWhenReqHandler(err)
-
-	// 读取响应内容
-	body = share.ReadBody(resp)
-
-	// 检查标题
-	t := share.GetTitle(body)
-	if t == "智慧东大--统一身份认证" {
-		fmt.Fprintln(os.Stderr, wrongUOrP)
-		os.Exit(2)
-	}
-
-	if t == "智慧东大" {
-		fmt.Fprintln(os.Stderr, wrongLock)
-		os.Exit(2)
-	}
-
-	if t == "系统提示" {
-		fmt.Fprintln(os.Stderr, wrongBan)
-		os.Exit(2)
-	}
-
+	// 检查内容
 	if strings.Contains(body, "aaa") {
 		body = share.CollisionHandler(body)
 	}
