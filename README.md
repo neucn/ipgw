@@ -68,14 +68,25 @@
 ### Linux or OSX
 ```shell script
 # linux
-wget https://neu.ee/release/v1.1.0/linux/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin
+wget https://neu.ee/release/v1.1.1/linux/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin
 # osx
-wget https://neu.ee/release/v1.1.0/osx/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin
+wget https://neu.ee/release/v1.1.1/osx/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin
 ```
 ### Win
-1. 下载 [https://neu.ee/release/v1.1.0/win/ipgw.exe](https://neu.ee/release/v1.1.0/linux/ipgw)
+1. 下载 [https://neu.ee/release/v1.1.1/win/ipgw.exe](https://neu.ee/release/v1.1.1/linux/ipgw)
 2. 将`ipgw.exe`放置于加入了Path环境变量的路径下
 
+
+## 更新
+已支持自动更新，在获取到新版本信息后会自动下载更新
+```shell script
+ipgw update
+```
+强制自动更新，无论当前是否已是最新版本
+```shell script
+ipgw update -f
+```
+大版本更新后可能出现旧配置文件无法解析，可以使用`ipgw fix`修复配置文件即可
 
 ## 使用
 用法:
@@ -139,10 +150,10 @@ git clone https://github.com/iMyOwn/ipgw.git
 cd ipgw
 
 # To build
-make all VERSION=v1.1.0
+make all VERSION=v1.1.1
 
 # To release
-make release VERSION=v1.1.0
+make release VERSION=v1.1.1
 ```
 ### 关于文本
 基本上所有的输出文本都独立在了各个包中的`text.go`中，方便定制化输出
