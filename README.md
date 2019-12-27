@@ -1,4 +1,6 @@
-![IPGW](https://neu.ee/img/logo.png)
+<p align="center">
+    <img src="https://neu.ee/img/logo.png" width="200" alt="ipgw"/>
+</p>
 
 # IPGW Tool
 
@@ -7,13 +9,15 @@
 ![](https://img.shields.io/github/go-mod/go-version/iMyOwn/ipgw)
 ![](https://img.shields.io/github/languages/code-size/iMyOwn/ipgw)
 
-> 东北大学校园网关客户端 [NEU.ee](https://neu.ee)
+> 东北大学校园网关客户端
 
-![demo](https://neu.ee/img/demo.png)
+<p align="center">
+    <img src="https://neu.ee/img/demo-banner.png" alt="demo"/>
+</p>
+
+东北大学目前唯一非官方跨平台校园网关客户端 😛
 
 > 所有的发布版本请见[本仓库Release页面](https://github.com/iMyOwn/ipgw/releases)或 [NEU.ee/release](https://neu.ee/release)
-
-本客户端非官方出品
 
 **部分功能仅用以测试网关与一网通，请勿用于违法违纪用途，使用者自行承担责任，后果自负**
 
@@ -22,16 +26,16 @@
 
 # 目录
 
-* [简介](#intro)
-* [功能](#feature)
-* [下载](#installation)
-* [快速使用](#getting-started)
-  * [登陆](#start-login)
-  * [登出](#start-logout)
-  * [强制下线](#start-kick)
-  * [查询](#start-list)
-* [更新](#update)
-* [命令说明](#usage)
+* [简介](#简介)
+* [功能](#功能)
+* [下载](#下载)
+* [快速使用](#快速使用)
+  * [登陆](#登陆)
+  * [登出](#登出)
+  * [强制下线](#强制下线)
+  * [查询](#查询)
+* [更新](#更新)
+* [命令说明](#命令说明)
   * [Login](#login)
   * [Logout](#logout)
   * [Kick](#kick)
@@ -40,16 +44,16 @@
   * [Update](#update)
   * [Fix](#fix)
   * [Version](#version)
-* [常见问题](#faq)
-* [二次开发](#dev)
-  * [关于文本](#dev-text)
-  * [关于扩展](#dev-ext)
-* [开源协议](#license)
+* [常见问题](#常见问题)
+* [二次开发](#二次开发)
+  * [关于文本](#关于文本)
+  * [关于扩展](#关于扩展)
+* [开源协议](#开源协议)
 
 
 
 
-# <span id="intro">简介</span>
+# 简介
 
 每次连接校园网之后都要打开网页进行登录，页面的渲染与密码的输入重复枯燥且无聊。
 
@@ -65,7 +69,7 @@
 
 
 
-# <span id="feature">功能</span>
+# 功能
 
 - 使用账号密码登陆
 - 使用Cookie登陆
@@ -89,7 +93,7 @@
 
 
 
-# <span id="installation">下载</span>
+# 下载
 
 本工具为x64架构的linux、osx、windows系统提供了预编译程序。
 
@@ -121,11 +125,11 @@ go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.1.1" -o ipgw
 
 
 
-# <span id="getting-started">快速使用</span>
+# 快速使用
 
 利用`ipgw`，能够大大简化对网关的操作.
 
-## <span id="start-login">登陆</span>
+## 登陆
 
 - 在没有保存过账号的情况下登陆
 
@@ -147,7 +151,7 @@ go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.1.1" -o ipgw
 
 > 默认配置文件保存在用户目录下，名称为`.ipgw`，暂不支持自定义路径，暂不支持保存多个用户
 
-## <span id="start-logout">登出</span>
+## 登出
 
 - 在没有保存过账号的情况下登出
 
@@ -168,7 +172,7 @@ go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.1.1" -o ipgw
   ```
 
 
-## <span id="start-kick">强制下线</span>
+## 强制下线
 
 - 强制指定SID的设备断开校园网
 
@@ -179,7 +183,7 @@ go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.1.1" -o ipgw
 【注意】该操作可以强制任何人的设备断开校园网，由于滥用该操作造成的一切后果由使用者自负。
 
 
-## <span id="start-list">查询</span>
+## 查询
 
 - 列出本地保存的信息
 
@@ -220,7 +224,7 @@ go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.1.1" -o ipgw
     ```
 
 
-# <span id="update">更新</span>
+# 更新
 获取最新版本信息并自动下载更新
 ```shell script
 ipgw update
@@ -236,7 +240,7 @@ ipgw update -f
 
 
 
-#  <span id="usage">命令说明</span>
+#  命令说明
 ### 用法
 
 ```
@@ -259,7 +263,7 @@ update      更新版本
 
 以下内容和`ipgw help <command>`的输出相同
 
-## <span id="login">Login</span>
+## Login
 
 ### 用法
 
@@ -302,7 +306,7 @@ ipgw login [-u username] [-p password] [-s save] [-c cookie] [-d device] [-i inf
 
 
 
-## <span id="logout">Logout</span>
+## Logout
 
 ### 用法
 
@@ -333,7 +337,7 @@ ipgw logout [-u username] [-p password] [-c cookie] [-v view all]
     #打印登出过程中的每一步详细信息
 ```
 
-## <span id="kick">Kick</span>
+## Kick
 ### 用法
 
 ```shell script
@@ -356,7 +360,7 @@ ipgw kick [-v view all] sid1 sid2 sid3 ...
 
 
 
-## <span id="list">List</span>
+## List
 
 ### 用法
 
@@ -416,7 +420,7 @@ ipgw list [-f full] [-v view all] [-s saved] [-u username] [-p password] [-c coo
 
 
 
-## <span id="test">Test</span>
+## Test
 
 ### 用法
 
@@ -440,7 +444,7 @@ ipgw test [-v view all]
 
 
 
-## <span id="update">Update</span>
+## Update
 
 ### 用法
 
@@ -465,7 +469,7 @@ ipgw update [-f force] [-v view all]
 
 
 
-## <span id="fix">Fix</span>
+## Fix
 
 ### 用法
 
@@ -485,7 +489,7 @@ ipgw fix
 
 
 
-## <span id="version">Version</span>
+## Version
 
 ### 用法
 
@@ -509,7 +513,7 @@ ipgw version [-l list]
 
 
 
-# <span id="faq">常见问题</span>
+# 常见问题
 
 > Permission denied
 
@@ -546,7 +550,7 @@ mac用户可以使用homebrew安装wget，`brew install wget`；但有可能系�
 
 
 
-# <span id="dev">二次开发</span>
+# 二次开发
 
 ```shell script
 # Clone
@@ -567,7 +571,7 @@ make release VERSION=v1.1.1
 
 
 
-## <span id="dev-text">关于文本</span>
+## 关于文本
 
 基本上所有的输出文本都独立在了各个包中的`text.go`中，方便定制化输出
 
@@ -577,7 +581,7 @@ make release VERSION=v1.1.1
 
 help命令比较特殊，为了方便`main.go`使用，它的文本在项目目录下的`text`包中，
 
-## <span id="dev-ext">关于扩展</span>
+## 关于扩展
 添加新功能请新建一个包
 1. 使用`ctx.GetCtx()`获取到全局的上下文
 2. 使用`ctx.GetClient()`获取到Cookie可复用的全局http客户端
@@ -588,7 +592,7 @@ help命令比较特殊，为了方便`main.go`使用，它的文本在项目目�
 
 
 
-# <span id="license">开源协议</span>
+# 开源协议
 
 MIT license.
 
