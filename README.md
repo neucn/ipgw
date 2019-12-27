@@ -8,13 +8,69 @@
 
 所有的发布版本请见本仓库Release或 [NEU.ee/release](https://neu.ee/release)
 
+**部分功能仅用以测试网关与一网通，请勿用于违法违纪用途，使用者自行承担责任，后果自负**
+
+## 功能
+利用`ipgw`，能够大大简化对网关的操作，以登陆为例:
+
+- 在没有保存过账号的情况下，需要使用`ipgw login -u 学号 -p 密码`登陆
+
+- 使用`ipgw login -u 学号 -p 密码 -s`来保存本次登陆所用的账号密码
+
+- 在保存了账号后，可以使用`ipgw`直接使用账号登陆
+
+- 除了简化基础操作以外，`ipgw login`还提供了其他功能，例如:
+  1. 使用Cookie登陆: `ipgw login -c Cookie`
+  2. 伪装设备登陆: `ipgw login -d android`
+
+除了登陆，本工具还有以下功能:
+```
+># ipgw version -l
+
+  Login
+    [=]  基础登陆
+    [=]  保存账号
+    [=]  Cookie登陆
+    [=]  伪装设备
+
+  Logout
+    [=]  基础登出
+    [=]  Cookie登出
+
+  Kick
+    [=]  使指定设备下线
+
+  List
+    [=]  查看本地信息
+    [=]  查询账号信息
+    [=]  查询已登陆设备
+    [=]  查询当前套餐
+    [=]  查询扣款记录
+    [=]  查询充值记录
+    [=]  查询使用日志
+
+  Test
+    [=]  网络检查
+
+  Update
+    [=]  获取最新版本更新日志
+    [=]  更新到最新版本
+
+  Version
+    [=]  查看当前版本信息
+
+  Help
+    [=]  查看各命令信息
+```
+
 ## 下载
+当前支持x64架构的linux、osx、windows系统
 ### Linux or OSX
 ```shell script
 # linux
-wget https://neu.ee/release/v1.1.0/linux/ipgw && mv ipgw /usr/local/bin
+wget https://neu.ee/release/v1.1.0/linux/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin
 # osx
-wget https://neu.ee/release/v1.1.0/osx/ipgw && mv ipgw /usr/local/bin
+wget https://neu.ee/release/v1.1.0/osx/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin
 ```
 ### Win
 1. 下载 [https://neu.ee/release/v1.1.0/win/ipgw.exe](https://neu.ee/release/v1.1.0/linux/ipgw)
