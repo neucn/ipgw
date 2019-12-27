@@ -1,99 +1,249 @@
+![IPGW](https://neu.ee/img/logo.png)
+
 # IPGW Tool
+
 ![](https://img.shields.io/github/release-date/iMyOwn/ipgw)
 ![](https://img.shields.io/github/license/imyown/ipgw)
 ![](https://img.shields.io/github/go-mod/go-version/iMyOwn/ipgw)
 ![](https://img.shields.io/github/languages/code-size/iMyOwn/ipgw)
 
-官网正在建设中 [NEU.ee](https://neu.ee)
+> 东北大学校园网关客户端 [NEU.ee](https://neu.ee)
 
-所有的发布版本请见本仓库Release或 [NEU.ee/release](https://neu.ee/release)
+![demo](https://neu.ee/img/demo.png)
+
+> 所有的发布版本请见[本仓库Release页面](https://github.com/iMyOwn/ipgw/releases)或 [NEU.ee/release](https://neu.ee/release)
+
+本客户端非官方出品
 
 **部分功能仅用以测试网关与一网通，请勿用于违法违纪用途，使用者自行承担责任，后果自负**
 
-## 功能
-利用`ipgw`，能够大大简化对网关的操作，以登陆为例:
 
-- 在没有保存过账号的情况下，需要使用`ipgw login -u 学号 -p 密码`登陆
 
-- 使用`ipgw login -u 学号 -p 密码 -s`来保存本次登陆所用的账号密码
 
-- 在保存了账号后，可以使用`ipgw`直接使用账号登陆
+# 目录
 
-- 除了简化基础操作以外，`ipgw login`还提供了其他功能，例如:
-  1. 使用Cookie登陆: `ipgw login -c Cookie`
-  2. 伪装设备登陆: `ipgw login -d android`
+* [简介](#intro)
+* [功能](#feature)
+* [下载](#installation)
+* [快速使用](#getting-started)
+  * [登陆](#start-login)
+  * [登出](#start-logout)
+  * [强制下线](#start-kick)
+  * [查询](#start-list)
+* [更新](#update)
+* [命令说明](#usage)
+  * [Login](#login)
+  * [Logout](#logout)
+  * [Kick](#kick)
+  * [List](#list)
+  * [Test](#test)
+  * [Update](#update)
+  * [Fix](#fix)
+  * [Version](#version)
+* [常见问题](#faq)
+* [二次开发](#dev)
+  * [关于文本](#dev-text)
+  * [关于扩展](#dev-ext)
+* [开源协议](#license)
 
-除了登陆，本工具还有以下功能:
-```
-># ipgw version -l
 
-  Login
-    [=]  基础登陆
-    [=]  保存账号
-    [=]  Cookie登陆
-    [=]  伪装设备
 
-  Logout
-    [=]  基础登出
-    [=]  Cookie登出
 
-  Kick
-    [=]  使指定设备下线
+# <span id="intro">简介</span>
 
-  List
-    [=]  查看本地信息
-    [=]  查询账号信息
-    [=]  查询已登陆设备
-    [=]  查询当前套餐
-    [=]  查询扣款记录
-    [=]  查询充值记录
-    [=]  查询使用日志
+每次连接校园网之后都要打开网页进行登录，页面的渲染与密码的输入重复枯燥且无聊。
 
-  Test
-    [=]  网络检查
+> 为了安全不使用联网的密码管理工具
 
-  Update
-    [=]  获取最新版本更新日志
-    [=]  更新到最新版本
+而对于校内部分Linux服务器，没有图形化界面，无法访问网页，网关操作十分繁琐。
 
-  Version
-    [=]  查看当前版本信息
+为了解决这些问题，`ipgw` 诞生了。
 
-  Help
-    [=]  查看各命令信息
-```
+不断加入新功能的`ipgw`，如今已经完全覆盖了除【更换套餐】【更改密码】以外的**所有网关操作**。
 
-## 下载
-当前支持x64架构的linux、osx、windows系统
-### Linux or OSX
+如果有新的功能建议，欢迎在本仓库[新建Issue](https://github.com/iMyOwn/ipgw/issues/new)
+
+
+
+# <span id="feature">功能</span>
+
+- 使用账号密码登陆
+- 使用Cookie登陆
+- 登陆时伪装设备
+- **无参数快速登陆**
+- 使用账号密码登出
+- 使用Cookie登出
+- **无参数快速登出**
+- **强制指定设备下线**
+- 检查网络与登陆情况
+- **自动更新**
+- 修复配置文件
+- **查询账号信息**
+  - 查看本地信息
+  - 查询账号信息
+  - 查询已登陆设备
+  - 查询当前套餐
+  - 查询扣款记录
+  - 查询充值记录
+  - 查询使用日志
+
+
+
+# <span id="installation">下载</span>
+
+本工具为x64架构的linux、osx、windows系统提供了预编译程序。
+
+预编译程序可以通过以下方式下载。
+
+>  也可以在[本仓库的Release页面](https://github.com/iMyOwn/ipgw/releases)或[NEU.ee的Release目录](https://neu.ee/release)进行手动下载
+
+## Linux or OSX
 ```shell script
 # linux
 wget https://neu.ee/release/v1.1.1/linux/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin
 # osx
 wget https://neu.ee/release/v1.1.1/osx/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin
 ```
-### Win
+## Win
 1. 下载 [https://neu.ee/release/v1.1.1/win/ipgw.exe](https://neu.ee/release/v1.1.1/linux/ipgw)
 2. 将`ipgw.exe`放置于加入了Path环境变量的路径下
 
+## Other
 
-## 更新
-已支持自动更新，在获取到新版本信息后会自动下载更新
+其他架构或系统，可以通过下载源代码自主编译的方式使用
+
+```shell
+git clone https://github.com/iMyOwn/ipgw.git 
+cd ipgw 
+go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.1.1" -o ipgw 
+```
+
+
+
+
+# <span id="getting-started">快速使用</span>
+
+利用`ipgw`，能够大大简化对网关的操作.
+
+## <span id="start-login">登陆</span>
+
+- 在没有保存过账号的情况下登陆
+
+  ```shell script
+  ipgw login -u 学号 -p 密码
+  ```
+
+- 可以在登陆时保存账号
+
+  ```shell script
+  ipgw login -u 学号 -p 密码 -s
+  ```
+
+- **在保存了账号后，可以直接登陆**
+
+  ```shell script
+  ipgw
+  ```
+
+> 默认配置文件保存在用户目录下，名称为`.ipgw`，暂不支持自定义路径，暂不支持保存多个用户
+
+## <span id="start-logout">登出</span>
+
+- 在没有保存过账号的情况下登出
+
+  ```shell script
+  ipgw logout -u 学号 -p 密码
+  ```
+
+- 在保存了账号后，可以直接登出
+
+  ```shell script
+  ipgw logout
+  ```
+
+- **如果该次登陆使用的是本工具，则无论是否保存账号，都可直接登出**
+
+  ```shell script
+  ipgw logout
+  ```
+
+
+## <span id="start-kick">强制下线</span>
+
+- 强制指定SID的设备断开校园网
+
+  ```shell script
+  ipgw kick SID1 SID2 SID3 ...
+  ```
+
+【注意】该操作可以强制任何人的设备断开校园网，由于滥用该操作造成的一切后果由使用者自负。
+
+
+## <span id="start-list">查询</span>
+
+- 列出本地保存的信息
+
+  ```shell script
+  ipgw list -l
+  ```
+
+- 列出**当前登陆账号所有信息**
+
+  ```shell script
+  ipgw list -a
+  ```
+  
+- 列出**当前登陆账号的指定信息**
+
+  ```shell script
+  ipgw list -d -i -h 1
+  ```
+  
+- 列出**当前登陆账号的指定信息**，缩写形式
+
+  ```shell script
+  ipgw list -hid
+  ```
+  
+- 可以通过`-s`、`-u -p`、`-c`查询已保存账号/指定账号/Cookie，例如
+  - 列出已保存账号的第一页使用日志
+    ```shell script
+    ipgw list -sh
+    ```
+  - 列出指定账号的的第二页使用日志
+    ```shell script
+    ipgw list -u 学号 -p 密码 -h 2
+    ```
+  - 列出指定Cookie对应账号的第三页使用日志
+    ```shell script
+    ipgw list -c Cookie -h 3
+    ```
+
+
+# <span id="update">更新</span>
+获取最新版本信息并自动下载更新
 ```shell script
 ipgw update
 ```
+
 强制自动更新，无论当前是否已是最新版本
 ```shell script
 ipgw update -f
 ```
-大版本更新后可能出现旧配置文件无法解析，可以使用`ipgw fix`修复配置文件即可
 
-## 使用
-用法:
+【注意】大版本更新后可能出现旧配置文件无法解析，使用`ipgw fix`修复配置文件即可
+
+
+
+
+#  <span id="usage">命令说明</span>
+### 用法
+
 ```
 ipgw <command> [arguments]
 ```
-命令:
+### 命令列表
+
 ```
 version     版本查询
 login       基础登陆
@@ -105,66 +255,329 @@ fix         修复配置文件
 update      更新版本
 ```
 
-每个命令都已经给出了使用示例，请使用`ipgw help <command>`查看
+每个命令都已经给出了使用示例，可以使用`ipgw help <command>`查看
 
-如`ipgw help login`
+以下内容和`ipgw help <command>`的输出相同
+
+## <span id="login">Login</span>
+
+### 用法
+
+```shell script
+ipgw login [-u username] [-p password] [-s save] [-c cookie] [-d device] [-i info] [-v view all] 
+```
+### 参数列表
 
 ```
-用法: ipgw login [-u username] [-p password] [-s save] [-c cookie] [-d device] [-i info] [-v full view]
-
-提供登陆校园网关功能
   -u    登陆账号
   -p    登陆密码
   -s    保存该账号
   -c    使用cookie登陆
-  -d    使用指定设备信息
-  -i    登陆后输出账号信息
+  -d	使用指定设备信息
+  -i	登陆后输出账号信息
   -v    输出所有中间信息
-
-  ipgw
-    效果等同于 ipgw login -i
-    [推荐] 在已经使用-s保存了账号信息的情况下，直接执行ipgw即可完成登陆
-  ipgw login -u 学号 -p 密码
-    使用指定账号登陆网关
-  ipgw login -u 学号 -p 密码 -s
-    本次登陆的账号信息将被保存在用户目录下的.ipgw文件中
-  ipgw login
-    在已经使用-s保存了账号信息的情况下，可以直接使用已经保存的账号登录
-  ipgw login -c "ST-XXXXXX-XXXXXXXXXXXXXXXXXXXX-tpass"
-    使用指定cookie登陆
-  ipgw login -d android
-    使用指定设备信息登陆，可选的有win linux osx，默认使用匿名设备信息
-  ipgw login -i
-    登陆成功后输出账号信息，包括账号余额、已使用时长、已使用流量等
-  ipgw login [arguments] -v
-    打印登陆过程中的每一步信息
 ```
 
-默认配置文件保存在用户目录下，名称为`.ipgw`，暂不支持自定义路径，暂不支持保存多个用户
+### 使用示例
 
-## 参与开发或定制化
+```shell script
+  ipgw
+    #效果等同于 ipgw login -i
+    #[推荐] 在已经使用-s保存了账号信息的情况下，直接执行ipgw即可完成登陆
+  ipgw login -u 学号 -p 密码
+    #使用指定账号登陆网关
+  ipgw login -u 学号 -p 密码 -s
+    #本次登陆的账号信息将被保存在用户目录下的.ipgw文件中
+  ipgw login
+    #在已经使用-s保存了账号信息的情况下，可以直接使用已经保存的账号登录
+  ipgw login -c "ST-XXXXXX-XXXXXXXXXXXXXXXXXXXX-tpass"
+    #使用指定cookie登陆
+  ipgw login -d android
+    #使用指定设备信息登陆，可选的有win linux osx，默认使用匿名设备信息
+  ipgw login -i
+    #登陆成功后输出账号信息，包括账号余额、已使用时长、已使用流量等
+  ipgw login [arguments] -v
+    #打印登陆过程中的每一步信息
+```
+
+
+
+## <span id="logout">Logout</span>
+
+### 用法
+
+```shell script
+ipgw logout [-u username] [-p password] [-c cookie] [-v view all]
+```
+### 参数列表
+
+```
+  -u    登出账号
+  -p    登出密码
+  -c    使用cookie登出
+  -v    输出所有中间信息
+```
+
+### 使用示例
+
+```shell script
+  ipgw logout
+    #若本次登陆是通过本工具，则直接登出
+    #若直接登出失败，且有未失效的Cookie，将使用Cookie登出
+    #若Cookie登出失败，且已使用-s保存了账号信息，将使用该账号登出
+  ipgw logout -u 学号 -p 密码
+    #使用指定账号登出网关
+  ipgw logout -c "ST-XXXXXX-XXXXXXXXXXXXXXXXXXXX-tpass"
+    #使用指定cookie登出
+  ipgw logout [arguments] -v
+    #打印登出过程中的每一步详细信息
+```
+
+## <span id="kick">Kick</span>
+### 用法
+
+```shell script
+ipgw kick [-v view all] sid1 sid2 sid3 ...
+```
+### 参数列表
+
+```
+  -v    输出所有中间信息
+```
+
+### 使用示例
+
+```shell script
+  ipgw kick XXXXXXX YYYYYYYY
+    #使指定SID的设备下线
+  ipgw kick -v XXXXXXX
+    #使指定SID的设备下线并输出详细的中间信息
+```
+
+
+
+## <span id="list">List</span>
+
+### 用法
+
+```shell script
+ipgw list [-f full] [-v view all] [-s saved] [-u username] [-p password] [-c cookie] [-a all] [-l local info] [-d devices] [-i net info] [-r recharge] [-b bill] [-h history] page
+```
+### 参数列表
+
+```
+  -s    使用保存的账号查询
+  -c    使用cookie查询
+  -u    使用指定账号查询，需配合 -p
+  -p    使用指定账号查询
+  -a    列出所有信息
+  -l    列出本地保存的账号及网络信息
+  -i    列出校园网套餐信息
+  -r    列出充值记录
+  -d    列出登陆设备
+  -b    列出历史账单
+  -h    列出校园网使用日志
+  -f    输出所有查询结果的详细信息
+  -v    输出所有中间信息
+```
+
+### 使用示例
+
+```shell script
+  ipgw list
+    #效果等同于 ipgw list -l
+  ipgw list -l
+    #列出本地保存的账号及会话信息
+    #包括 已保存账号 Cookie CAS
+  ipgw list -a
+    #效果等同于 ipgw list -birdh 1
+    #列出当前登陆账号所有信息，必须是使用本工具登陆
+  ipgw list -i
+    #查看当前登陆账号的校园网套餐信息
+    #包括 套餐 使用流量 使用时长 余额 使用次数
+    #可使用 -u -p 或 -s 或 -c 查询指定的账号
+  ipgw list -r
+    #列出当前登陆账号的充值记录
+    #可使用 -u -p 或 -s 或 -c 查询指定的账号
+  ipgw list -d
+    #列出当前登陆账号的已登录设备
+    #可使用 -u -p 或 -s 或 -c 查询指定的账号
+  ipgw list -b
+    #列出当前登陆账号的历史付费记录
+    #可使用 -u -p 或 -s 或 -c 查询指定的账号
+  ipgw list -h 1
+    #列出当前登陆账号的使用记录的第一页，每页20条
+    #可使用 -u -p 或 -s 或 -c 查询指定的账号
+  ipgw list -af
+    #列出所有信息的具体查询结果
+  ipgw list -av
+    #列出中间信息
+```
+
+
+
+## <span id="test">Test</span>
+
+### 用法
+
+```shell script
+ipgw test [-v view all]
+```
+### 参数列表
+
+```
+  -v    输出所有中间信息
+```
+
+### 使用示例
+
+```shell script
+  ipgw test
+    #测试校园网连接与登陆情况
+  ipgw test -v
+    #测试校园网连接与登陆情况并输出详细中间信息
+```
+
+
+
+## <span id="update">Update</span>
+
+### 用法
+
+```shell script
+ipgw update [-f force] [-v view all]
+```
+### 参数列表
+
+```
+  -f    强制更新
+  -v    输出中间信息与详细报错信息
+```
+
+### 使用示例
+
+```shell script
+  ipgw update
+    #检查更新并自动更新
+  ipgw update -f
+    #强制下载最新版更新
+```
+
+
+
+## <span id="fix">Fix</span>
+
+### 用法
+
+```shell script
+ipgw fix
+```
+### 参数列表
+
+无
+
+### 使用示例
+
+```shell script
+  ipgw fix
+    #修复配置文件
+```
+
+
+
+## <span id="version">Version</span>
+
+### 用法
+
+```shell script
+ipgw version [-l list]
+```
+### 参数列表
+
+```
+  -l    输出完整版本功能
+```
+
+### 使用示例
+
+```shell script
+  ipgw version
+    #查看版本
+  ipgw version -l
+    #查看当前版本完整功能
+```
+
+
+
+# <span id="faq">常见问题</span>
+
+> Permission denied
+
+程序没有执行权限，使用`chmod +x ipgw`赋予可执行权限即可。
+
+
+
+> ipgw: command not found
+
+这是*nix系统下的报错，没有正确将`ipgw`程序放置于环境变量Path所列出的目录中，推荐将程序放置于`/usr/local/bin`目录下
+
+
+
+> 'ipgw' is not recognized as an internal or external command,
+> operable program or batch file.
+
+这是win系统下的报错，没有正确将`ipgw`程序放置于环境变量Path所列出的目录中，推荐将程序放置于一个不会经常变动的路径下，然后将该路径加入环境变量Path、
+
+
+
+> wget: command not found
+
+linux用户请使用自己系统对应的包管理工具安装wget，如ubuntu可以使用`sudo apt-get install wget`
+
+mac用户可以使用homebrew安装wget，`brew install wget`；但有可能系统里甚至没有homebrew，建议手动下载然后`chmod +x ipgw`并`mv ipgw /usr/local/bin`
+
+
+
+> 更新失败或者提示网络失败、获取失败怎么办？
+
+可以加上`-v`重新执行一遍命令，查看输出的具体信息与具体报错，一般来讲具体信息与具体报错已经能给出引发错误的原因。
+
+如果错误确实由程序的bug引发，欢迎[提交Bug](https://github.com/iMyOwn/ipgw/issues/new)
+
+
+
+# <span id="dev">二次开发</span>
 
 ```shell script
 # Clone
 git clone https://github.com/iMyOwn/ipgw.git
 cd ipgw
+```
 
+在大部分情况下，`Makefile`无需作修改，修改程序后可以直接构建与加壳
+
+```
 # To build
 make all VERSION=v1.1.1
 
 # To release
 make release VERSION=v1.1.1
 ```
-### 关于文本
+> 加壳需要预先安装UPX
+
+
+
+## <span id="dev-text">关于文本</span>
+
 基本上所有的输出文本都独立在了各个包中的`text.go`中，方便定制化输出
 
 少部分输出文本在各个包的`impl.go`中
 
 上下文`Ctx`的输出编写在`base/ctx/ctx`中
 
-help命令比较特殊，它的文本在项目目录下的`text`包中，方便`main.go`使用
+help命令比较特殊，为了方便`main.go`使用，它的文本在项目目录下的`text`包中，
 
-### 关于扩展
+## <span id="dev-ext">关于扩展</span>
 添加新功能请新建一个包
 1. 使用`ctx.GetCtx()`获取到全局的上下文
 2. 使用`ctx.GetClient()`获取到Cookie可复用的全局http客户端
@@ -172,3 +585,10 @@ help命令比较特殊，它的文本在项目目录下的`text`包中，方便`
 4. 一网通的Cookie保存于`Ctx.User.CAS`中
 5. 若该功能需要定制化flag解析，请模仿`list`包的写法，`Cmd`对象中的`CustomFlags`设为`true`,并自行编写一个解析函数于命令开始时解析
 6. 基本的登录函数，通用的参数提取函数都在`share`包下
+
+
+
+# <span id="license">开源协议</span>
+
+MIT license.
+
