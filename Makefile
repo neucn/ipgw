@@ -4,41 +4,41 @@ LDFLAGS=-ldflags "-w -s -X ipgw/base/cfg.Version=${VERSION} -X ipgw/base/cfg.Bui
 
 TARGET_EXEC := ipgw
 
-.PHONY: all clean setup build-linux build-osx build-windows setup-linux setup-osx setup-windows
+.PHONY: all clean setup build-linux build-osx build-windows setup-linux setup-osx setup-windows pack-linux pack-osx pack-windows
 
 all: clean setup build-linux build-osx build-windows
 
 release: all pack-linux pack-osx pack-windows
 
 clean:
-	rm -rf build
+	rm -rf build/${VERSION}
 
 setup: setup-linux setup-osx setup-windows
 
 setup-linux:
-	mkdir -p build/linux
+	mkdir -p build/${VERSION}/linux
 
 setup-osx:
-	mkdir -p build/osx
+	mkdir -p build/${VERSION}/osx
 
 setup-windows:
-	mkdir -p build/windows
+	mkdir -p build/${VERSION}/win
 
 
 build-linux: setup-linux
-	${BUILD_ENV} GOARCH=amd64 GOOS=linux go build ${LDFLAGS} -o build/linux/${TARGET_EXEC}
+	${BUILD_ENV} GOARCH=amd64 GOOS=linux go build ${LDFLAGS} -o build/${VERSION}/linux/${TARGET_EXEC}
 
 build-osx: setup-osx
-	${BUILD_ENV} GOARCH=amd64 GOOS=darwin go build ${LDFLAGS} -o build/osx/${TARGET_EXEC}
+	${BUILD_ENV} GOARCH=amd64 GOOS=darwin go build ${LDFLAGS} -o build/${VERSION}/osx/${TARGET_EXEC}
 
 build-windows: setup-windows
-	${BUILD_ENV} GOARCH=amd64 GOOS=windows go build ${LDFLAGS} -o build/windows/${TARGET_EXEC}.exe
+	${BUILD_ENV} GOARCH=amd64 GOOS=windows go build ${LDFLAGS} -o build/${VERSION}/win/${TARGET_EXEC}.exe
 
 pack-linux:
-	upx build/linux/${TARGET_EXEC}
+	upx build/${VERSION}/linux/${TARGET_EXEC}
 
 pack-osx:
-	upx build/osx/${TARGET_EXEC}
+	upx build/${VERSION}/osx/${TARGET_EXEC}
 
 pack-windows:
-	upx build/windows/${TARGET_EXEC}.exe
+	upx build/${VERSION}/win/${TARGET_EXEC}.exe

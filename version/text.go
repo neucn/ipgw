@@ -1,14 +1,6 @@
 package version
 
 var (
-	tipQuery         = "获取最新版本信息中..."
-	tipAlreadyLatest = "当前已是最新版本"
-	tipLatest        = "最新版本: %s\n"
-
-	errNet = "请检查网络连接"
-
-	failQuery = "获取失败"
-
 	detail = `当前版本进展:
   Login
     [=]  基础登陆

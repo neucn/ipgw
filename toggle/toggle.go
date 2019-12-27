@@ -5,7 +5,7 @@ import (
 )
 
 var CmdToggle = &base.Command{
-	UsageLine: "ipgw toggle [id | no.] [-v full view]",
+	UsageLine: "ipgw toggle [id | no.] [-v view all]",
 	Short:     "切换当前登陆账号",
 	Long: `提供多账号切换的功能
 使用本功能前需要通过 ipgw login -u xxxxxxxx -p xxxxxx -s 保存过账号

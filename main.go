@@ -13,6 +13,7 @@ import (
 	"ipgw/logout"
 	"ipgw/test"
 	"ipgw/text"
+	"ipgw/update"
 	"ipgw/version"
 	"log"
 	"os"
@@ -29,6 +30,7 @@ func init() {
 		kick.CmdKick,
 		test.CmdTest,
 		fix.CmdFix,
+		update.CmdUpdate,
 	}
 	base.Usage = mainUsage
 }

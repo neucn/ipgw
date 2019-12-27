@@ -12,7 +12,7 @@ import (
 
 var CmdList = &base.Command{
 	CustomFlags: true,
-	UsageLine:   "ipgw list [-v full view] [-s saved] [-u username] [-p password] [-c cookie] [-a all] [-l local info] [-d devices] [-i net info] [-r recharge] [-b bill] [-h history] page",
+	UsageLine:   "ipgw list [-f full] [-v view all] [-s saved] [-u username] [-p password] [-c cookie] [-a all] [-l local info] [-d devices] [-i net info] [-r recharge] [-b bill] [-h history] page",
 	Short:       "获取各类信息",
 	Long: `提供校园网信息查询功能，默认使用当前登陆的账号的信息
   -s    使用保存的账号查询
@@ -26,7 +26,8 @@ var CmdList = &base.Command{
   -d    列出登陆设备
   -b    列出历史账单
   -h    列出校园网使用日志
-  -v    输出详细查询结果及中间信息
+  -f	输出所有查询结果的详细信息
+  -v    输出所有中间信息
 
   ipgw list
     效果等同于 ipgw list -l
@@ -52,15 +53,17 @@ var CmdList = &base.Command{
   ipgw list -h 1
     列出当前登陆账号的使用记录的第一页，每页20条
     可使用 -u -p 或 -s 或 -c 查询指定的账号
+  ipgw list -af
+    列出所有信息的具体查询结果
   ipgw list -av
-    列出所有信息的具体查询结果及中间信息
+    列出中间信息
 `,
 }
 
 var (
-	flags                  = []int32{'s', 'c', 'u', 'p', 'a', 'l', 'i', 'd', 'b', 'h', 'v', 'r'}
-	u, p, c                string
-	a, i, d, s, h, b, l, r bool
+	flags                     = []int32{'s', 'c', 'u', 'p', 'a', 'l', 'i', 'd', 'b', 'h', 'v', 'r', 'f'}
+	u, p, c                   string
+	a, i, d, s, h, b, l, r, f bool
 )
 
 func init() {
@@ -77,6 +80,7 @@ func init() {
 	CmdList.Flag.StringVar(&u, "u", "", "使用指定账号查询")
 	CmdList.Flag.StringVar(&p, "p", "", "使用指定账号查询")
 
+	CmdList.Flag.BoolVar(&f, "f", false, "列出所有信息的具体查询结果")
 	CmdList.Flag.BoolVar(&cfg.FullView, "v", false, "输出所有中间信息")
 
 	CmdList.Run = runList // break init cycle

@@ -118,7 +118,7 @@ func processDevice(body string) {
 	dExp := regexp.MustCompile(`<td>\d+</td>\W+?<td>(.+?)</td>\W+?<td>.+?</td>\W+?<td>(.+?)</td>\W+?<td>(.+?)</td>\W+?<td><a id="(\d+)".+?下线</a></td>`)
 	ds := dExp.FindAllStringSubmatch(body, -1)
 
-	if cfg.FullView {
+	if f {
 		for i, d := range ds {
 			fmt.Printf(`## 设备%d
    IP	%s
@@ -179,7 +179,7 @@ func processBill(body string) {
 	billExp := regexp.MustCompile(`<td>(\d+?)</td><td>\d+?</td><td>(\d+?)</td><td>.+?</td><td>.+?</td><td>(.+?)G</td><td>(.+?)</td><td>.+?</td><td>(.+?)</td>`)
 	bills := billExp.FindAllStringSubmatch(body, -1)
 
-	if cfg.FullView {
+	if f {
 		for _, b := range bills {
 			fmt.Printf(`## %s
    扣款	%sR
@@ -231,7 +231,7 @@ func processRecharge(body string) {
 	rExp := regexp.MustCompile(`<td>(\d+?)</td><td>\d+?</td><td>(\d+?)</td><td>.+?</td><td>(.+?)</td><td>.+?</td><td>(.+?)</td><td>.+?</td>`)
 	rs := rExp.FindAllStringSubmatch(body, -1)
 
-	if cfg.FullView {
+	if f {
 		for _, r := range rs {
 			fmt.Printf(`## 流水 %s
    金额	%sR

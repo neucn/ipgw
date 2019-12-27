@@ -23,7 +23,7 @@ func init() {
 }
 
 var CmdLogout = &base.Command{
-	UsageLine: "ipgw logout [-u username] [-p password] [-c cookie] [-v full view]",
+	UsageLine: "ipgw logout [-u username] [-p password] [-c cookie] [-v view all]",
 	Short:     "基础登陆",
 	Long: `提供登出校园网关功能
   -u    登出账号

@@ -9,4 +9,6 @@ var (
 	FullView bool
 
 	SavePath = ".ipgw"
+
+	ReleasePath = "https://neu.ee/release"
 )

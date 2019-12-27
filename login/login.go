@@ -29,7 +29,7 @@ func init() {
 }
 
 var CmdLogin = &base.Command{
-	UsageLine: "ipgw login [-u username] [-p password] [-s save] [-c cookie] [-d device] [-i info] [-v full view] ",
+	UsageLine: "ipgw login [-u username] [-p password] [-s save] [-c cookie] [-d device] [-i info] [-v view all] ",
 	Short:     "基础登陆",
 	Long: `提供登陆校园网关功能
   -u    登陆账号
