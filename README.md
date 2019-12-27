@@ -86,7 +86,7 @@ ipgw <command> [arguments]
 ```
 version     版本查询
 login       基础登陆
-logout      基础登陆
+logout      基础登出
 list        获取各类信息
 kick        使指定设备下线
 test        校园网测试

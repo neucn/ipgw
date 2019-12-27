@@ -146,7 +146,7 @@ func download(u string, dir string) {
 	raw := resp.Body
 	defer raw.Close()
 
-	f, err := os.Create("ipgw.download")
+	f, err := os.Create(dir + "ipgw.download")
 	if err != nil {
 		if cfg.FullView {
 			fmt.Fprintf(os.Stderr, errReason, err)
@@ -160,6 +160,7 @@ func download(u string, dir string) {
 		Total:  resp.ContentLength,
 	}
 	io.Copy(f, d)
+	f.Chmod(0777)
 	f.Close()
 	fmt.Println()
 }
