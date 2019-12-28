@@ -12,7 +12,7 @@
 > 东北大学校园网关客户端
 
 <p align="center">
-    <img src="https://neu.ee/img/demo-banner.png" alt="demo"/>
+    <img src="https://neu.ee/img/banner@v1.1.2.png" alt="demo"/>
 </p>
 
 东北大学目前唯一非官方跨平台校园网关客户端 😛
@@ -104,12 +104,12 @@
 ## Linux or OSX
 ```shell script
 # linux
-wget https://neu.ee/release/v1.1.1/linux/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin
+wget https://neu.ee/release/v1.1.2/linux/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin
 # osx
-wget https://neu.ee/release/v1.1.1/osx/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin
+wget https://neu.ee/release/v1.1.2/osx/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin
 ```
 ## Win
-1. 下载 [https://neu.ee/release/v1.1.1/win/ipgw.exe](https://neu.ee/release/v1.1.1/linux/ipgw)
+1. 下载 [https://neu.ee/release/v1.1.2/win/ipgw.exe](https://neu.ee/release/v1.1.2/linux/ipgw)
 2. 将`ipgw.exe`放置于加入了Path环境变量的路径下
 
 ## Other
@@ -119,7 +119,7 @@ wget https://neu.ee/release/v1.1.1/osx/ipgw && chmod +x ipgw && mv ipgw /usr/loc
 ```shell
 git clone https://github.com/iMyOwn/ipgw.git 
 cd ipgw 
-go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.1.1" -o ipgw 
+go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.1.2" -o ipgw 
 ```
 
 
@@ -586,10 +586,10 @@ cd ipgw
 
 ```
 # To build
-make all VERSION=v1.1.1
+make all VERSION=v1.1.2
 
 # To release
-make release VERSION=v1.1.1
+make release VERSION=v1.1.2
 ```
 > 加壳需要预先安装UPX
 
