@@ -12,11 +12,12 @@ var (
 	latestVersion = "最新版本\t%s\n"
 	getResponse   = "获取到响应\n%s"
 	useGithub     = "官网请求失败\t使用github查询"
+	changelog     = "更新日志"
 
 	wrongUrl = "下载地址错误"
 
-	changelogTitle   = "#%s\n"
-	changelogContent = "   %s\n"
+	changelogTitle   = "  %s\n"
+	changelogContent = "     %s\n"
 
 	errNet    = "请检查网络连接"
 	errReason = "错误原因\t%s\n"

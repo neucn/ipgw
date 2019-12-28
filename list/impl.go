@@ -81,7 +81,7 @@ func fetchRechargeBody() (rb string) {
 
 func fetchHistoryBody(p int) (hb string) {
 	if cfg.FullView {
-		fmt.Println(fetchingRecharge)
+		fmt.Println(fetchingHistory)
 	}
 	resp, err := ctx.GetClient().Get(fmt.Sprintf("http://ipgw.neu.edu.cn:8800/log/detail/index?page=%d&per-page=20", p))
 	share.ErrWhenReqHandler(err)

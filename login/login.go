@@ -36,8 +36,8 @@ var CmdLogin = &base.Command{
   -p    登陆密码
   -s    保存该账号
   -c    使用cookie登陆
-  -d	使用指定设备信息
-  -i	登陆后输出账号信息
+  -d    使用指定设备信息
+  -i    登陆后输出账号信息
   -v    输出所有中间信息
 
   ipgw

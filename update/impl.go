@@ -13,12 +13,14 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"sort"
+	"strings"
 	"time"
 )
 
-func checkVersion() (check *ver) {
+func checkVersion() *ver {
 	fmt.Println(querying)
-	c := &ver{Update: false}
+	i := &ver{Update: false}
 	client := ctx.GetClient()
 	// 优先neu.ee
 	resp, err := client.Get(cfg.ReleasePath + "/info.json")
@@ -30,20 +32,20 @@ func checkVersion() (check *ver) {
 			fmt.Printf(getResponse, string(res))
 		}
 
-		_ = json.Unmarshal(res, &c)
+		_ = json.Unmarshal(res, &i)
 
-		if len(c.Latest) < 1 {
+		if len(i.Latest) < 1 {
 			fmt.Fprintln(os.Stderr, failQuery)
 			os.Exit(2)
 		}
 
-		if c.Latest == cfg.Version {
+		if !isNewer(i.Latest) {
 			fmt.Println(alreadyLatest)
-			return c
+			return i
 		}
-		c.Update = true
-		fmt.Printf(latestVersion, c.Latest)
-		return c
+		i.Update = true
+		fmt.Printf(latestVersion, i.Latest)
+		return i
 	} else {
 		if cfg.FullView {
 			fmt.Fprintln(os.Stderr, useGithub)
@@ -69,48 +71,56 @@ func checkVersion() (check *ver) {
 	}
 
 	tag := tags[0][1]
-	if tag == cfg.Version {
+	if !isNewer(tag) {
 		fmt.Println(alreadyLatest)
-		return c
+		return i
 	}
 
-	c.Update = true
+	i.Update = true
 	fmt.Printf(latestVersion, tag)
-	return c
+	return i
 }
 
-func printChangelog(c *ver) {
+func printChangelog(i *ver) {
 	fmt.Println()
-	for v, s := range c.Changelog {
+	fmt.Println(changelog)
+	// 版本排序
+	var tmp = make([]string, 0)
+	for k, _ := range i.Changelog {
+		tmp = append(tmp, k)
+	}
+
+	sort.Sort(sort.Reverse(sort.StringSlice(tmp)))
+	for _, v := range tmp {
 		if v == cfg.Version {
 			break
 		}
 		fmt.Printf(changelogTitle, v)
-		for _, l := range s {
+		for _, l := range i.Changelog[v] {
 			fmt.Printf(changelogContent, l)
 		}
 	}
 	fmt.Println()
 }
 
-func getReleaseUrl(c *ver) string {
+func getReleaseUrl(i *ver) string {
 	u := cfg.ReleasePath
 	// 检查arch
-	_, ok := c.Arch[runtime.GOARCH]
+	_, ok := i.Arch[runtime.GOARCH]
 	if !ok {
 		fmt.Fprintln(os.Stderr, failArchNotSupported)
 		os.Exit(2)
 	}
 
 	// 检查版本
-	if len(c.Latest) < 1 {
+	if len(i.Latest) < 1 {
 		fmt.Fprintln(os.Stderr, failGetReleasePath)
 		os.Exit(2)
 	}
-	u += "/" + c.Latest
+	u += "/" + i.Latest
 
 	// 检查os
-	s, ok := c.OS[runtime.GOOS]
+	s, ok := i.OS[runtime.GOOS]
 	if !ok {
 		fmt.Fprintln(os.Stderr, failOSNotSupported)
 		os.Exit(2)
@@ -118,7 +128,7 @@ func getReleaseUrl(c *ver) string {
 	u += "/" + s
 
 	// 获取文件名
-	n, ok := c.Name[runtime.GOOS]
+	n, ok := i.Name[runtime.GOOS]
 	if !ok {
 		fmt.Fprintln(os.Stderr, failOSNotSupported)
 		os.Exit(2)
@@ -165,7 +175,7 @@ func download(u string, dir string) {
 	fmt.Println()
 }
 
-func update(c *ver) {
+func update(i *ver) {
 	path, err := os.Executable()
 	if err != nil {
 		if cfg.FullView {
@@ -178,7 +188,7 @@ func update(c *ver) {
 	dir := filepath.Dir(old) + string(os.PathSeparator)
 
 	// 下载
-	download(getReleaseUrl(c), dir)
+	download(getReleaseUrl(i), dir)
 
 	fmt.Println(updating)
 
@@ -198,7 +208,7 @@ func update(c *ver) {
 		fmt.Println(covering)
 	}
 
-	err = os.Rename(dir+"ipgw.download", dir+c.Name[runtime.GOOS])
+	err = os.Rename(dir+"ipgw.download", dir+i.Name[runtime.GOOS])
 	if err != nil {
 		if cfg.FullView {
 			fmt.Fprintf(os.Stderr, errReason, err)
@@ -207,4 +217,19 @@ func update(c *ver) {
 		os.Exit(2)
 	}
 	fmt.Println(successUpdate)
+}
+
+func isNewer(v string) bool {
+	var fetched, local []string
+	if len(cfg.Version) < 1 {
+		return true
+	}
+	fetched = strings.Split(v[1:], ".")
+	local = strings.Split(cfg.Version[1:], ".")
+	for i := 0; i < 3; i++ {
+		if fetched[i] > local[i] {
+			return true
+		}
+	}
+	return false
 }

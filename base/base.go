@@ -4,11 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"ipgw/base/cfg"
-	"ipgw/base/str"
 	"ipgw/text"
 	"log"
 	"os"
-	"os/exec"
 	"strings"
 	"sync"
 )
@@ -104,12 +102,6 @@ func Errorf(format string, args ...interface{}) {
 	SetExitStatus(1)
 }
 
-func ExitIfErrors() {
-	if exitStatus != 0 {
-		Exit()
-	}
-}
-
 var exitStatus = 0
 var exitMu sync.Mutex
 
@@ -119,23 +111,6 @@ func SetExitStatus(n int) {
 		exitStatus = n
 	}
 	exitMu.Unlock()
-}
-
-func GetExitStatus() int {
-	return exitStatus
-}
-
-// Run runs the command, with stdout and stderr
-// connected to the go command's own stdout and stderr.
-// If the command fails, Run reports the error using Errorf.
-func Run(cmdArgs ...interface{}) {
-	cmdline := str.StringList(cmdArgs...)
-	cmd := exec.Command(cmdline[0], cmdline[1:]...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		Errorf("%v", err)
-	}
 }
 
 // Usage is the usage-reporting function, filled in by package main

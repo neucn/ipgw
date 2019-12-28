@@ -82,7 +82,7 @@
 - 检查网络与登陆情况
 - **自动更新**
 - 修复配置文件
-- **查询账号信息**
+- **信息查询**
   - 查看本地信息
   - 查询账号信息
   - 查询已登陆设备
@@ -131,19 +131,19 @@ go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.1.1" -o ipgw
 
 ## 登陆
 
-- 在没有保存过账号的情况下登陆
+在没有保存过账号的情况下登陆
 
   ```shell script
   ipgw login -u 学号 -p 密码
   ```
 
-- 可以在登陆时保存账号
+可以在登陆时保存账号
 
   ```shell script
   ipgw login -u 学号 -p 密码 -s
   ```
 
-- **在保存了账号后，可以直接登陆**
+**在保存了账号后，可以直接登陆**
 
   ```shell script
   ipgw
@@ -153,19 +153,19 @@ go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.1.1" -o ipgw
 
 ## 登出
 
-- 在没有保存过账号的情况下登出
+在没有保存过账号的情况下登出
 
   ```shell script
   ipgw logout -u 学号 -p 密码
   ```
 
-- 在保存了账号后，可以直接登出
+在保存了账号后，可以直接登出
 
   ```shell script
   ipgw logout
   ```
 
-- **如果该次登陆使用的是本工具，则无论是否保存账号，都可直接登出**
+**如果该次登陆使用的是本工具，则无论是否保存账号，都可直接登出**
 
   ```shell script
   ipgw logout
@@ -174,7 +174,7 @@ go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.1.1" -o ipgw
 
 ## 强制下线
 
-- 强制指定SID的设备断开校园网
+强制指定SID的设备断开校园网
 
   ```shell script
   ipgw kick SID1 SID2 SID3 ...
@@ -185,38 +185,39 @@ go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.1.1" -o ipgw
 
 ## 查询
 
-- 列出本地保存的信息
+列出本地保存的信息
 
   ```shell script
   ipgw list -l
   ```
 
-- 列出**当前登陆账号所有信息**
+列出**当前登陆账号所有信息**
 
   ```shell script
   ipgw list -a
   ```
   
-- 列出**当前登陆账号的指定信息**
+列出**当前登陆账号的已登录设备、账号信息与第一页使用日志**
 
   ```shell script
   ipgw list -d -i -h 1
   ```
   
-- 列出**当前登陆账号的指定信息**，缩写形式
+列出**当前登陆账号的已登录设备、账号信息与第一页使用日志**，缩写形式
 
   ```shell script
   ipgw list -hid
   ```
+> 默认获取第一页日志，因此1可以省略
   
-- 可以通过`-s`、`-u -p`、`-c`查询已保存账号/指定账号/Cookie，例如
-  - 列出已保存账号的第一页使用日志
+可以通过`-s`、`-u -p`、`-c`查询已保存账号/指定账号/Cookie，例如
+  - 列出已保存账号的第三页使用日志
     ```shell script
-    ipgw list -sh
+    ipgw list -sh 3
     ```
-  - 列出指定账号的的第二页使用日志
+  - 列出指定账号的的第三页使用日志
     ```shell script
-    ipgw list -u 学号 -p 密码 -h 2
+    ipgw list -u 学号 -p 密码 -h 3
     ```
   - 列出指定Cookie对应账号的第三页使用日志
     ```shell script
@@ -277,8 +278,8 @@ ipgw login [-u username] [-p password] [-s save] [-c cookie] [-d device] [-i inf
   -p    登陆密码
   -s    保存该账号
   -c    使用cookie登陆
-  -d	使用指定设备信息
-  -i	登陆后输出账号信息
+  -d    使用指定设备信息
+  -i    登陆后输出账号信息
   -v    输出所有中间信息
 ```
 
@@ -286,22 +287,29 @@ ipgw login [-u username] [-p password] [-s save] [-c cookie] [-d device] [-i inf
 
 ```shell script
   ipgw
-    #效果等同于 ipgw login -i
-    #[推荐] 在已经使用-s保存了账号信息的情况下，直接执行ipgw即可完成登陆
+    # 效果等同于 ipgw login -i
+    # [推荐] 在已经使用-s保存了账号信息的情况下，直接执行ipgw即可完成登陆
+
   ipgw login -u 学号 -p 密码
-    #使用指定账号登陆网关
+    # 使用指定账号登陆网关
+
   ipgw login -u 学号 -p 密码 -s
-    #本次登陆的账号信息将被保存在用户目录下的.ipgw文件中
+    # 本次登陆的账号信息将被保存在用户目录下的.ipgw文件中
+
   ipgw login
-    #在已经使用-s保存了账号信息的情况下，可以直接使用已经保存的账号登录
+    # 在已经使用-s保存了账号信息的情况下，可以直接使用已经保存的账号登录
+
   ipgw login -c "ST-XXXXXX-XXXXXXXXXXXXXXXXXXXX-tpass"
-    #使用指定cookie登陆
+    # 使用指定cookie登陆
+
   ipgw login -d android
-    #使用指定设备信息登陆，可选的有win linux osx，默认使用匿名设备信息
+    # 使用指定设备信息登陆，可选的有win linux osx，默认使用匿名设备信息
+
   ipgw login -i
-    #登陆成功后输出账号信息，包括账号余额、已使用时长、已使用流量等
+    # 登陆成功后输出账号信息，包括账号余额、已使用时长、已使用流量等
+
   ipgw login [arguments] -v
-    #打印登陆过程中的每一步信息
+    # 打印登陆过程中的每一步信息
 ```
 
 
@@ -326,15 +334,18 @@ ipgw logout [-u username] [-p password] [-c cookie] [-v view all]
 
 ```shell script
   ipgw logout
-    #若本次登陆是通过本工具，则直接登出
-    #若直接登出失败，且有未失效的Cookie，将使用Cookie登出
-    #若Cookie登出失败，且已使用-s保存了账号信息，将使用该账号登出
+    # 若本次登陆是通过本工具，则直接登出
+    # 若直接登出失败，且有未失效的Cookie，将使用Cookie登出
+    # 若Cookie登出失败，且已使用-s保存了账号信息，将使用该账号登出
+
   ipgw logout -u 学号 -p 密码
-    #使用指定账号登出网关
+    # 使用指定账号登出网关
+
   ipgw logout -c "ST-XXXXXX-XXXXXXXXXXXXXXXXXXXX-tpass"
-    #使用指定cookie登出
+    # 使用指定cookie登出
+
   ipgw logout [arguments] -v
-    #打印登出过程中的每一步详细信息
+    # 打印登出过程中的每一步详细信息
 ```
 
 ## Kick
@@ -353,9 +364,10 @@ ipgw kick [-v view all] sid1 sid2 sid3 ...
 
 ```shell script
   ipgw kick XXXXXXX YYYYYYYY
-    #使指定SID的设备下线
+    # 使指定SID的设备下线
+
   ipgw kick -v XXXXXXX
-    #使指定SID的设备下线并输出详细的中间信息
+    # 使指定SID的设备下线并输出详细的中间信息
 ```
 
 
@@ -389,33 +401,42 @@ ipgw list [-f full] [-v view all] [-s saved] [-u username] [-p password] [-c coo
 
 ```shell script
   ipgw list
-    #效果等同于 ipgw list -l
+    # 效果等同于 ipgw list -l
+
   ipgw list -l
-    #列出本地保存的账号及会话信息
-    #包括 已保存账号 Cookie CAS
+    # 列出本地保存的账号及会话信息
+    # 包括 已保存账号 Cookie CAS
+
   ipgw list -a
-    #效果等同于 ipgw list -birdh 1
-    #列出当前登陆账号所有信息，必须是使用本工具登陆
+    # 效果等同于 ipgw list -birdh 1
+    # 列出当前登陆账号所有信息，必须是使用本工具登陆
+
   ipgw list -i
-    #查看当前登陆账号的校园网套餐信息
-    #包括 套餐 使用流量 使用时长 余额 使用次数
-    #可使用 -u -p 或 -s 或 -c 查询指定的账号
+    # 查看当前登陆账号的校园网套餐信息
+    # 包括 套餐 使用流量 使用时长 余额 使用次数
+    # 可使用 -u -p 或 -s 或 -c 查询指定的账号
+
   ipgw list -r
-    #列出当前登陆账号的充值记录
-    #可使用 -u -p 或 -s 或 -c 查询指定的账号
+    # 列出当前登陆账号的充值记录
+    # 可使用 -u -p 或 -s 或 -c 查询指定的账号
+
   ipgw list -d
-    #列出当前登陆账号的已登录设备
-    #可使用 -u -p 或 -s 或 -c 查询指定的账号
+    # 列出当前登陆账号的已登录设备
+    # 可使用 -u -p 或 -s 或 -c 查询指定的账号
+
   ipgw list -b
-    #列出当前登陆账号的历史付费记录
-    #可使用 -u -p 或 -s 或 -c 查询指定的账号
+    # 列出当前登陆账号的历史付费记录
+    # 可使用 -u -p 或 -s 或 -c 查询指定的账号
+
   ipgw list -h 1
-    #列出当前登陆账号的使用记录的第一页，每页20条
-    #可使用 -u -p 或 -s 或 -c 查询指定的账号
+    # 列出当前登陆账号的使用记录的第一页，每页20条
+    # 可使用 -u -p 或 -s 或 -c 查询指定的账号
+
   ipgw list -af
-    #列出所有信息的具体查询结果
+    # 列出所有信息的具体查询结果
+
   ipgw list -av
-    #列出中间信息
+    # 列出中间信息
 ```
 
 
@@ -437,9 +458,10 @@ ipgw test [-v view all]
 
 ```shell script
   ipgw test
-    #测试校园网连接与登陆情况
+    # 测试校园网连接与登陆情况
+
   ipgw test -v
-    #测试校园网连接与登陆情况并输出详细中间信息
+    # 测试校园网连接与登陆情况并输出详细中间信息
 ```
 
 
@@ -462,9 +484,10 @@ ipgw update [-f force] [-v view all]
 
 ```shell script
   ipgw update
-    #检查更新并自动更新
+    # 检查更新并自动更新
+
   ipgw update -f
-    #强制下载最新版更新
+    # 强制下载最新版更新
 ```
 
 
@@ -484,7 +507,7 @@ ipgw fix
 
 ```shell script
   ipgw fix
-    #修复配置文件
+    # 修复配置文件
 ```
 
 
@@ -506,9 +529,10 @@ ipgw version [-l list]
 
 ```shell script
   ipgw version
-    #查看版本
+    # 查看版本
+
   ipgw version -l
-    #查看当前版本完整功能
+    # 查看当前版本完整功能
 ```
 
 
@@ -519,20 +543,20 @@ ipgw version [-l list]
 
 程序没有执行权限，使用`chmod +x ipgw`赋予可执行权限即可。
 
-
+<br/>
 
 > ipgw: command not found
 
 这是*nix系统下的报错，没有正确将`ipgw`程序放置于环境变量Path所列出的目录中，推荐将程序放置于`/usr/local/bin`目录下
 
-
+<br/>
 
 > 'ipgw' is not recognized as an internal or external command,
 > operable program or batch file.
 
 这是win系统下的报错，没有正确将`ipgw`程序放置于环境变量Path所列出的目录中，推荐将程序放置于一个不会经常变动的路径下，然后将该路径加入环境变量Path、
 
-
+<br/>
 
 > wget: command not found
 
@@ -540,7 +564,7 @@ linux用户请使用自己系统对应的包管理工具安装wget，如ubuntu�
 
 mac用户可以使用homebrew安装wget，`brew install wget`；但有可能系统里甚至没有homebrew，建议手动下载然后`chmod +x ipgw`并`mv ipgw /usr/local/bin`
 
-
+<br/>
 
 > 更新失败或者提示网络失败、获取失败怎么办？
 
@@ -548,7 +572,7 @@ mac用户可以使用homebrew安装wget，`brew install wget`；但有可能系�
 
 如果错误确实由程序的bug引发，欢迎[提交Bug](https://github.com/iMyOwn/ipgw/issues/new)
 
-
+<br/>
 
 # 二次开发
 
