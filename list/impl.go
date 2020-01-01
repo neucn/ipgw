@@ -140,7 +140,7 @@ func processInfo(body string) {
 	// 取出套餐信息
 
 	fmt.Println("# 套餐信息")
-	infoExp := regexp.MustCompile(`<td>\W+.+?(\d+?)G.+?(\d+?)元.+?</td>\W+<td>\W+(.+?)\W+</td>\W+<td>(.+?)</td>\W+<td>(.+?)</td>\W+<td>.+?</td>\W+<td>(.+?)</td>\W+<td>.+?</td>`)
+	infoExp := regexp.MustCompile(`<td>\W+.+?(\d+?)G下行流量(.+?)元?/.+?</td>\W+<td>\W+(.+?)\W+</td>\W+<td>(.+?)</td>\W+<td>(.+?)</td>\W+<td>.+?</td>\W+<td>(.+?)</td>\W+<td>.+?</td>`)
 	infos := infoExp.FindAllStringSubmatch(body, -1)
 	if len(infos) < 1 {
 		fmt.Fprintln(os.Stderr, failToFetch)
@@ -153,6 +153,18 @@ func processInfo(body string) {
 		status = "已欠费"
 	} else {
 		status = "正常"
+	}
+
+	if infos[0][2] == "免费" {
+		infos[0][2] = "0"
+	}
+
+	if strings.HasSuffix(infos[0][3], "G") {
+		u, _ := strconv.ParseFloat(strings.TrimSuffix(infos[0][6], "G"), 32)
+		t, _ := strconv.ParseFloat(infos[0][1], 32)
+		if u > t {
+			status += "【流量超额】"
+		}
 	}
 
 	fmt.Printf(`   套餐	%sG / %sR
