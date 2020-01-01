@@ -61,7 +61,7 @@ func GetIDAndSIDWhenCollision(body string) (id string, sid string) {
 	return id, sidList[0][1]
 }
 
-func GetIfOut(body string) (out bool) {
+func GetIfUsedOut(body string) (out bool) {
 	outExp := regexp.MustCompile(`余额不足月租`)
 	return outExp.MatchString(body)
 }
@@ -113,7 +113,7 @@ func GetDevice(name string, x *ctx.Ctx) {
 	x.UA = ua
 }
 
-func PrintNetInfo(x *ctx.Ctx) {
+func GetNetInfo(x *ctx.Ctx) {
 	if cfg.FullView {
 		fmt.Println(gettingInfo)
 	}
@@ -156,8 +156,6 @@ func PrintNetInfo(x *ctx.Ctx) {
 	if cfg.FullView {
 		fmt.Println(successGetInfo)
 	}
-
-	x.Net.Print()
 }
 
 func GetLTAndURL(reqUrl string) (lt, postUrl string) {

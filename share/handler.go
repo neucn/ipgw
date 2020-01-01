@@ -24,11 +24,13 @@ func CollisionHandler(body string) string {
 		os.Exit(2)
 	}
 
-	fmt.Printf(differentU, id)
-
 	if sid == "" {
 		fmt.Fprintln(os.Stderr, failGetInfo)
 		os.Exit(2)
+	}
+
+	if cfg.FullView {
+		fmt.Printf(differentU, id)
 	}
 
 	if cfg.FullView {
@@ -40,13 +42,17 @@ func CollisionHandler(body string) string {
 	// 踢下线
 	resp, err := Kick(sid)
 
+	// 处理网络异常
 	ErrWhenReqHandler(err)
+
+	// 读取响应
 	body = ReadBody(resp)
 
 	if cfg.FullView {
 		fmt.Println(body)
 	}
 
+	// 若登出失败
 	if body != "下线请求已发送" {
 		fmt.Fprintf(os.Stderr, failLogout, id)
 		os.Exit(2)

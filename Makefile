@@ -41,4 +41,4 @@ pack-osx:
 	upx build/${VERSION}/osx/${TARGET_EXEC}
 
 pack-windows:
-	upx build/${VERSION}/win/${TARGET_EXEC}.exe
+	upx build/${VERSION}/win/${TARGET_EXEC}.exe && cp install.bat build/${VERSION}/win

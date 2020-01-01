@@ -25,7 +25,7 @@ func loginWithUP(x *ctx.Ctx) {
 		body = share.CollisionHandler(body)
 	}
 
-	out := share.GetIfOut(body)
+	out := share.GetIfUsedOut(body)
 	if out {
 		fmt.Println(failBalanceOut)
 		os.Exit(2)
@@ -124,7 +124,7 @@ func loginWithC(x *ctx.Ctx) {
 		}
 	}
 
-	out := share.GetIfOut(body)
+	out := share.GetIfUsedOut(body)
 	if out {
 		fmt.Println(failBalanceOut)
 		os.Exit(2)

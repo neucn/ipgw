@@ -91,17 +91,15 @@ func runLogin(cmd *base.Command, args []string) {
 
 	// 当直接ipgw进来的args是nil
 	if i || args == nil {
-		share.PrintNetInfo(x)
+		share.GetNetInfo(x)
+		x.Net.Print()
 	}
 
 	if s {
-		// todo 后期加上指定配置文件路径的功能
-		// todo 为方便测试，指定路径为当前目录
 		// 若s，把账号密码Cookie写进文件里
 		x.SaveAll()
 	} else {
 		// 否则只写入Session
 		x.SaveSession()
 	}
-
 }

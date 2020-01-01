@@ -12,7 +12,7 @@
 > 东北大学校园网关客户端
 
 <p align="center">
-    <img src="https://neu.ee/img/banner@v1.1.2.png" alt="demo"/>
+    <img src="https://neu.ee/img/banner@v1.2.0.png" alt="banner"/>
 </p>
 
 东北大学目前唯一非官方跨平台校园网关客户端 😛
@@ -104,13 +104,20 @@
 ## Linux or OSX
 ```shell script
 # linux
-wget https://neu.ee/release/v1.1.2/linux/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin
+wget https://neu.ee/release/v1.2.0/linux/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin && ipgw version
+
 # osx
-wget https://neu.ee/release/v1.1.2/osx/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin
+# 使用terminal
+wget https://neu.ee/release/v1.2.0/osx/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin && ipgw version
 ```
+
+若遇到问题请参阅[常见问题](#常见问题)，或[寻找帮助](https://github.com/iMyOwn/ipgw/issues/new)
 ## Win
-1. 下载 [https://neu.ee/release/v1.1.2/win/ipgw.exe](https://neu.ee/release/v1.1.2/linux/ipgw)
-2. 将`ipgw.exe`放置于加入了Path环境变量的路径下
+1. 下载 [ipgw.exe](https://neu.ee/release/v1.2.0/win/ipgw.exe)
+2. 下载 [配置脚本](https://neu.ee/release/v1.2.0/win/install.bat)
+3. 将配置脚本与`ipgw.exe`放置于同一目录下，双击配置脚本，会自动配置并打开环境变量设置窗口
+4. 在系统环境变量中找到`Path`，选中后点击`编辑`，在弹出的窗口点击`新建`，输入`%ipgw%`并保存
+5. 打开`cmd`(可通过win+r并输入cmd打开)，输入`ipgw version`，若无报错，即配置成功
 
 ## Other
 
@@ -119,15 +126,14 @@ wget https://neu.ee/release/v1.1.2/osx/ipgw && chmod +x ipgw && mv ipgw /usr/loc
 ```shell
 git clone https://github.com/iMyOwn/ipgw.git 
 cd ipgw 
-go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.1.2" -o ipgw 
+go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.2.0" -o ipgw 
 ```
-
-
-
 
 # 快速使用
 
 利用`ipgw`，能够大大简化对网关的操作.
+
+`ipgw`为命令行工具，osx与linux系统请在`terminal`中使用，windows系统请在`cmd`中使用
 
 ## 登陆
 
@@ -180,8 +186,19 @@ go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.1.2" -o ipgw
   ipgw kick SID1 SID2 SID3 ...
   ```
 
-【注意】该操作可以强制任何人的设备断开校园网，由于滥用该操作造成的一切后果由使用者自负。
+>【注意】该操作可以强制任何人的设备断开校园网，由于滥用该操作造成的一切后果由使用者自负。
 
+强制当前账号在某些设备下线
+  ```shell script
+  ipgw list -d
+  # 会输出类似信息，该命令的具体操作请参阅下文 list 部分
+  # No.0 01-01 xx:xx:xx  xxx.xxx.xxx.xxx   xxxxxxxx
+  # No.1 01-01 yy:yy:yy  yyy.yyy.yyy.yyy   yyyyyyyy
+  # No.2 01-01 zz:zz:zz  zzz.zzz.zzz.zzz   zzzzzzzz
+
+  # 根据最后的八位数字来强制下线
+  ipgw kick xxxxxxxx zzzzzz
+  ```
 
 ## 查询
 
@@ -210,7 +227,7 @@ go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.1.2" -o ipgw
   ```
 > 默认获取第一页日志，因此1可以省略
   
-可以通过`-s`、`-u -p`、`-c`查询已保存账号/指定账号/Cookie，例如
+可以通过`-s`、`-u -p`、`-c`查询 已保存账号 / 指定账号 / 指定Cookie 的信息，例如
   - 列出已保存账号的第三页使用日志
     ```shell script
     ipgw list -sh 3
@@ -302,7 +319,7 @@ ipgw login [-u username] [-p password] [-s save] [-c cookie] [-d device] [-i inf
   ipgw login -c "ST-XXXXXX-XXXXXXXXXXXXXXXXXXXX-tpass"
     # 使用指定cookie登陆
 
-  ipgw login -d android
+  ipgw login -d win
     # 使用指定设备信息登陆，可选的有win linux osx，默认使用匿名设备信息
 
   ipgw login -i
@@ -586,10 +603,10 @@ cd ipgw
 
 ```
 # To build
-make all VERSION=v1.1.2
+make all VERSION=v1.2.0
 
 # To release
-make release VERSION=v1.1.2
+make release VERSION=v1.2.0
 ```
 > 加壳需要预先安装UPX
 

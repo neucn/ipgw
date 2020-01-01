@@ -102,58 +102,34 @@ func logoutWithUP(x *ctx.Ctx) {
 		os.Exit(2)
 	}
 
-	var id, sid string
+	// 处理登出与当前帐号不同账号的情况
+	var id string
 	if strings.Contains(body, "aaa") {
-		id, sid = share.GetIDAndSIDWhenCollision(body)
-		if id == "" {
-			fmt.Fprintln(os.Stderr, wrongState)
-			os.Exit(2)
-		}
+		// 提取id作为真实的登出账号
+		id, _ = share.GetIDAndSIDWhenCollision(body)
+		// 处理冲突
+		body = share.CollisionHandler(body)
 
-		if sid == "" {
-			fmt.Fprintln(os.Stderr, failGetInfo)
-			os.Exit(2)
-		}
+		// 查看当前账号是否已欠费
+		out := share.GetIfUsedOut(body)
 
-		if cfg.FullView {
-			fmt.Printf(successGetID, id)
-		}
-
-		if cfg.FullView {
-			fmt.Printf(beginLogout, id)
-		}
-
-		// 踢下线
-		resp, err := share.Kick(sid)
-
-		share.ErrWhenReqHandler(err)
-		body = share.ReadBody(resp)
-
-		if cfg.FullView {
-			fmt.Println(body)
-		}
-
-		if body != "下线请求已发送" {
-			fmt.Fprintf(os.Stderr, failLogout, id)
-			os.Exit(2)
-		}
-
-		resp, err = client.Get("https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
-
-		share.ErrWhenReqHandler(err)
-
-		// 读取响应内容
-		body = share.ReadBody(resp)
-
-		out := share.GetIfOut(body)
+		// 若已欠费，则该账号登陆失败，因此无需退出，直接打印登出成功即可
 		if out {
 			fmt.Printf(successLogout, id)
 			os.Exit(0)
 		}
 
-		share.GetIPAndSID(body, x)
+		// 否则获取当前账号的sid
+		ok := share.GetIPAndSID(body, x)
+		if !ok {
+			fmt.Fprintln(os.Stderr, failGetInfo)
+			os.Exit(2)
+		}
 	} else {
-		out := share.GetIfOut(body)
+		// 查看当前账号是否已欠费
+		out := share.GetIfUsedOut(body)
+
+		// 若已欠费，则该账号登陆失败，因此无需退出，直接打印登出成功即可
 		if out {
 			fmt.Println(balanceOut)
 			os.Exit(0)
@@ -167,21 +143,24 @@ func logoutWithUP(x *ctx.Ctx) {
 		}
 	}
 
+	// 踢下线
 	resp, err = share.Kick(x.Net.SID)
 
+	// 处理请求异常
 	share.ErrWhenReqHandler(err)
 
+	// 读取响应
 	body = share.ReadBody(resp)
 
+	// 若请求失败
 	if body != "下线请求已发送" {
 		fmt.Fprintf(os.Stderr, failLogout, id)
 		os.Exit(2)
 	}
 
+	// 请求成功，打印真实的被登出账号。因为不同账号的情况下，处理函数已经输出了一次，因此不需要再输出
 	if id == "" {
 		fmt.Printf(successLogout, x.User.Username)
-	} else {
-		fmt.Printf(successLogout, id)
 	}
 }
 
@@ -215,50 +194,30 @@ func logoutWithC(x *ctx.Ctx) (ok bool) {
 	}
 
 	// 不同账号登陆
-	var id, sid string
+	var id string
 	if strings.Contains(body, "aaa") {
-		id, sid = share.GetIDAndSIDWhenCollision(body)
-		if id == "" {
-			fmt.Fprintln(os.Stderr, wrongState)
-			os.Exit(2)
+		// 提取id作为真实的登出账号
+		id, _ = share.GetIDAndSIDWhenCollision(body)
+
+		// 处理
+		body = share.CollisionHandler(body)
+
+		// 查看当前账号是否已欠费
+		out := share.GetIfUsedOut(body)
+
+		// 若已欠费，则该账号登陆失败，因此无需退出，直接打印登出成功即可
+		if out {
+			fmt.Println(balanceOut)
+			os.Exit(0)
 		}
 
-		if sid == "" {
+		// 否则获取当前账号的sid
+		ok := share.GetIPAndSID(body, x)
+
+		if !ok {
 			fmt.Fprintln(os.Stderr, failGetInfo)
 			os.Exit(2)
 		}
-
-		if cfg.FullView {
-			fmt.Printf(successGetID, id)
-		}
-
-		if cfg.FullView {
-			fmt.Printf(beginLogout, id)
-		}
-
-		// 踢下线
-		resp, err := share.Kick(sid)
-
-		share.ErrWhenReqHandler(err)
-		body = share.ReadBody(resp)
-
-		if cfg.FullView {
-			fmt.Println(body)
-		}
-
-		if body != "下线请求已发送" {
-			fmt.Fprintf(os.Stderr, failLogout, id)
-			os.Exit(2)
-		}
-
-		resp, err = client.Get("https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
-
-		share.ErrWhenReqHandler(err)
-
-		// 读取响应内容
-		body = share.ReadBody(resp)
-
-		share.GetIPAndSID(body, x)
 	} else {
 		// 读取学号
 		usernameExp := regexp.MustCompile(`user_name" style="float:right;color: #894324;">(.+?)</span>`)
@@ -268,22 +227,33 @@ func logoutWithC(x *ctx.Ctx) (ok bool) {
 			fmt.Fprintln(os.Stderr, failGetInfo)
 			os.Exit(2)
 		}
+
+		// 挂载账号信息
 		x.User.Username = username[0][1]
 		if cfg.FullView {
 			fmt.Printf(successGetID, x.User.Username)
 		}
 
-		share.GetIPAndSID(body, x)
+		// 获取IP与SID
+		ok := share.GetIPAndSID(body, x)
+
+		if !ok {
+			fmt.Fprintln(os.Stderr, failGetInfo)
+			os.Exit(2)
+		}
 
 		if cfg.FullView {
 			fmt.Println(sendingRequest)
 		}
 	}
 
+	// 踢下线
 	resp, err = share.Kick(x.Net.SID)
 
+	// 处理网络异常
 	share.ErrWhenReqHandler(err)
 
+	// 读取响应
 	body = share.ReadBody(resp)
 
 	if body != "下线请求已发送" {
@@ -291,10 +261,10 @@ func logoutWithC(x *ctx.Ctx) (ok bool) {
 		os.Exit(2)
 	}
 
+	// 请求成功，打印真实的被登出账号。因为不同账号的情况下，处理函数已经输出了一次，因此不需要再输出
 	if id == "" {
 		fmt.Printf(successLogout, x.User.Username)
-	} else {
-		fmt.Printf(successLogout, id)
 	}
+
 	return true
 }
