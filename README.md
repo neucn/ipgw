@@ -115,9 +115,10 @@ wget https://neu.ee/release/v1.2.0/osx/ipgw && chmod +x ipgw && mv ipgw /usr/loc
 ## Win
 1. 下载 [ipgw.exe](https://neu.ee/release/v1.2.0/win/ipgw.exe)
 2. 下载 [配置脚本](https://neu.ee/release/v1.2.0/win/install.bat)
-3. 将配置脚本与`ipgw.exe`放置于同一目录下，双击配置脚本，会自动配置并打开环境变量设置窗口
-4. 在系统环境变量中找到`Path`，选中后点击`编辑`，在弹出的窗口点击`新建`，输入`%ipgw%`并保存
+3. 将配置脚本与`ipgw.exe`放置于同一目录下，双击配置脚本(可能需要右键使用管理员权限打开)，会自动配置并弹出高级设置窗口
+4. 点击`环境变量`打开设置窗口，在系统环境变量中找到`Path`，选中后点击`编辑`，在弹出的窗口点击`新建`，输入`%ipgw%`并保存
 5. 打开`cmd`(可通过win+r并输入cmd打开)，输入`ipgw version`，若无报错，即配置成功
+> 配置成功后下载的`ipgw.exe`与`install.bat`可以删除
 
 ## Other
 
@@ -197,7 +198,7 @@ go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.2.0" -o ipgw
   # No.2 01-01 zz:zz:zz  zzz.zzz.zzz.zzz   zzzzzzzz
 
   # 根据最后的八位数字来强制下线
-  ipgw kick xxxxxxxx zzzzzz
+  ipgw kick xxxxxxxx zzzzzzzz
   ```
 
 ## 查询
