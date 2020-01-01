@@ -35,6 +35,9 @@ func GetCtx() *Ctx {
 			User: &info.UserInfo{},
 			Net:  &info.NetInfo{},
 		}
+		// 初始化避免空指针
+		t.User.SetCAS("")
+		t.User.SetCookie("")
 	})
 	return t
 }

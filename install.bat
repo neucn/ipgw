@@ -1,4 +1,5 @@
 @echo off
+cd /d %~dp0
 if exist ipgw.exe (
     if exist %APPDATA%\ipgw\ipgw.exe del %APPDATA%\ipgw\ipgw.exe
     if not exist %APPDATA%\ipgw md %APPDATA%\ipgw
