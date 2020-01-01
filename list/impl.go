@@ -160,7 +160,7 @@ func processInfo(body string) {
 	}
 
 	if strings.HasSuffix(infos[0][3], "G") {
-		u, _ := strconv.ParseFloat(strings.TrimSuffix(infos[0][6], "G"), 32)
+		u, _ := strconv.ParseFloat(strings.TrimSuffix(infos[0][3], "G"), 32)
 		t, _ := strconv.ParseFloat(infos[0][1], 32)
 		if u > t {
 			status += "【流量超额】"
