@@ -12,7 +12,7 @@
 > 东北大学校园网关客户端
 
 <p align="center">
-    <img src="https://neu.ee/img/banner@v1.2.1.png" alt="banner"/>
+    <img src="https://neu.ee/img/banner@v1.2.2.png" alt="banner"/>
 </p>
 
 东北大学目前唯一非官方跨平台校园网关客户端 😛
@@ -104,17 +104,17 @@
 ## Linux or OSX
 ```shell script
 # linux
-wget https://neu.ee/release/v1.2.1/linux/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin && ipgw version
+wget https://neu.ee/release/v1.2.2/linux/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin && ipgw version
 
 # osx
 # 使用terminal
-wget https://neu.ee/release/v1.2.1/osx/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin && ipgw version
+wget https://neu.ee/release/v1.2.2/osx/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin && ipgw version
 ```
 
 若遇到问题请参阅[常见问题](#常见问题)，或[寻找帮助](https://github.com/iMyOwn/ipgw/issues/new)
 ## Win
-1. 下载 [ipgw.exe](https://neu.ee/release/v1.2.1/win/ipgw.exe)
-2. 下载 [配置脚本](https://neu.ee/release/v1.2.1/win/install.bat)
+1. 下载 [ipgw.exe](https://neu.ee/release/v1.2.2/win/ipgw.exe)
+2. 下载 [配置脚本](https://neu.ee/release/v1.2.2/win/install.bat)
 3. 将配置脚本与`ipgw.exe`放置于同一目录下，右键使用**管理员权限**打开配置脚本，会自动配置并弹出`系统属性`设置窗口
 4. 点击`环境变量`打开设置窗口，在**系统环境变量**中找到`Path`，选中后点击`编辑`，在弹出的窗口点击`新建`，输入`%ipgw%`并保存，点击`确认`关闭设置窗口
 5. 打开`cmd`(可通过win+r并输入cmd打开)，输入`ipgw version`，若无报错，即配置成功
@@ -127,7 +127,7 @@ wget https://neu.ee/release/v1.2.1/osx/ipgw && chmod +x ipgw && mv ipgw /usr/loc
 ```shell
 git clone https://github.com/iMyOwn/ipgw.git 
 cd ipgw 
-go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.2.1" -o ipgw 
+go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.2.2" -o ipgw 
 ```
 
 # 快速使用
@@ -604,10 +604,10 @@ cd ipgw
 
 ```
 # To build
-make all VERSION=v1.2.1
+make all VERSION=v1.2.2
 
 # To release
-make release VERSION=v1.2.1
+make release VERSION=v1.2.2
 ```
 > 加壳需要预先安装UPX
 

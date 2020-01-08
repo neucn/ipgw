@@ -1,8 +1,8 @@
 package version
 
 import (
-	"fmt"
 	"ipgw/base"
+	. "ipgw/lib"
 )
 
 var CmdVersion = &base.Command{
@@ -18,18 +18,18 @@ var CmdVersion = &base.Command{
 `,
 }
 
-var u, l bool
+var l bool
 
 func init() {
 	CmdVersion.Flag.BoolVar(&l, "l", false, "")
 
-	CmdVersion.Run = runVersion // break init cycle
+	CmdVersion.Run = runVersion
 }
 
 func runVersion(cmd *base.Command, args []string) {
-	fmt.Println(base.IPGW.Long)
+	InfoLine(version)
 
 	if l {
-		fmt.Println(detail)
+		InfoLine(detail)
 	}
 }

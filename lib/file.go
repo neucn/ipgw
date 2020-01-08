@@ -1,4 +1,6 @@
-package file
+// 存放文件操作的相关函数
+
+package lib
 
 import (
 	"bytes"

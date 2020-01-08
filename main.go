@@ -2,9 +2,8 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"ipgw/api"
 	"ipgw/base"
-	"ipgw/base/cfg"
 	"ipgw/fix"
 	"ipgw/help"
 	"ipgw/kick"
@@ -12,50 +11,61 @@ import (
 	"ipgw/login"
 	"ipgw/logout"
 	"ipgw/test"
-	"ipgw/text"
 	"ipgw/update"
 	"ipgw/version"
-	"log"
 	"os"
 	"strings"
 )
 
 func init() {
-	base.IPGW.Commands = []*base.Command{
-		version.CmdVersion,
+	base.Main.Commands = []*base.Command{
 		login.CmdLogin,
 		logout.CmdLogout,
-		//toggle.CmdToggle,
-		list.CmdList,
 		kick.CmdKick,
-		test.CmdTest,
+		list.CmdList,
 		fix.CmdFix,
 		update.CmdUpdate,
+		test.CmdTest,
+		version.CmdVersion,
 	}
-	base.Usage = mainUsage
 }
 
 func main() {
-	flag.Usage = base.Usage
-	flag.Parse()
-	log.SetFlags(0)
+	flag.Usage = func() { help.PrintUsage(base.Main) }
 
+	// 第一次解析
+	flag.Parse()
+
+	// 获取命令行参数列表
 	args := flag.Args()
+
+	// 实现`ipgw`直接登陆
 	if len(args) < 1 {
 		login.CmdLogin.Run(login.CmdLogin, nil)
-		os.Exit(2)
+		return
 	}
 
-	cfg.CmdName = args[0] // for error messages
-
-	// 处理help
+	// 处理help命令
 	if args[0] == "help" {
 		help.Help(os.Stdout, args[1:])
 		return
 	}
 
+	// 处理api命令
+	if args[0] == "api" {
+		api.API.Run(api.API, args[1:])
+		return
+	}
+
+	// 解析
+	parse(args)
+}
+
+// 主体循环解析
+func parse(args []string) {
+	cmdName := args[0] // for error messages
 BigCmdLoop:
-	for bigCmd := base.IPGW; ; {
+	for bigCmd := base.Main; ; {
 		for _, cmd := range bigCmd.Commands {
 			if cmd.Name() != args[0] {
 				continue
@@ -64,15 +74,13 @@ BigCmdLoop:
 				bigCmd = cmd
 				args = args[1:]
 				if len(args) == 0 {
-					help.PrintUsage(os.Stderr, bigCmd)
-					base.SetExitStatus(2)
-					base.Exit()
+					help.PrintUsage(bigCmd)
 				}
 				if args[0] == "help" {
-					help.Help(os.Stdout, append(strings.Split(cfg.CmdName, " "), args[1:]...))
+					help.Help(os.Stdout, append(strings.Split(cmdName, " "), args[1:]...))
 					return
 				}
-				cfg.CmdName += " " + args[0]
+				cmdName += " " + args[0]
 				continue BigCmdLoop
 			}
 			if !cmd.Runnable() {
@@ -86,16 +94,10 @@ BigCmdLoop:
 				args = cmd.Flag.Args()
 			}
 			cmd.Run(cmd, args)
-			base.Exit()
+			// 假设能到达这里的业务都是正常工作的，因此以0退出
+			os.Exit(0)
 			return
 		}
-		fmt.Fprintf(os.Stderr, text.HelpNotFound, cfg.CmdName, "ipgw help")
-		base.SetExitStatus(2)
-		base.Exit()
+		help.PrintNotFound(cmdName)
 	}
-}
-
-func mainUsage() {
-	help.PrintUsage(os.Stderr, base.IPGW)
-	os.Exit(2)
 }

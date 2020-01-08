@@ -5,7 +5,6 @@ var (
 
 	wrongArgNotFound = "%s: 无此选项\n"
 	wrongPageNotInt  = "页数必须为整数"
-	wrongCASExpired  = "CAS有误或已失效"
 
 	failToFetch = "获取失败"
 

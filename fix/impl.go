@@ -2,15 +2,12 @@ package fix
 
 import (
 	"fmt"
-	"ipgw/base/ctx"
-	"net/http"
+	"ipgw/ctx"
 )
 
 func fix() {
 	fmt.Println(fixing)
-	x := ctx.GetCtx()
-	x.User.Cookie = &http.Cookie{}
-	x.User.CAS = &http.Cookie{}
-	x.SaveAll()
+	c := ctx.NewCtx()
+	c.SaveAll()
 	fmt.Println(successFix)
 }

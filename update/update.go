@@ -1,9 +1,9 @@
 package update
 
 import (
-	"fmt"
 	"ipgw/base"
-	"ipgw/base/cfg"
+	"ipgw/ctx"
+	. "ipgw/lib"
 )
 
 var CmdUpdate = &base.Command{
@@ -24,19 +24,21 @@ var f bool
 
 func init() {
 	CmdUpdate.Flag.BoolVar(&f, "f", false, "")
-	CmdUpdate.Flag.BoolVar(&cfg.FullView, "v", false, "")
+	CmdUpdate.Flag.BoolVar(&ctx.FullView, "v", false, "")
 
-	CmdUpdate.Run = runUpdate // break init cycle
+	CmdUpdate.Run = runUpdate
 }
 
 func runUpdate(cmd *base.Command, args []string) {
-	fmt.Printf(localVersion, cfg.Version)
+	InfoF(localVersion, base.Version)
 
+	// 获取版本信息
 	c := checkVersion()
-	// todo  更新自己
+
+	// 如果有更新或者强制更新
 	if f || c.Update {
 		if f {
-			fmt.Println(forcing)
+			InfoLine(forcing)
 		} else {
 			printChangelog(c)
 		}

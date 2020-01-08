@@ -1,270 +1,192 @@
 package logout
 
 import (
-	"fmt"
-	"ipgw/base/cfg"
-	"ipgw/base/ctx"
-	"ipgw/share"
+	"ipgw/core/cas"
+	. "ipgw/core/global"
+	"ipgw/core/gw"
+	"ipgw/ctx"
+	. "ipgw/lib"
 	"net/http"
 	"net/url"
-	"os"
-	"regexp"
-	"strconv"
-	"strings"
 )
 
-func logoutWithSID(x *ctx.Ctx) (ok bool) {
-	if x.Net.SID == "" {
+// 使用文件中保存的SID登出
+// 这个SID是每次成功登陆都会保存，登出时并不含删除
+// 由于按照层级关系，无参时默认 SID > Cookie > UP，所以失败时不能直接Fatal，而应该return false
+func logoutWithSID(c *ctx.Ctx) (ok bool) {
+	// 判断是否保存有SID
+	if c.Net.SID == "" {
 		return false
 	}
 
-	if cfg.FullView {
-		fmt.Printf(usingSID, x.Net.SID)
-	}
-	resp, err := share.Kick(x.Net.SID)
-	share.ErrWhenReqHandler(err)
-	body := share.ReadBody(resp)
-
-	if cfg.FullView {
-		fmt.Println(body)
+	if ctx.FullView {
+		InfoF(usingSID, c.Net.SID)
 	}
 
-	if body == "下线请求发送失败" {
-		if cfg.FullView {
-			fmt.Fprintf(os.Stderr, failLogoutBySID, x.Net.SID)
+	// 强制SID下线
+	success := gw.Kick(c, c.Net.SID)
+
+	if !success {
+		if ctx.FullView {
+			ErrorF(failLogoutBySID, c.Net.SID)
 		}
 		return false
 	}
 
-	fmt.Println(successLogoutBySID)
+	InfoLine(successLogoutBySID)
 	return true
 }
 
-func logoutWithUP(x *ctx.Ctx) {
-	client := ctx.GetClient()
-
-	if cfg.FullView {
-		fmt.Printf(usingUP, x.User.Username)
+// 使用账号登出，其实就是先登录再登出
+// 因为使用账号登陆是优先级最低的，因此失败时直接结束程序，不需要返回bool
+func logoutWithUP(c *ctx.Ctx) {
+	if ctx.FullView {
+		InfoF(usingUP, c.User.Username)
 	}
 
-	// 请求获得必要参数
-	resp, err := client.Get("https://pass.neu.edu.cn/tpass/login?service=https%3A%2F%2Fipgw.neu.edu.cn%2Fsrun_cas.php%3Fac_id%3D1")
-	if err != nil {
-		if cfg.FullView {
-			fmt.Fprintf(os.Stderr, errWhenReadLT, err)
-		}
-		fmt.Fprintln(os.Stderr, errNetwork)
-		os.Exit(2)
-	}
+	reqUrl := "https://pass.neu.edu.cn/tpass/login?service=https%3A%2F%2Fipgw.neu.edu.cn%2Fsrun_cas.php%3Fac_id%3D1"
 
-	// 读取响应内容
-	body := share.ReadBody(resp)
-
-	// 读取lt post_url
-	ltExp := regexp.MustCompile(`name="lt" value="(.+?)"`)
-	lt := ltExp.FindAllStringSubmatch(body, -1)[0][1]
-
-	if cfg.FullView {
-		fmt.Printf(successGetLT, lt)
-	}
-
-	// 拼接data
-	data := "rsa=" + x.User.Username + x.User.Password + lt +
-		"&ul=" + strconv.Itoa(len(x.User.Username)) +
-		"&pl=" + strconv.Itoa(len(x.User.Password)) +
-		"&lt=" + lt +
-		"&execution=e1s1" +
-		"&_eventId=submit"
+	// 获取必要参数
+	lt, postUrl := cas.GetArgs(c, reqUrl)
 
 	// 构造请求
-	req, _ := http.NewRequest("POST", "https://pass.neu.edu.cn/tpass/login?service=https%3A%2F%2Fipgw.neu.edu.cn%2Fsrun_cas.php%3Fac_id%3D1", strings.NewReader(data))
-
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Host", "pass.neu.edu.cn")
-	req.Header.Add("Origin", "https://pass.neu.edu.cn")
-	req.Header.Add("Referer", "https://pass.neu.edu.cn/tpass/login?service=https%3A%2F%2Fipgw.neu.edu.cn%2Fsrun_cas.php%3Fac_id%3D3")
-	if x.UA != "" {
-		req.Header.Add("User-Agent", x.UA)
-	}
+	req := cas.BuildLoginRequest(c, lt, postUrl, reqUrl)
 
 	// 发送请求
-	resp, err = client.Do(req)
-
-	share.ErrWhenReqHandler(err)
+	SendRequest(c, req)
 
 	// 读取响应内容
-	body = share.ReadBody(resp)
+	body := ReadBody(c.Response)
 
 	// 检查标题
-	t := share.GetTitle(body)
-	if t == "智慧东大--统一身份认证" {
-		fmt.Fprintln(os.Stderr, wrongUOrP)
-		os.Exit(2)
+	cas.LoginStatusFilterUP(body)
+
+	// 判断本次登陆账号与原账号是否不同
+	rid, rsid := gw.IsLoginRepeatedly(body)
+	// 若不同
+	if len(rid) > 0 {
+		// 挤下线
+		c.Option.Mute = true
+		gw.Replace(c, rid, rsid)
+		body = ReadBody(c.Response)
 	}
 
-	// 处理登出与当前帐号不同账号的情况
-	var id string
-	if strings.Contains(body, "aaa") {
-		// 提取id作为真实的登出账号
-		id, _ = share.GetIDAndSIDWhenCollision(body)
-		// 处理冲突
-		body = share.CollisionHandler(body)
-
-		// 查看当前账号是否已欠费
-		out := share.GetIfUsedOut(body)
-
-		// 若已欠费，则该账号登陆失败，因此无需退出，直接打印登出成功即可
-		if out {
-			fmt.Printf(successLogout, id)
-			os.Exit(0)
+	// 判断是否已欠费
+	overdue := gw.IsOverdue(body)
+	if overdue {
+		// 若已欠费，则本次登陆无效，无需登出，算作登出成功
+		// 需要注意输出被登出的账号，而不是拿来完成本机下线操作的账号
+		if len(rid) > 0 {
+			InfoF(successLogout, rid)
+		} else {
+			InfoF(successLogout, c.User.Username)
 		}
+		return
+	}
 
-		// 否则获取当前账号的sid
-		ok := share.GetIPAndSID(body, x)
-		if !ok {
-			fmt.Fprintln(os.Stderr, failGetInfo)
-			os.Exit(2)
-		}
-	} else {
-		// 查看当前账号是否已欠费
-		out := share.GetIfUsedOut(body)
-
-		// 若已欠费，则该账号登陆失败，因此无需退出，直接打印登出成功即可
-		if out {
-			fmt.Println(balanceOut)
-			os.Exit(0)
-		}
-
-		// 读取IP与SID
-		ok := share.GetIPAndSID(body, x)
-		if !ok {
-			fmt.Fprintln(os.Stderr, failGetInfo)
-			os.Exit(2)
-		}
+	// 获取现在的SID
+	sid, _ := gw.GetSIDAndIP(body)
+	// 若获取失败
+	if len(sid) < 1 {
+		Fatal(failGetInfo)
 	}
 
 	// 踢下线
-	resp, err = share.Kick(x.Net.SID)
-
-	// 处理请求异常
-	share.ErrWhenReqHandler(err)
-
-	// 读取响应
-	body = share.ReadBody(resp)
-
-	// 若请求失败
-	if body != "下线请求已发送" {
-		fmt.Fprintf(os.Stderr, failLogout, id)
-		os.Exit(2)
+	ok := gw.Kick(c, sid)
+	if !ok {
+		if len(rid) > 0 {
+			FatalF(failLogout, rid)
+		}
+		FatalF(failLogout, c.User.Username)
 	}
 
-	// 请求成功，打印真实的被登出账号。因为不同账号的情况下，处理函数已经输出了一次，因此不需要再输出
-	if id == "" {
-		fmt.Printf(successLogout, x.User.Username)
+	// 请求成功，打印真实的被登出账号
+	if len(rid) > 0 {
+		InfoF(successLogout, rid)
+	} else {
+		InfoF(successLogout, c.User.Username)
 	}
 }
 
-func logoutWithC(x *ctx.Ctx) (ok bool) {
-	client := ctx.GetClient()
-
-	if cfg.FullView {
-		fmt.Printf(usingC, x.User.Cookie.Value)
+// 使用Cookie登出，基本与使用账号登出一致，但是由于是第二优先级，登出失败时返回bool而不是结束程序
+func logoutWithC(c *ctx.Ctx) (ok bool) {
+	if ctx.FullView {
+		InfoF(usingC, c.User.Cookie.Value)
 	}
 
-	// 请求获得必要参数
-	client.Jar.SetCookies(&url.URL{
+	// 设置Cookie
+	c.Client.Jar.SetCookies(&url.URL{
 		Scheme: "https",
 		Host:   "ipgw.neu.edu.cn",
-	}, []*http.Cookie{x.User.Cookie})
+	}, []*http.Cookie{c.Net.Cookie})
 
-	resp, err := client.Get("https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
+	// 构造请求
+	req, _ := http.NewRequest("GET", "https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1", nil)
 
-	share.ErrWhenReqHandler(err)
+	// 发送请求
+	SendRequest(c, req)
 
-	// 读取响应内容
-	body := share.ReadBody(resp)
+	// 获取响应体
+	body := ReadBody(c.Response)
 
 	// 检查标题
-	t := share.GetTitle(body)
-	if t == "智慧东大--统一身份认证" {
-		if cfg.FullView {
-			fmt.Fprintln(os.Stderr, failCookieExpired)
-		}
+	ok = cas.LoginStatusFilterC(body)
+	// 检查未通过
+	if !ok {
 		return false
 	}
 
-	// 不同账号登陆
-	var id string
-	if strings.Contains(body, "aaa") {
-		// 提取id作为真实的登出账号
-		id, _ = share.GetIDAndSIDWhenCollision(body)
+	// 判断本次登陆账号与原账号是否不同
+	rid, rsid := gw.IsLoginRepeatedly(body)
+	// 若不同
+	if len(rid) > 0 {
+		// 挤下线
+		// todo Replace里遇到Kick失败直接就Fatal了，暂时不改逻辑
+		c.Option.Mute = true
+		gw.Replace(c, rid, rsid)
+		body = ReadBody(c.Response)
+	}
 
-		// 处理
-		body = share.CollisionHandler(body)
+	// 挂载ID，不需要检查是否获取失败
+	c.User.Username = gw.GetID(body)
 
-		// 查看当前账号是否已欠费
-		out := share.GetIfUsedOut(body)
-
-		// 若已欠费，则该账号登陆失败，因此无需退出，直接打印登出成功即可
-		if out {
-			fmt.Println(balanceOut)
-			os.Exit(0)
+	// 判断是否已欠费
+	overdue := gw.IsOverdue(body)
+	if overdue {
+		// 若已欠费，则本次登陆无效，无需登出，算作登出成功
+		// 需要注意输出被登出的账号，而不是拿来完成本机下线操作的账号
+		if len(rid) > 0 {
+			InfoF(successLogout, rid)
+		} else {
+			InfoF(successLogout, c.User.Username)
 		}
+		return true
+	}
 
-		// 否则获取当前账号的sid
-		ok := share.GetIPAndSID(body, x)
-
-		if !ok {
-			fmt.Fprintln(os.Stderr, failGetInfo)
-			os.Exit(2)
-		}
-	} else {
-		// 读取学号
-		usernameExp := regexp.MustCompile(`user_name" style="float:right;color: #894324;">(.+?)</span>`)
-		username := usernameExp.FindAllStringSubmatch(body, -1)
-
-		if len(username) < 1 {
-			fmt.Fprintln(os.Stderr, failGetInfo)
-			os.Exit(2)
-		}
-
-		// 挂载账号信息
-		x.User.Username = username[0][1]
-		if cfg.FullView {
-			fmt.Printf(successGetID, x.User.Username)
-		}
-
-		// 获取IP与SID
-		ok := share.GetIPAndSID(body, x)
-
-		if !ok {
-			fmt.Fprintln(os.Stderr, failGetInfo)
-			os.Exit(2)
-		}
-
-		if cfg.FullView {
-			fmt.Println(sendingRequest)
-		}
+	// 获取现在的SID
+	sid, _ := gw.GetSIDAndIP(body)
+	// 若获取失败
+	if len(sid) < 1 {
+		Error(failGetInfo)
+		return false
 	}
 
 	// 踢下线
-	resp, err = share.Kick(x.Net.SID)
-
-	// 处理网络异常
-	share.ErrWhenReqHandler(err)
-
-	// 读取响应
-	body = share.ReadBody(resp)
-
-	if body != "下线请求已发送" {
-		fmt.Fprintf(os.Stderr, failLogout, id)
-		os.Exit(2)
+	ok = gw.Kick(c, sid)
+	if !ok {
+		if len(rid) > 0 {
+			ErrorF(failLogout, rid)
+			return false
+		}
+		ErrorF(failLogout, c.User.Username)
+		return false
 	}
 
-	// 请求成功，打印真实的被登出账号。因为不同账号的情况下，处理函数已经输出了一次，因此不需要再输出
-	if id == "" {
-		fmt.Printf(successLogout, x.User.Username)
+	// 请求成功，打印真实的被登出账号
+	if len(rid) > 0 {
+		InfoF(successLogout, rid)
+	} else {
+		InfoF(successLogout, c.User.Username)
 	}
-
 	return true
 }

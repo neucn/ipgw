@@ -1,8 +1,6 @@
 package fix
 
-import (
-	"ipgw/base"
-)
+import "ipgw/base"
 
 var CmdFix = &base.Command{
 	UsageLine: "ipgw fix",

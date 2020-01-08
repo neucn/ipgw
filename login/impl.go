@@ -1,143 +1,162 @@
 package login
 
 import (
-	"fmt"
-	"ipgw/base/cfg"
-	"ipgw/base/ctx"
-	"ipgw/share"
+	"ipgw/core/cas"
+	. "ipgw/core/global"
+	"ipgw/core/gw"
+	"ipgw/ctx"
+	. "ipgw/lib"
 	"net/http"
 	"net/url"
 	"os"
-	"regexp"
-	"strings"
 )
 
-func loginWithUP(x *ctx.Ctx) {
-	client := ctx.GetClient()
+func loginWithUP(c *ctx.Ctx) {
+	InfoF(usingUP, c.User.Username)
+
 	reqUrl := "https://pass.neu.edu.cn/tpass/login?service=https%3A%2F%2Fipgw.neu.edu.cn%2Fsrun_cas.php%3Fac_id%3D1"
+	// 获取必要参数
+	lt, postUrl := cas.GetArgs(c, reqUrl)
 
-	fmt.Printf(usingUP, x.User.Username)
+	// 产生请求
+	req := cas.BuildLoginRequest(c, lt, postUrl, reqUrl)
 
-	body := share.Login(reqUrl, x)
+	// 发送请求
+	cas.LoginCAS(c, req)
 
-	// 检查内容
-	if strings.Contains(body, "aaa") {
-		body = share.CollisionHandler(body)
+	// 读取响应体
+	body := ReadBody(c.Response)
+
+	// 判断登陆状态
+	cas.LoginStatusFilterUP(body)
+
+	// 判断是否重复登陆
+	rid, rsid := gw.IsLoginRepeatedly(body)
+	// 重复登陆
+	if len(rid) > 0 {
+		gw.Replace(c, rid, rsid)
+		body = ReadBody(c.Response)
 	}
 
-	out := share.GetIfUsedOut(body)
-	if out {
-		fmt.Println(failBalanceOut)
-		os.Exit(2)
+	// 判断是否欠费
+	overdue := gw.IsOverdue(body)
+	if overdue {
+		Fatal(failOverdue)
 	}
 
-	// 读取IP与SID
-	ok := share.GetIPAndSID(body, x)
+	// 获取SID和IP
+	// 获取失败即登陆失败
+	ok := getSIDAndIP(c, body)
 	if !ok {
-		fmt.Fprintln(os.Stderr, failLogin)
-		os.Exit(2)
+		Fatal(failLogin)
 	}
+	// 提取Cookie
+	c.ExtractNetCookie()
+	c.ExtractUserCookie()
 
-	cookie := client.Jar.Cookies(&url.URL{
-		Scheme: "https",
-		Host:   "ipgw.neu.edu.cn",
-	})
-
-	cases := client.Jar.Cookies(&url.URL{
-		Scheme: "https",
-		Host:   "pass.neu.edu.cn",
-		Path:   "/tpass/",
-	})
-
-	for _, cas := range cases {
-		if cas.Name == "CASTGC" {
-			x.User.CAS = cas
-			break
-		}
-	}
-
-	if len(cookie) == 0 {
-		fmt.Fprintln(os.Stderr, failGetCookie)
-	} else {
-		x.User.Cookie = cookie[0]
-		if cfg.FullView {
-			fmt.Printf(successGetCookie, x.User.Cookie.Value)
-		}
-	}
-
-	fmt.Printf(successLogin, x.User.Username)
+	// 登陆成功
+	InfoF(successLogin, c.User.Username)
 }
 
-func loginWithC(x *ctx.Ctx) {
-	client := ctx.GetClient()
+func loginWithC(c *ctx.Ctx) {
+	InfoF(usingC, c.User.Cookie.Value)
 
-	fmt.Printf(usingC, x.User.Cookie.Value)
-
-	// 请求获得必要参数
+	// 使用Cookie
+	client := c.Client
 	client.Jar.SetCookies(&url.URL{
 		Scheme: "https",
 		Host:   "ipgw.neu.edu.cn",
-	}, []*http.Cookie{x.User.Cookie})
+	}, []*http.Cookie{c.Net.Cookie})
 
-	if cfg.FullView {
-		fmt.Println(sendingRequest)
+	if ctx.FullView {
+		InfoLine(sendingRequest)
 	}
 
-	var resp *http.Response
-	var err error
+	// 构造请求
+	req, _ := http.NewRequest("GET", "https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1", nil)
 
-	if x.UA == "" {
-		resp, err = client.Get("https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
-	} else {
-		req, _ := http.NewRequest("GET", "https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1", nil)
-		req.Header.Add("User-Agent", x.UA)
-
-		resp, err = client.Do(req)
+	// 加上伪造UA
+	if c.Option.FakeDevice != "" {
+		req.Header.Add("User-Agent", c.Option.FakeDevice)
 	}
 
-	share.ErrWhenReqHandler(err)
+	// 发送请求
+	SendRequest(c, req)
 
 	// 读取响应内容
-	body := share.ReadBody(resp)
+	body := ReadBody(c.Response)
 
 	// 检查标题
-	t := share.GetTitle(body)
-	if t == "智慧东大--统一身份认证" {
-		fmt.Fprintln(os.Stderr, failCookieExpired)
+	ok := cas.LoginStatusFilterC(body)
+	// 未通过
+	if !ok {
 		os.Exit(2)
 	}
 
-	if strings.Contains(body, "aaa") {
-		body = share.CollisionHandler(body)
+	// 判断是否重复登陆
+	rid, rsid := gw.IsLoginRepeatedly(body)
+	// 重复登陆
+	if len(rid) > 0 {
+		gw.Replace(c, rid, rsid)
+		body = ReadBody(c.Response)
 	}
 
 	// 读取学号
-	usernameExp := regexp.MustCompile(`user_name" style="float:right;color: #894324;">(.+?)</span>`)
-	username := usernameExp.FindAllStringSubmatch(body, -1)
+	getID(c, body)
 
-	if len(username) == 0 {
-		fmt.Println(failGetInfo)
+	// 判断是否欠费
+	overdue := gw.IsOverdue(body)
+	if overdue {
+		Fatal(failOverdue)
+	}
+
+	// 读取SID
+	// 获取失败即登录失败
+	ok = getSIDAndIP(c, body)
+	if !ok {
+		Fatal(failLogin)
+	}
+
+	// 提取Cookie
+	c.ExtractNetCookie()
+	c.ExtractUserCookie()
+
+	InfoF(successLogin, c.User.Username)
+}
+
+// 对GetSIDAndIP的包装，方便将SID与IP写入ctx
+func getSIDAndIP(c *ctx.Ctx, body string) (ok bool) {
+	sid, ip := gw.GetSIDAndIP(body)
+	// 判断IP是否存在
+	if len(ip) < 1 {
+		return false
+	}
+	c.Net.IP = ip
+	if ctx.FullView {
+		InfoF(successGetIP, ip)
+	}
+
+	// 判断SID是否存在
+	if len(sid) < 1 {
+		return false
+	}
+	c.Net.SID = sid
+	if ctx.FullView {
+		InfoF(successGetSID, sid)
+	}
+
+	return true
+}
+
+// 对GetID的包装，方便将ID写入ctx
+func getID(c *ctx.Ctx, body string) {
+	id := gw.GetID(body)
+	if len(id) < 1 {
+		Error(failGetInfo)
 	} else {
-		x.User.Username = username[0][1]
-		if cfg.FullView {
-			fmt.Printf(successGetUsername, x.User.Username)
+		c.User.Username = id
+		if ctx.FullView {
+			InfoF(successGetUsername, c.User.Username)
 		}
 	}
-
-	out := share.GetIfUsedOut(body)
-	if out {
-		fmt.Println(failBalanceOut)
-		os.Exit(2)
-	}
-
-	// 读取IP与SID
-	ok := share.GetIPAndSID(body, x)
-
-	if !ok {
-		fmt.Fprintln(os.Stderr, failLogin)
-		os.Exit(2)
-	}
-
-	fmt.Printf(successLogin, x.User.Username)
-
 }

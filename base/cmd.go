@@ -1,14 +1,12 @@
+// 存放命令的结构体与相关函数
+
 package base
 
 import (
 	"flag"
-	"fmt"
-	"ipgw/base/cfg"
-	"ipgw/text"
-	"log"
+	. "ipgw/lib"
 	"os"
 	"strings"
-	"sync"
 )
 
 type Command struct {
@@ -17,13 +15,13 @@ type Command struct {
 	Run func(cmd *Command, args []string)
 
 	// UsageLine is the one-line usage message.
-	// The words between "go" and the first flag or argument in the line are taken to be the command name.
+	// The words between "ipgw" and the first flag or argument in the line are taken to be the command name.
 	UsageLine string
 
-	// Short is the short description shown in the 'go help' output.
+	// Short is the short description shown in the 'ipgw help' output.
 	Short string
 
-	// Long is the long message shown in the 'go help <this-command>' output.
+	// Long is the long message shown in the 'ipgw help <this-command>' output.
 	Long string
 
 	// Flag is a set of flags specific to this command.
@@ -37,12 +35,6 @@ type Command struct {
 	// The order here is the order in which they are printed by 'go help'.
 	// Note that subcommands are in general best avoided.
 	Commands []*Command
-}
-
-var IPGW = &Command{
-	UsageLine: "ipgw",
-	Long:      fmt.Sprintf("IPGW Tool - 东北大学校园网关客户端\n版本: %s\n", cfg.Version),
-	// Commands initialized in package main
 }
 
 // LongName returns the command's long name: all the words in the usage line between "go" and a flag or argument,
@@ -67,10 +59,9 @@ func (c *Command) Name() string {
 }
 
 func (c *Command) Usage() {
-	fmt.Fprintf(os.Stderr, text.HelpUsage, c.UsageLine)
-	fmt.Fprintf(os.Stderr, text.HelpSeeDetail, c.LongName())
-	SetExitStatus(2)
-	Exit()
+	ErrorF(CmdUsage, c.UsageLine)
+	ErrorF(CmdSeeDetail, c.LongName())
+	os.Exit(2)
 }
 
 // Runnable reports whether the command can be run; otherwise
@@ -79,40 +70,8 @@ func (c *Command) Runnable() bool {
 	return c.Run != nil
 }
 
-var atExitFuncs []func()
-
-func AtExit(f func()) {
-	atExitFuncs = append(atExitFuncs, f)
+// Initialize Main Command
+var Main = &Command{
+	UsageLine: "ipgw",
+	Long:      Title,
 }
-
-func Exit() {
-	for _, f := range atExitFuncs {
-		f()
-	}
-	os.Exit(exitStatus)
-}
-
-func Fatalf(format string, args ...interface{}) {
-	Errorf(format, args...)
-	Exit()
-}
-
-func Errorf(format string, args ...interface{}) {
-	log.Printf(format, args...)
-	SetExitStatus(1)
-}
-
-var exitStatus = 0
-var exitMu sync.Mutex
-
-func SetExitStatus(n int) {
-	exitMu.Lock()
-	if exitStatus < n {
-		exitStatus = n
-	}
-	exitMu.Unlock()
-}
-
-// Usage is the usage-reporting function, filled in by package main
-// but here for reference by other packages.
-var Usage func()

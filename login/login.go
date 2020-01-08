@@ -1,12 +1,11 @@
 package login
 
 import (
-	"fmt"
 	"ipgw/base"
-	"ipgw/base/cfg"
-	"ipgw/base/ctx"
-	"ipgw/share"
-	"os"
+	"ipgw/core/cas"
+	"ipgw/core/gw"
+	"ipgw/ctx"
+	. "ipgw/lib"
 )
 
 var (
@@ -23,7 +22,7 @@ func init() {
 
 	CmdLogin.Flag.BoolVar(&s, "s", false, "")
 	CmdLogin.Flag.BoolVar(&i, "i", false, "")
-	CmdLogin.Flag.BoolVar(&cfg.FullView, "v", false, "")
+	CmdLogin.Flag.BoolVar(&ctx.FullView, "v", false, "")
 
 	CmdLogin.Run = runLogin
 }
@@ -51,7 +50,7 @@ var CmdLogin = &base.Command{
     在已经使用-s保存了账号信息的情况下，可以直接使用已经保存的账号登录
   ipgw login -c "ST-XXXXXX-XXXXXXXXXXXXXXXXXXXX-tpass"
     使用指定cookie登陆
-  ipgw login -d android
+  ipgw login -d linux
     使用指定设备信息登陆，可选的有win linux osx，默认使用匿名设备信息
   ipgw login -i
     登陆成功后输出账号信息，包括账号余额、已使用时长、已使用流量等
@@ -61,37 +60,42 @@ var CmdLogin = &base.Command{
 }
 
 func init() {
-	CmdLogin.Run = runLogin // break init cycle
+	CmdLogin.Run = runLogin
 }
 
 func runLogin(cmd *base.Command, args []string) {
-	x := ctx.GetCtx()
+	// 获取上下文对象
+	x := ctx.NewCtx()
 
-	share.GetDevice(d, x)
+	// 处理设备信息
+	cas.FakeDevice(x, d)
 
 	if len(u) > 0 {
 		if len(p) == 0 {
-			fmt.Fprintln(os.Stderr, mustUsePWhenUseU)
-			return
+			Fatal(mustUsePWhenUseU)
 		}
 		x.User.Username = u
 		x.User.Password = p
 		loginWithUP(x)
 	} else if len(c) > 0 {
-		x.User.SetCookie(c)
+		// 暂定为使用网关的cookie，这样避免了一网通的转发和失效时间
+		x.Net.SetCookie(c)
 		loginWithC(x)
 	} else {
+		// 载入配置文件
 		x.Load()
+		// 没有保存的账号
 		if x.User.Username == "" {
-			fmt.Fprintln(os.Stderr, noStoredAccount)
-			os.Exit(2)
+			Fatal(noStoredAccount)
 		}
 		loginWithUP(x)
 	}
 
 	// 当直接ipgw进来的args是nil
 	if i || args == nil {
-		share.GetNetInfo(x)
+		// 获取账号信息
+		gw.GetNetInfo(x)
+		// 输出
 		x.Net.Print()
 	}
 

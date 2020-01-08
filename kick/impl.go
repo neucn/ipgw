@@ -1,35 +1,21 @@
 package kick
 
 import (
-	"fmt"
-	"ipgw/base/cfg"
-	"ipgw/share"
-	"os"
+	"ipgw/core/gw"
+	"ipgw/ctx"
+	. "ipgw/lib"
 )
 
-func kickWithSID(sid string) {
-	fmt.Printf(tipBeginKick, sid)
+func kick(c *ctx.Ctx, sid string) {
+	InfoF(infoBeginKick, sid)
 
-	resp, err := share.Kick(sid)
+	// todo 这里也因为封装而产生了问题，遇到网络错误会直接结束程序而不会重试
+	ok := gw.Kick(c, sid)
 
-	if err != nil {
-		if cfg.FullView {
-			fmt.Fprintf(os.Stderr, errWhenKick, err)
-		}
-		fmt.Fprintln(os.Stderr, tipCheckNet)
+	if !ok {
+		ErrorF(failKick, sid)
 		return
 	}
 
-	body := share.ReadBody(resp)
-
-	if cfg.FullView {
-		fmt.Println(body)
-	}
-
-	if body != "下线请求已发送" {
-		fmt.Fprintf(os.Stderr, failKick, sid)
-		return
-	}
-
-	fmt.Printf(successKick, sid)
+	InfoF(successKick, sid)
 }

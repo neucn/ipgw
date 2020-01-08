@@ -1,24 +1,38 @@
-package info
+package ctx
 
-import "fmt"
+import (
+	"fmt"
+	. "ipgw/lib"
+	"net/http"
+)
 
-type NetInfo struct {
+type Net struct {
 	IP      string
 	SID     string
 	Balance float64
 	Used    int
 	Time    int
+	// 网关的Cookie
+	Cookie *http.Cookie
 }
 
-func (i *NetInfo) Print() {
-	fmt.Printf(
-		`==========信息==========
-IP	%16s
-SID	%16s
-余额	%16s
-流量	%16s
-时长	%16s
+func (i *Net) Print() {
+	InfoF(`
+# 信息
+   IP	%s
+   SID	%s
+   余额	%s
+   流量	%s
+   时长	%s
 `, i.IP, i.SID, getBalance(i.Balance), getUsedFlux(i.Used), getUsedTime(i.Time))
+}
+
+func (i *Net) SetCookie(c string) {
+	i.Cookie = &http.Cookie{
+		Name:   "session_for%3Asrun_cas_php",
+		Value:  c,
+		Domain: "ipgw.neu.edu.cn",
+	}
 }
 
 // 解析已用流量数

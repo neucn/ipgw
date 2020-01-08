@@ -2,7 +2,7 @@ package test
 
 import (
 	"ipgw/base"
-	"ipgw/base/cfg"
+	"ipgw/ctx"
 )
 
 var CmdTest = &base.Command{
@@ -19,11 +19,11 @@ var CmdTest = &base.Command{
 }
 
 func init() {
-	CmdTest.Flag.BoolVar(&cfg.FullView, "v", false, "")
+	CmdTest.Flag.BoolVar(&ctx.FullView, "v", false, "")
 
 	CmdTest.Run = runTest
 }
 
 func runTest(cmd *base.Command, args []string) {
-	testImpl()
+	test()
 }

@@ -1,63 +1,63 @@
 package test
 
 import (
-	"fmt"
-	"ipgw/base/cfg"
-	"ipgw/base/ctx"
+	"ipgw/ctx"
+	. "ipgw/lib"
+	"net/http"
 	"strings"
 	"time"
 )
 
-func testImpl() {
-	client := ctx.GetClient()
-	client.Timeout = time.Second
+func test() {
+	// 直接实例化获取client
+	client := &http.Client{Timeout: time.Second}
 
-	if cfg.FullView {
-		fmt.Println(tipTestNet)
+	if ctx.FullView {
+		InfoLine(testingNet)
 	}
 
 	// 测试是否连接上校园网
 	_, err := client.Get("https://ipgw.neu.edu.cn")
 
 	if err != nil {
-		if cfg.FullView {
-			fmt.Printf("ipgw.neu.edu.cn: %v\n", err)
+		if ctx.FullView {
+			ErrorF("ipgw.neu.edu.cn: %v\n", err)
 		}
 		if strings.Contains(err.Error(), "no such host") {
 			// 没有联网
-			fmt.Println(errNoInternet)
+			InfoLine(noInternet)
 			return
 		} else if strings.Contains(err.Error(), "Client.Timeout") {
 			// 没有连校园网
-			fmt.Println(tipNotConnect)
+			InfoLine(notConnect)
 			return
 		}
-		fmt.Printf(errUnexpected, err)
+		ErrorF(errUnexpected, err)
 		return
 	}
 
-	fmt.Println(tipConnected)
+	InfoLine(connected)
 
-	if cfg.FullView {
-		fmt.Println(tipTestLogin)
+	if ctx.FullView {
+		InfoLine(testingLogin)
 	}
 
 	// 测试是否登陆校园网
 	_, err = client.Get("https://baidu.com")
 
 	if err != nil {
-		if cfg.FullView {
-			fmt.Printf("baidu.com: %v\n", err)
+		if ctx.FullView {
+			ErrorF("baidu.com: %v\n", err)
 		}
 		// todo 还有可能证书错误，再观望观望
 		if strings.Contains(err.Error(), "Client.Timeout") {
 			// 未登陆
-			fmt.Println(tipNotLoggedIn)
+			InfoLine(notLoggedIn)
 			return
 		}
-		fmt.Printf(errUnexpected, err)
+		ErrorF(errUnexpected, err)
 		return
 	}
 
-	fmt.Println(tipLoggedIn)
+	InfoLine(loggedIn)
 }

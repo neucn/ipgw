@@ -1,8 +1,8 @@
 package update
 
 import (
-	"fmt"
 	"io"
+	. "ipgw/lib"
 )
 
 type ver struct {
@@ -24,7 +24,7 @@ func (d *downloader) Read(p []byte) (n int, err error) {
 	n, err = d.Reader.Read(p)
 
 	d.Current += int64(n)
-	fmt.Printf("\r下载进度 %.2f%%", float64(d.Current*10000/d.Total)/100)
+	InfoF("\r下载进度 %.2f%%", float64(d.Current*10000/d.Total)/100)
 
 	return
 }

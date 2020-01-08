@@ -1,6 +1,7 @@
 BUILD_ENV := CGO_ENABLED=0
 BUILD=`date +%FT%T%z`
 LDFLAGS=-ldflags "-w -s -X ipgw/base/cfg.Version=${VERSION} -X ipgw/base/cfg.Build=${BUILD} -X ipgw/base/cfg.SavePath=${SAVEPATH}"
+TARGET_DIR = build/${VERSION}
 
 TARGET_EXEC := ipgw
 
@@ -11,34 +12,34 @@ all: clean setup build-linux build-osx build-windows
 release: all pack-linux pack-osx pack-windows
 
 clean:
-	rm -rf build/${VERSION}
+	rm -rf ${TARGET_DIR}
 
 setup: setup-linux setup-osx setup-windows
 
 setup-linux:
-	mkdir -p build/${VERSION}/linux
+	mkdir -p ${TARGET_DIR}/linux
 
 setup-osx:
-	mkdir -p build/${VERSION}/osx
+	mkdir -p ${TARGET_DIR}/osx
 
 setup-windows:
-	mkdir -p build/${VERSION}/win
+	mkdir -p ${TARGET_DIR}/win
 
 
 build-linux: setup-linux
-	${BUILD_ENV} GOARCH=amd64 GOOS=linux go build ${LDFLAGS} -o build/${VERSION}/linux/${TARGET_EXEC}
+	${BUILD_ENV} GOARCH=amd64 GOOS=linux go build ${LDFLAGS} -o ${TARGET_DIR}/linux/${TARGET_EXEC}
 
 build-osx: setup-osx
-	${BUILD_ENV} GOARCH=amd64 GOOS=darwin go build ${LDFLAGS} -o build/${VERSION}/osx/${TARGET_EXEC}
+	${BUILD_ENV} GOARCH=amd64 GOOS=darwin go build ${LDFLAGS} -o ${TARGET_DIR}/osx/${TARGET_EXEC}
 
 build-windows: setup-windows
-	${BUILD_ENV} GOARCH=amd64 GOOS=windows go build ${LDFLAGS} -o build/${VERSION}/win/${TARGET_EXEC}.exe
+	${BUILD_ENV} GOARCH=amd64 GOOS=windows go build ${LDFLAGS} -o ${TARGET_DIR}/win/${TARGET_EXEC}.exe
 
 pack-linux:
-	upx build/${VERSION}/linux/${TARGET_EXEC}
+	upx ${TARGET_DIR}/linux/${TARGET_EXEC}
 
 pack-osx:
-	upx build/${VERSION}/osx/${TARGET_EXEC}
+	upx ${TARGET_DIR}/osx/${TARGET_EXEC}
 
 pack-windows:
-	upx build/${VERSION}/win/${TARGET_EXEC}.exe && cp install.bat build/${VERSION}/win
+	upx ${TARGET_DIR}/win/${TARGET_EXEC}.exe && cp install.bat ${TARGET_DIR}/win

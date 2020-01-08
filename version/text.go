@@ -1,6 +1,10 @@
 package version
 
+import "ipgw/base"
+
 var (
+	version = base.Title + "\n版本: " + base.Version
+
 	detail = `当前版本进展:
   Login
     [=]  基础登陆
@@ -28,7 +32,7 @@ var (
     [=]  网络检查
 
   Update
-    [=]  获取最新版本更新日志
+    [=]  获取更新日志
     [=]  更新到最新版本
 
   Version
