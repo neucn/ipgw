@@ -18,7 +18,7 @@ func Help(w io.Writer, args []string) {
 Args:
 	for i, arg := range args {
 		for _, sub := range cmd.Commands {
-			if sub.Name() == arg {
+			if sub.Name == arg {
 				cmd = sub
 				continue Args
 			}

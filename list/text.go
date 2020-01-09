@@ -2,6 +2,7 @@ package list
 
 var (
 	mustUsePWhenUseU = "使用账号登陆时请务必使用 -p 输入密码"
+	noStoredAccount  = "没有已保存的可用账号"
 
 	wrongArgNotFound = "%s: 无此选项\n"
 	wrongPageNotInt  = "页数必须为整数"

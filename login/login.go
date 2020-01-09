@@ -28,6 +28,7 @@ func init() {
 }
 
 var CmdLogin = &base.Command{
+	Name:      "login",
 	UsageLine: "ipgw login [-u username] [-p password] [-s save] [-c cookie] [-d device] [-i info] [-v view all] ",
 	Short:     "基础登陆",
 	Long: `提供登陆校园网关功能
@@ -57,10 +58,6 @@ var CmdLogin = &base.Command{
   ipgw login [arguments] -v
     打印登陆过程中的每一步信息
 `,
-}
-
-func init() {
-	CmdLogin.Run = runLogin
 }
 
 func runLogin(cmd *base.Command, args []string) {

@@ -1,7 +1,7 @@
 package gw
 
 import (
-	"ipgw/core/global"
+	. "ipgw/core/global"
 	"ipgw/ctx"
 	. "ipgw/lib"
 	"math/rand"
@@ -22,10 +22,10 @@ func Kick(c *ctx.Ctx, sid string) (ok bool) {
 	req.Header.Set("Referer", "https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
 
 	// 发送请求
-	global.SendRequest(c, req)
+	SendRequest(c, req)
 
 	// 响应体
-	result := global.ReadBody(c.Response)
+	result := ReadBody(c.Response)
 	if !c.Option.Mute && ctx.FullView {
 		// 输出响应信息
 		InfoLine(result)
@@ -58,7 +58,7 @@ func Replace(c *ctx.Ctx, id, sid string) {
 
 	// 重新访问页面
 	req, _ := http.NewRequest("GET", "https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1", nil)
-	global.SendRequest(c, req)
+	SendRequest(c, req)
 }
 
 // 获取并挂载网络信息
@@ -79,10 +79,10 @@ func GetNetInfo(c *ctx.Ctx) {
 	req.Header.Add("Referer", "https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
 
 	// 发送请求
-	global.SendRequest(c, req)
+	SendRequest(c, req)
 
 	// 读取响应内容
-	body := global.ReadBody(c.Response)
+	body := ReadBody(c.Response)
 
 	// 解析响应
 	split := strings.Split(body, ",")

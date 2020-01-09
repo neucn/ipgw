@@ -3,7 +3,7 @@
 package cas
 
 import (
-	"ipgw/core/global"
+	. "ipgw/core/global"
 	"ipgw/ctx"
 	. "ipgw/lib"
 	"net/http"
@@ -18,10 +18,10 @@ import (
 func GetArgs(c *ctx.Ctx, reqUrl string) (lt, postUrl string) {
 	mute := c.Option.Mute
 	req, _ := http.NewRequest("GET", reqUrl, nil)
-	global.SendRequestCustomText(c, req, errWhenReadArgs, errNetwork)
+	SendRequestCustomText(c, req, errWhenReadArgs, errNetwork)
 
 	// 读取响应内容
-	body := global.ReadBody(c.Response)
+	body := ReadBody(c.Response)
 
 	// 读取lt
 	ltExp := regexp.MustCompile(`name="lt" value="(.+?)"`)
@@ -51,7 +51,7 @@ func LoginCAS(c *ctx.Ctx, r *http.Request) {
 	}
 
 	// 发送请求
-	global.SendRequest(c, r)
+	SendRequest(c, r)
 }
 
 // 构造登陆请求
@@ -65,7 +65,7 @@ func BuildLoginRequest(c *ctx.Ctx, lt, postUrl, reqUrl string) (req *http.Reques
 
 	// 构造请求
 	req, _ = http.NewRequest("POST",
-		global.GetDomain(reqUrl)+postUrl,
+		GetDomain(reqUrl)+postUrl,
 		strings.NewReader(data))
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -88,15 +88,11 @@ func FakeDevice(c *ctx.Ctx, name string) {
 
 	// todo 由于移动端会跳转到单独网页，因此暂时把移动端去掉
 	switch name {
-	case "win":
-		fallthrough
-	case "windows":
+	case "win", "windows":
 		ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36"
 	case "linux":
 		ua = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36"
-	case "osx":
-		fallthrough
-	case "darwin":
+	case "osx", "darwin":
 		ua = "Opera/9.80 (Macintosh; Intel Mac OS X 10.6.8; U; en) Presto/2.8.131 Version/11.11"
 	//case "ios":
 	//	ua = "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0_2 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Mobile/15A421 wxwork/2.5.8 MicroMessenger/6.3.22 Language/zh"

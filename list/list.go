@@ -9,6 +9,7 @@ import (
 )
 
 var CmdList = &base.Command{
+	Name:        "list",
 	CustomFlags: true,
 	UsageLine:   "ipgw list [-f full] [-v view all] [-s saved] [-u username] [-p password] [-c cookie] [-a all] [-l local info] [-d devices] [-i net info] [-r recharge] [-b bill] [-h history] page",
 	Short:       "获取各类信息",
@@ -109,6 +110,9 @@ func runList(cmd *base.Command, args []string) {
 	} else if s {
 		// 使用保存的账号登陆
 		x.Load()
+		if x.User.Username == "" {
+			Fatal(noStoredAccount)
+		}
 		ib = fetchIndexBodyByUP(x)
 	} else if a || i || d || h || b || r {
 		// 若涉及网络请求

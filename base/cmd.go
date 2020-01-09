@@ -6,13 +6,14 @@ import (
 	"flag"
 	. "ipgw/lib"
 	"os"
-	"strings"
 )
 
 type Command struct {
 	// Run runs the command.
 	// The args are the arguments after the command name.
 	Run func(cmd *Command, args []string)
+
+	Name string
 
 	// UsageLine is the one-line usage message.
 	// The words between "ipgw" and the first flag or argument in the line are taken to be the command name.
@@ -37,30 +38,9 @@ type Command struct {
 	Commands []*Command
 }
 
-// LongName returns the command's long name: all the words in the usage line between "go" and a flag or argument,
-func (c *Command) LongName() string {
-	name := c.UsageLine
-	if i := strings.Index(name, " ["); i >= 0 {
-		name = name[:i]
-	}
-	if name == "ipgw" {
-		return ""
-	}
-	return strings.TrimPrefix(name, "ipgw ")
-}
-
-// Name returns the command's short name: the last word in the usage line before a flag or argument.
-func (c *Command) Name() string {
-	name := c.LongName()
-	if i := strings.LastIndex(name, " "); i >= 0 {
-		name = name[i+1:]
-	}
-	return name
-}
-
 func (c *Command) Usage() {
 	ErrorF(CmdUsage, c.UsageLine)
-	ErrorF(CmdSeeDetail, c.LongName())
+	ErrorF(CmdSeeDetail, c.Name)
 	os.Exit(2)
 }
 

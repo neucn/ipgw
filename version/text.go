@@ -1,10 +1,6 @@
 package version
 
-import "ipgw/base"
-
 var (
-	version = base.Title + "\n版本: " + base.Version
-
 	detail = `当前版本进展:
   Login
     [=]  基础登陆

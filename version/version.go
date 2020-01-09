@@ -6,6 +6,7 @@ import (
 )
 
 var CmdVersion = &base.Command{
+	Name:      "version",
 	UsageLine: "ipgw version [-l list]",
 	Short:     "版本查询",
 	Long: `输出ipgw的版本信息
@@ -27,7 +28,8 @@ func init() {
 }
 
 func runVersion(cmd *base.Command, args []string) {
-	InfoLine(version)
+	InfoF(`%s
+版本: %s-API%s`, base.Title, base.Version, base.API)
 
 	if l {
 		InfoLine(detail)

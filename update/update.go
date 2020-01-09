@@ -7,6 +7,7 @@ import (
 )
 
 var CmdUpdate = &base.Command{
+	Name:      "update",
 	UsageLine: "ipgw update [-f force] [-v view all]",
 	Short:     "更新版本",
 	Long: `将ipgw更新到最新版
@@ -33,15 +34,15 @@ func runUpdate(cmd *base.Command, args []string) {
 	InfoF(localVersion, base.Version)
 
 	// 获取版本信息
-	c := checkVersion()
+	v := checkVersion()
 
 	// 如果有更新或者强制更新
-	if f || c.Update {
+	if f || v.Update {
 		if f {
 			InfoLine(forcing)
 		} else {
-			printChangelog(c)
+			PrintChangelog(base.Version, v)
 		}
-		update(c)
+		update(v)
 	}
 }

@@ -22,6 +22,7 @@ func init() {
 }
 
 var CmdLogout = &base.Command{
+	Name:      "logout",
 	UsageLine: "ipgw logout [-u username] [-p password] [-c cookie] [-v view all]",
 	Short:     "基础登出",
 	Long: `提供登出校园网关功能
@@ -41,10 +42,6 @@ var CmdLogout = &base.Command{
   ipgw logout [arguments] -v
     打印登出过程中的每一步详细信息
 `,
-}
-
-func init() {
-	CmdLogout.Run = runLogout
 }
 
 func runLogout(cmd *base.Command, args []string) {

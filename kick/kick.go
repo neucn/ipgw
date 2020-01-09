@@ -8,6 +8,7 @@ import (
 )
 
 var CmdKick = &base.Command{
+	Name:      "kick",
 	UsageLine: "ipgw kick [-v view all] sid1 sid2 sid3 ...",
 	Short:     "使指定设备下线",
 	Long: `提供使任意指定设备下线的功能，可同时指定多个

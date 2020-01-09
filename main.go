@@ -11,6 +11,7 @@ import (
 	"ipgw/login"
 	"ipgw/logout"
 	"ipgw/test"
+	"ipgw/tool"
 	"ipgw/update"
 	"ipgw/version"
 	"os"
@@ -23,9 +24,10 @@ func init() {
 		logout.CmdLogout,
 		kick.CmdKick,
 		list.CmdList,
-		fix.CmdFix,
-		update.CmdUpdate,
+		tool.CmdTool,
 		test.CmdTest,
+		update.CmdUpdate,
+		fix.CmdFix,
 		version.CmdVersion,
 	}
 }
@@ -67,7 +69,7 @@ func parse(args []string) {
 BigCmdLoop:
 	for bigCmd := base.Main; ; {
 		for _, cmd := range bigCmd.Commands {
-			if cmd.Name() != args[0] {
+			if cmd.Name != args[0] {
 				continue
 			}
 			if len(cmd.Commands) > 0 {
