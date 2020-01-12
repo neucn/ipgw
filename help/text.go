@@ -8,7 +8,7 @@ var (
 命令:{{range .Commands}}{{if or (.Runnable) .Commands}}
 	{{.Name | printf "%-11s"}} {{.Short}}{{end}}{{end}}
 
-使用 "ipgw help{{with .LongName}} {{.}}{{end}} <command>" 获取某个命令的完整帮助信息。
+使用 "ipgw help{{with .Name}} {{.}}{{end}} <command>" 获取某个命令的完整帮助信息。
 {{if eq (.UsageLine) "ipgw"}}
 有意见或建议欢迎发送至邮箱 i@shangyes.net
 {{end}}

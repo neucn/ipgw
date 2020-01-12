@@ -19,11 +19,11 @@ type Net struct {
 func (i *Net) Print() {
 	InfoF(`
 # 信息
-   IP	%s
-   SID	%s
-   余额	%s
-   流量	%s
-   时长	%s
+   IP	%16s
+   SID	%16s
+   余额	%16s
+   流量	%16s
+   时长	%16s
 `, i.IP, i.SID, getBalance(i.Balance), getUsedFlux(i.Used), getUsedTime(i.Time))
 }
 
