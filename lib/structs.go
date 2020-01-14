@@ -66,6 +66,9 @@ func (i *Tools) Save() {
 // 反序列化
 func (i *Tools) Parse(text []byte) {
 	_ = json.Unmarshal(text, &i.List)
+	if i.List == nil {
+		i.List = map[string]*Tool{}
+	}
 }
 
 type Ver struct {

@@ -10,7 +10,7 @@ import (
 
 var CmdTool = &Command{
 	Name:      "tool",
-	UsageLine: "ipgw tool <command> [argument]",
+	UsageLine: "ipgw tool",
 	Short:     "工具管理",
 	Long:      `提供管理工具的功能`,
 	Commands: []*Command{
