@@ -4,7 +4,6 @@ package base
 
 import (
 	"flag"
-	. "ipgw/lib"
 	"os"
 )
 

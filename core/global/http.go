@@ -2,8 +2,8 @@ package global
 
 import (
 	"io/ioutil"
+	. "ipgw/base"
 	"ipgw/ctx"
-	. "ipgw/lib"
 	"net/http"
 	"regexp"
 )
@@ -31,7 +31,7 @@ func ReadBody(resp *http.Response) (body string) {
 	return string(res)
 }
 
-// url中获取域名
+// url中提取域名
 func GetDomain(url string) (domain string) {
 	domainExp := regexp.MustCompile(`(https?://.+?)/`)
 	domains := domainExp.FindAllStringSubmatch(url, -1)

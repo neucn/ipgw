@@ -3,12 +3,11 @@ package proxy
 import (
 	"ipgw/api/code"
 	. "ipgw/api/global"
-	"ipgw/base"
+	. "ipgw/base"
 	"ipgw/ctx"
-	. "ipgw/lib"
 )
 
-var Proxy = &base.Command{}
+var Proxy = &Command{}
 
 var (
 	u, p, c, s, h, b, m string
@@ -31,7 +30,7 @@ func init() {
 	Proxy.Run = runAPIProxy
 }
 
-func runAPIProxy(cmd *base.Command, args []string) {
+func runAPIProxy(cmd *Command, args []string) {
 	// 本命令作用： 代为登陆并发送指定的请求，自动判断是否使用webvpn，并返回请求结果（Body
 
 	// 本命令命名空间 2

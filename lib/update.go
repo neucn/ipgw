@@ -1,43 +1,45 @@
 package lib
 
 import (
+	"encoding/json"
 	"io"
+	"io/ioutil"
+	. "ipgw/base"
 	"net/http"
 	"os"
 	"runtime"
 	"sort"
+	"strconv"
+	"strings"
 	"time"
 )
 
-type Ver struct {
-	Update    bool
-	Latest    string              `json:"latest"`
-	API       string              `json:"api"`
-	Changelog map[string][]string `json:"changelog"`
-	OS        map[string]string   `json:"os"`
-	Arch      map[string]string   `json:"arch"`
-	Name      map[string]string   `json:"name"`
-}
+// 传入Release或某工具的根路径（不含最后一个`/`)，解析其中的`info.json`为Ver对象
+func ParseVer(u string) (v *Ver) {
+	client := &http.Client{Timeout: 3 * time.Second}
+	// 使用/info.json获取版本信息
+	resp, err := client.Get(u + "/info.json")
+	if err != nil {
+		Fatal(errNetwork)
+	}
+	// 因为json.Unmarshal，所以这里不适用ReadBody
+	res, _ := ioutil.ReadAll(resp.Body)
+	_ = resp.Body.Close()
 
-type downloader struct {
-	io.Reader
-	Total   int64
-	Current int64
-}
+	v = &Ver{Update: false}
+	_ = json.Unmarshal(res, &v)
 
-func (d *downloader) Read(p []byte) (n int, err error) {
-	n, err = d.Reader.Read(p)
-
-	d.Current += int64(n)
-	InfoF("\r下载进度 %.2f%%", float64(d.Current*10000/d.Total)/100)
-
+	// 若解析失败
+	if len(v.Latest) < 1 {
+		Fatal(failQuery)
+	}
 	return
 }
 
-func Download(u string, dir, tmpFile string) {
+// 下载u到dest指定的路径
+func Download(u, dest string) {
 	// 获取client, 不适用ctx中的client
-	client := &http.Client{}
-	client.Timeout = 60 * time.Second
+	client := &http.Client{Timeout: 60 * time.Second}
 
 	// 发送请求, 不适用global中的SendRequest
 	resp, err := client.Get(u)
@@ -54,7 +56,7 @@ func Download(u string, dir, tmpFile string) {
 	defer raw.Close()
 
 	// 新建临时文件
-	f, err := os.Create(dir + tmpFile)
+	f, err := os.Create(dest)
 	if err != nil {
 		FatalF(failCreate, err)
 	}
@@ -67,26 +69,21 @@ func Download(u string, dir, tmpFile string) {
 
 	// 简单地使用Copy函数，downloader对象中增加了hook因此能获取到copy的进度
 	_, err = io.Copy(f, d)
+	// 换行
+	InfoLine()
 	if err != nil {
 		// 若下载失败
 		Fatal(failDownload)
 	}
 
-	// 修改权限, 这个函数里有下载文件的file对象，修改比较方便，因此就不分离出去了
-	err = f.Chmod(0777)
-	if err != nil {
-		FatalF(failChmod, err)
-	}
 	_ = f.Close()
-	InfoLine()
 }
 
 // 拼接获取下载路径
 // u为release的目录，如neu.ee/release
 func GetDownloadUrl(u string, i *Ver) string {
 	// 检查本机arch是否存在于预编译版本arch中
-	_, ok := i.Arch[runtime.GOARCH]
-	if !ok {
+	if _, ok := i.Arch[runtime.GOARCH]; !ok {
 		// 若不存在
 		Fatal(failArchNotSupported)
 	}
@@ -124,7 +121,7 @@ func PrintChangelog(local string, i *Ver) {
 	InfoLine(changelog)
 	// 版本排序，由于json反序列化之后map无序，因此需要排序
 	var tmp = make([]string, 0)
-	for k, _ := range i.Changelog {
+	for k := range i.Changelog {
 		tmp = append(tmp, k)
 	}
 
@@ -143,4 +140,47 @@ func PrintChangelog(local string, i *Ver) {
 		}
 	}
 	InfoLine()
+}
+
+// 简单判断是否兼容
+func IsAPICompatible(v string) bool {
+	return API == v
+}
+
+// 获取Tools列表
+func GetTools() *Tools {
+	// 实例化一个客户端
+	client := &http.Client{Timeout: 3 * time.Second}
+	// 请求工具列表
+	resp, err := client.Get(ToolReleasePath + "/tools.json")
+	if err != nil {
+		Fatal(errNetwork)
+	}
+	// 因为需要用到[]byte所以不ReadBody
+	bytes, _ := ioutil.ReadAll(resp.Body)
+	_ = resp.Body.Close()
+	// 实例化Tools
+	toolList := &Tools{}
+	// 解析
+	toolList.Parse(bytes)
+
+	return toolList
+}
+
+// 判断a是否比b版本新
+func IsNewer(a, b string) bool {
+	if len(b) < 1 {
+		return true
+	}
+	aList := strings.Split(a[1:], ".")
+	bList := strings.Split(b[1:], ".")
+	var tmpA, tmpB int
+	for i := 0; i < 3; i++ {
+		tmpA, _ = strconv.Atoi(aList[i])
+		tmpB, _ = strconv.Atoi(bList[i])
+		if tmpA > tmpB {
+			return true
+		}
+	}
+	return false
 }

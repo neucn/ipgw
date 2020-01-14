@@ -1,11 +1,10 @@
 package version
 
 import (
-	"ipgw/base"
-	. "ipgw/lib"
+	. "ipgw/base"
 )
 
-var CmdVersion = &base.Command{
+var CmdVersion = &Command{
 	Name:      "version",
 	UsageLine: "ipgw version [-l list]",
 	Short:     "版本查询",
@@ -27,9 +26,9 @@ func init() {
 	CmdVersion.Run = runVersion
 }
 
-func runVersion(cmd *base.Command, args []string) {
+func runVersion(cmd *Command, args []string) {
 	InfoF(`%s
-版本: %s-API%s`, base.Title, base.Version, base.API)
+版本: %s-API%s`, Title, Version, API)
 
 	if l {
 		InfoLine(detail)

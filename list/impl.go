@@ -2,10 +2,10 @@ package list
 
 import (
 	"fmt"
+	. "ipgw/base"
 	"ipgw/core/cas"
 	. "ipgw/core/global"
 	"ipgw/ctx"
-	. "ipgw/lib"
 	"net/http"
 	"net/url"
 	"regexp"

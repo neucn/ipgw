@@ -1,14 +1,13 @@
 package list
 
 import (
-	"ipgw/base"
+	. "ipgw/base"
 	"ipgw/ctx"
-	. "ipgw/lib"
 	"strconv"
 	"strings"
 )
 
-var CmdList = &base.Command{
+var CmdList = &Command{
 	Name:        "list",
 	CustomFlags: true,
 	UsageLine:   "ipgw list [-f full] [-v view all] [-s saved] [-u username] [-p password] [-c cookie] [-a all] [-l local info] [-d devices] [-i net info] [-r recharge] [-b bill] [-h history] page",
@@ -85,7 +84,7 @@ func init() {
 	CmdList.Run = runList
 }
 
-func runList(cmd *base.Command, args []string) {
+func runList(cmd *Command, args []string) {
 	// 解析，把缩写形式拆开
 	parse(cmd, args)
 
@@ -171,7 +170,7 @@ func runList(cmd *base.Command, args []string) {
 }
 
 // 支持flag缩写，算法可能还能优化
-func parse(cmd *base.Command, args []string) {
+func parse(cmd *Command, args []string) {
 	separated := make([]string, 0, len(args))
 	for _, flagChar := range args {
 		if len(flagChar) > 2 && strings.HasPrefix(flagChar, "-") {

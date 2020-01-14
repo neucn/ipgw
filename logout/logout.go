@@ -1,9 +1,8 @@
 package logout
 
 import (
-	"ipgw/base"
+	. "ipgw/base"
 	"ipgw/ctx"
-	. "ipgw/lib"
 	"os"
 )
 
@@ -21,7 +20,7 @@ func init() {
 	CmdLogout.Run = runLogout
 }
 
-var CmdLogout = &base.Command{
+var CmdLogout = &Command{
 	Name:      "logout",
 	UsageLine: "ipgw logout [-u username] [-p password] [-c cookie] [-v view all]",
 	Short:     "基础登出",
@@ -44,7 +43,7 @@ var CmdLogout = &base.Command{
 `,
 }
 
-func runLogout(cmd *base.Command, args []string) {
+func runLogout(cmd *Command, args []string) {
 	x := ctx.NewCtx()
 
 	if len(u) > 0 {

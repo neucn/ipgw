@@ -4,17 +4,18 @@ import (
 	"encoding/base64"
 	"io/ioutil"
 	"ipgw/api/code"
-	"ipgw/base"
+	. "ipgw/base"
 	"ipgw/core/cas"
 	"ipgw/core/global"
 	"ipgw/ctx"
 	. "ipgw/lib"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 )
 
-// 发送请求，错误返回 -3
+// 发送请求
 func SendRequest(c *ctx.Ctx, r *http.Request) {
 	resp, err := c.Client.Do(r)
 	if err != nil {
@@ -23,10 +24,10 @@ func SendRequest(c *ctx.Ctx, r *http.Request) {
 	c.Response = resp
 }
 
-// 载入一网通账号和密码，错误返回 -2
+// 载入一网通账号和密码
 func LoadUser(c *ctx.Ctx) {
 	// 准备读取
-	path, err := GetPath(base.SavePath)
+	path, err := GetConfigPath(SavePath)
 	if err != nil {
 		Fatal(code.GlobalFailLoad)
 	}
@@ -63,8 +64,9 @@ func loginStatusFilterUP(body string) {
 	// 匹配出title
 	titleExp := regexp.MustCompile(`<title>(.+?)</title>`)
 	title := titleExp.FindAllStringSubmatch(body, -1)
+
 	if len(title) < 1 {
-		Fatal(code.GlobalNetError)
+		return
 	}
 
 	switch title[0][1] {
@@ -80,11 +82,8 @@ func loginStatusFilterC(body string) {
 	// 匹配出title
 	titleExp := regexp.MustCompile(`<title>(.+?)</title>`)
 	title := titleExp.FindAllStringSubmatch(body, -1)
-	if len(title) < 1 {
-		Fatal(code.GlobalNetError)
-	}
 
-	if title[0][1] == "智慧东大--统一身份认证" {
+	if len(title) > 0 && title[0][1] == "智慧东大--统一身份认证" {
 		Fatal(code.LoginCookieExpired)
 	}
 }
@@ -112,19 +111,20 @@ func getArgs(c *ctx.Ctx, reqUrl string) (lt, postUrl string) {
 }
 
 // 根据是否webvpn获取请求地址
-func getReqUrl(vpn bool) (reqUrl string) {
+func getReqUrl(serviceUrl string, vpn bool) (reqUrl string) {
 	if vpn {
-		reqUrl = "https://pass-443.webvpn.neu.edu.cn/tpass/login?service=https%3A%2F%2Fwebvpn.neu.edu.cn%2Fusers%2Fauth%2Fcas%2Fcallback%3Furl"
+		reqUrl = "https://pass-443.webvpn.neu.edu.cn/tpass/login?service="
 	} else {
-		reqUrl = "https://pass.neu.edu.cn/tpass/login"
+		reqUrl = "https://pass.neu.edu.cn/tpass/login?service="
 	}
+	reqUrl += url.QueryEscape(serviceUrl)
 	return
 }
 
 // 使用Cookie登陆，若失败则直接结束程序并输出错误码，因此不需要返回是否登陆成功
-func LoginWithC(c *ctx.Ctx, vpn bool) {
+func LoginWithC(c *ctx.Ctx, serviceUrl string, vpn bool) {
 	// 获取请求地址
-	reqUrl := getReqUrl(vpn)
+	reqUrl := getReqUrl(serviceUrl, vpn)
 
 	// 构造请求
 	req, _ := http.NewRequest("GET", reqUrl, nil)
@@ -143,9 +143,9 @@ func LoginWithC(c *ctx.Ctx, vpn bool) {
 }
 
 // 使用账号登陆，若失败则直接结束程序并输出错误码，因此不需要返回是否登陆成功
-func LoginWithUP(c *ctx.Ctx, vpn bool) {
+func LoginWithUP(c *ctx.Ctx, serviceUrl string, vpn bool) {
 	// 获取请求地址
-	reqUrl := getReqUrl(vpn)
+	reqUrl := getReqUrl(serviceUrl, vpn)
 
 	// 获取lt和postUrl
 	lt, postUrl := getArgs(c, reqUrl)

@@ -3,12 +3,11 @@ package login
 import (
 	"ipgw/api/code"
 	. "ipgw/api/global"
-	"ipgw/base"
+	. "ipgw/base"
 	"ipgw/ctx"
-	. "ipgw/lib"
 )
 
-var Login = &base.Command{}
+var Login = &Command{}
 
 var (
 	u, p, c string
@@ -34,7 +33,7 @@ func init() {
 	Login.Run = runAPILogin
 }
 
-func runAPILogin(cmd *base.Command, args []string) {
+func runAPILogin(cmd *Command, args []string) {
 	// 本命令作用： 对于指定账号或配置而言，获取登陆成功后的Cookie；对于指定Cookie而言，验证Cookie有效性；
 	// Cookie均为CASTGC
 

@@ -1,9 +1,9 @@
 package kick
 
 import (
+	. "ipgw/base"
 	"ipgw/core/gw"
 	"ipgw/ctx"
-	. "ipgw/lib"
 )
 
 func kick(c *ctx.Ctx, sid string) {

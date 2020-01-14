@@ -6,7 +6,7 @@ import (
 	"bufio"
 	"encoding/base64"
 	"io/ioutil"
-	"ipgw/base"
+	. "ipgw/base"
 	. "ipgw/lib"
 	"net/http"
 	"net/url"
@@ -29,7 +29,7 @@ type Ctx struct {
 func (i *Ctx) Load() {
 	InfoLine(infoLoading)
 	// 准备读取
-	path, err := GetPath(base.SavePath)
+	path, err := GetConfigPath(SavePath)
 	if err != nil {
 		Fatal(fatalGetPath)
 	}
@@ -40,6 +40,11 @@ func (i *Ctx) Load() {
 		Fatal(fatalLoadInfo)
 	}
 	content := string(bytes)
+
+	// 初次使用
+	if len(content) < 1 {
+		content = "::\n:"
+	}
 
 	// 分割
 	lines := strings.Split(content, LineDelimiter)
@@ -78,7 +83,7 @@ func (i *Ctx) Load() {
 func (i *Ctx) SaveAll() {
 	InfoLine(infoSaving)
 	// 准备存储
-	path, err := GetPath(base.SavePath)
+	path, err := GetConfigPath(SavePath)
 	if err != nil {
 		Fatal(fatalGetPath)
 	}
@@ -89,8 +94,6 @@ func (i *Ctx) SaveAll() {
 	defer func() {
 		_ = f.Close()
 	}()
-	w := bufio.NewWriter(f)
-
 	if err != nil {
 		Fatal(fatalOpenFile)
 	}
@@ -104,13 +107,12 @@ func (i *Ctx) SaveAll() {
 	netCookie := i.Net.Cookie.Value
 
 	// 如果保存账号
-	_, err = w.WriteString(username + PartDelimiter + password + PartDelimiter + casCookie + LineDelimiter +
+	_, err = f.WriteString(username + PartDelimiter + password + PartDelimiter + casCookie + LineDelimiter +
 		sid + PartDelimiter + netCookie)
 
 	if err != nil {
 		Fatal(fatalSaveInfo)
 	}
-	_ = w.Flush()
 
 	// 输出成功提示
 	Info(infoSaved)
@@ -118,7 +120,7 @@ func (i *Ctx) SaveAll() {
 
 func (i *Ctx) SaveSession() {
 	// 静默式，不需要输出
-	path, err := GetPath(base.SavePath)
+	path, err := GetConfigPath(SavePath)
 	if err != nil {
 		os.Exit(2)
 	}

@@ -1,8 +1,8 @@
 package test
 
 import (
+	. "ipgw/base"
 	"ipgw/ctx"
-	. "ipgw/lib"
 	"net/http"
 	"strings"
 	"time"

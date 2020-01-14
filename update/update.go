@@ -1,12 +1,12 @@
 package update
 
 import (
-	"ipgw/base"
+	. "ipgw/base"
 	"ipgw/ctx"
 	. "ipgw/lib"
 )
 
-var CmdUpdate = &base.Command{
+var CmdUpdate = &Command{
 	Name:      "update",
 	UsageLine: "ipgw update [-f force] [-v view all]",
 	Short:     "更新版本",
@@ -30,8 +30,8 @@ func init() {
 	CmdUpdate.Run = runUpdate
 }
 
-func runUpdate(cmd *base.Command, args []string) {
-	InfoF(localVersion, base.Version)
+func runUpdate(cmd *Command, args []string) {
+	InfoF(localVersion, Version)
 
 	// 获取版本信息
 	v := checkVersion()
@@ -41,7 +41,7 @@ func runUpdate(cmd *base.Command, args []string) {
 		if f {
 			InfoLine(forcing)
 		} else {
-			PrintChangelog(base.Version, v)
+			PrintChangelog(Version, v)
 		}
 		update(v)
 	}

@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"ipgw/api"
-	"ipgw/base"
+	. "ipgw/base"
 	"ipgw/fix"
 	"ipgw/help"
 	"ipgw/kick"
@@ -19,7 +19,7 @@ import (
 )
 
 func init() {
-	base.Main.Commands = []*base.Command{
+	Main.Commands = []*Command{
 		login.CmdLogin,
 		logout.CmdLogout,
 		kick.CmdKick,
@@ -33,7 +33,7 @@ func init() {
 }
 
 func main() {
-	flag.Usage = func() { help.PrintUsage(base.Main) }
+	flag.Usage = func() { help.PrintUsage(Main) }
 
 	// 第一次解析
 	flag.Parse()
@@ -55,7 +55,7 @@ func main() {
 
 	// 处理api命令
 	if args[0] == "api" {
-		api.API.Run(api.API, args[1:])
+		api.CmdAPI.Run(api.CmdAPI, args[1:])
 		return
 	}
 
@@ -67,7 +67,7 @@ func main() {
 func parse(args []string) {
 	cmdName := args[0] // for error messages
 BigCmdLoop:
-	for bigCmd := base.Main; ; {
+	for bigCmd := Main; ; {
 		for _, cmd := range bigCmd.Commands {
 			if cmd.Name != args[0] {
 				continue
@@ -92,7 +92,7 @@ BigCmdLoop:
 			if cmd.CustomFlags {
 				args = args[1:]
 			} else {
-				cmd.Flag.Parse(args[1:])
+				_ = cmd.Flag.Parse(args[1:])
 				args = cmd.Flag.Args()
 			}
 			cmd.Run(cmd, args)

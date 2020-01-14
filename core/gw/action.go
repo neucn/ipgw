@@ -1,9 +1,9 @@
 package gw
 
 import (
+	. "ipgw/base"
 	. "ipgw/core/global"
 	"ipgw/ctx"
-	. "ipgw/lib"
 	"math/rand"
 	"net/http"
 	"strconv"

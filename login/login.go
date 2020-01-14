@@ -1,11 +1,10 @@
 package login
 
 import (
-	"ipgw/base"
+	. "ipgw/base"
 	"ipgw/core/cas"
 	"ipgw/core/gw"
 	"ipgw/ctx"
-	. "ipgw/lib"
 )
 
 var (
@@ -27,7 +26,7 @@ func init() {
 	CmdLogin.Run = runLogin
 }
 
-var CmdLogin = &base.Command{
+var CmdLogin = &Command{
 	Name:      "login",
 	UsageLine: "ipgw login [-u username] [-p password] [-s save] [-c cookie] [-d device] [-i info] [-v view all] ",
 	Short:     "基础登陆",
@@ -60,7 +59,7 @@ var CmdLogin = &base.Command{
 `,
 }
 
-func runLogin(cmd *base.Command, args []string) {
+func runLogin(cmd *Command, args []string) {
 	// 获取上下文对象
 	x := ctx.NewCtx()
 

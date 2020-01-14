@@ -3,8 +3,7 @@ package help
 import (
 	"bufio"
 	"io"
-	"ipgw/base"
-	. "ipgw/lib"
+	. "ipgw/base"
 	"os"
 	"strings"
 	"text/template"
@@ -14,7 +13,7 @@ import (
 
 // Help implements the 'help' command.
 func Help(w io.Writer, args []string) {
-	cmd := base.Main
+	cmd := Main
 Args:
 	for i, arg := range args {
 		for _, sub := range cmd.Commands {
@@ -33,9 +32,9 @@ Args:
 	}
 
 	if len(cmd.Commands) > 0 {
-		printUsage(os.Stdout, cmd)
+		printUsage(w, cmd)
 	} else {
-		tmpl(os.Stdout, SpecificUsageTemplate, cmd)
+		tmpl(w, SimpleUsageTemplate, cmd)
 	}
 	// not exit 2: succeeded at 'ipgw help cmd'.
 	return
@@ -87,14 +86,27 @@ func PrintNotFound(cmdName string) {
 }
 
 // 在别的包被调用肯定是因为报错，所以公开的方法直接指定为os.Stderr
-// 且直接终止程序
-func PrintUsage(cmd *base.Command) {
+// 且直接终止程序。
+// 用于打印有子命令的命令
+func PrintUsage(cmd *Command) {
 	printUsage(os.Stderr, cmd)
 	os.Exit(2)
 }
 
-func printUsage(w io.Writer, cmd *base.Command) {
+// 用于打印无子命令的命令
+func PrintSimpleUsage(cmd *Command) {
+	printSimpleUsage(os.Stderr, cmd)
+	os.Exit(2)
+}
+
+func printUsage(w io.Writer, cmd *Command) {
 	bw := bufio.NewWriter(w)
-	tmpl(bw, MainUsageTemplate, cmd)
+	tmpl(bw, UsageTemplate, cmd)
+	_ = bw.Flush()
+}
+
+func printSimpleUsage(w io.Writer, cmd *Command) {
+	bw := bufio.NewWriter(w)
+	tmpl(bw, SimpleUsageTemplate, cmd)
 	_ = bw.Flush()
 }

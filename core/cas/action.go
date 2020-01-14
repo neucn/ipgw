@@ -3,9 +3,9 @@
 package cas
 
 import (
+	. "ipgw/base"
 	. "ipgw/core/global"
 	"ipgw/ctx"
-	. "ipgw/lib"
 	"net/http"
 	"regexp"
 	"strconv"

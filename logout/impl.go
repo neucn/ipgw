@@ -1,11 +1,11 @@
 package logout
 
 import (
+	. "ipgw/base"
 	"ipgw/core/cas"
 	. "ipgw/core/global"
 	"ipgw/core/gw"
 	"ipgw/ctx"
-	. "ipgw/lib"
 	"net/http"
 	"net/url"
 )

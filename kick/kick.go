@@ -1,13 +1,12 @@
 package kick
 
 import (
-	"ipgw/base"
+	. "ipgw/base"
 	"ipgw/ctx"
-	. "ipgw/lib"
 	"regexp"
 )
 
-var CmdKick = &base.Command{
+var CmdKick = &Command{
 	Name:      "kick",
 	UsageLine: "ipgw kick [-v view all] sid1 sid2 sid3 ...",
 	Short:     "使指定设备下线",
@@ -27,7 +26,7 @@ func init() {
 	CmdKick.Run = runKick
 }
 
-func runKick(cmd *base.Command, args []string) {
+func runKick(cmd *Command, args []string) {
 	// 若无参则打印使用说明并结束
 	if len(args) == 0 {
 		cmd.Usage()

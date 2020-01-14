@@ -1,7 +1,7 @@
 package help
 
 var (
-	MainUsageTemplate = `{{.Long | trim}}
+	UsageTemplate = `{{.Long | trim}}
 
 用法:
 	{{.UsageLine}} <command> [arguments]
@@ -14,7 +14,7 @@ var (
 {{end}}
 `
 
-	SpecificUsageTemplate = `{{if .Runnable}}用法: {{.UsageLine}}
+	SimpleUsageTemplate = `{{if .Runnable}}用法: {{.UsageLine}}
 {{end}}{{.Long | trim}}
 `
 

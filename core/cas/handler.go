@@ -3,7 +3,7 @@
 package cas
 
 import (
-	. "ipgw/lib"
+	. "ipgw/base"
 	"regexp"
 )
 

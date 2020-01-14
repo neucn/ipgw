@@ -11,11 +11,8 @@ var (
 	localVersion  = "本地版本\t%s\n"
 	latestVersion = "最新版本\t%s\n"
 
-	errNet    = "请检查网络连接"
 	errReason = "错误原因\t%s\n"
-	errRunEnv = "获取运行环境失败"
 
-	failQuery  = "获取失败"
 	failUpdate = "更新失败"
 
 	successUpdate = "更新成功"

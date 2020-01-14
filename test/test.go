@@ -1,11 +1,11 @@
 package test
 
 import (
-	"ipgw/base"
+	. "ipgw/base"
 	"ipgw/ctx"
 )
 
-var CmdTest = &base.Command{
+var CmdTest = &Command{
 	Name:      "test",
 	UsageLine: "ipgw test [-v view all]",
 	Short:     "校园网测试",
@@ -25,6 +25,6 @@ func init() {
 	CmdTest.Run = runTest
 }
 
-func runTest(cmd *base.Command, args []string) {
+func runTest(cmd *Command, args []string) {
 	test()
 }

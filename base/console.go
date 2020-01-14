@@ -1,6 +1,6 @@
 // 统一的输出
 
-package lib
+package base
 
 import (
 	"fmt"

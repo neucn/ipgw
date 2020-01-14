@@ -4,12 +4,12 @@ import (
 	"ipgw/api/code"
 	"ipgw/api/login"
 	"ipgw/api/proxy"
-	"ipgw/base"
-	. "ipgw/lib"
+	. "ipgw/base"
+	"ipgw/lib"
 	"os"
 )
 
-var API = &base.Command{
+var CmdAPI = &Command{
 	UsageLine: "ipgw api",
 	Short:     "API",
 	Long:      `To Be Done.`,
@@ -43,10 +43,10 @@ var (
 )
 
 func init() {
-	API.Run = runAPI
+	CmdAPI.Run = runAPI
 }
 
-func runAPI(cmd *base.Command, args []string) {
+func runAPI(cmd *Command, args []string) {
 	// args [要求版本 命令 参数一 参数二]
 	if len(args) < 2 {
 		// 无参数直接结束程序
@@ -54,7 +54,7 @@ func runAPI(cmd *base.Command, args []string) {
 	}
 
 	// 对args[0]进行版本判断
-	if !isCompatible(args[0]) {
+	if !lib.IsAPICompatible(args[0]) {
 		Fatal(code.GlobalNotCompatible)
 	}
 
@@ -72,10 +72,4 @@ func runAPI(cmd *base.Command, args []string) {
 	// 进行到这说明执行成功，因此输出错误码0
 	Error(code.GlobalSuccess)
 	os.Exit(0)
-}
-
-// 检验是否兼容
-// 暂时简单判断
-func isCompatible(v string) bool {
-	return base.API == v
 }
