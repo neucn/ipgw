@@ -59,7 +59,7 @@ func getAll(toolNames []string) {
 func fetchList() (localList, onlineList *Tools) {
 	localList = &Tools{}
 	localList.Load()
-	onlineList = GetTools()
+	onlineList = GetOnlineToolList()
 	return
 }
 
@@ -69,8 +69,8 @@ func getTool(tool *Tool) (ok bool) {
 	v := ParseVer(tool.Path)
 
 	// 获取下载地址
-	// 直接在解析出来的下载地址后面带.zip，虽然挫是挫了点，但又不是不能用
-	url := GetDownloadUrl(tool.Path, v) + ".zip"
+	// 有.zip后缀
+	url := GetToolDownloadUrl(tool.Path, tool.Name, v)
 
 	// ipgwTool 路径
 	toolsDir := GetToolsDir()

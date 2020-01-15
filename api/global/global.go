@@ -117,7 +117,17 @@ func getReqUrl(serviceUrl string, vpn bool) (reqUrl string) {
 	} else {
 		reqUrl = "https://pass.neu.edu.cn/tpass/login?service="
 	}
-	reqUrl += url.QueryEscape(serviceUrl)
+	if len(serviceUrl) > 0 {
+		reqUrl += url.QueryEscape(serviceUrl)
+	} else {
+		if vpn {
+			// 定向到webvpn
+			reqUrl += "https%3A%2F%2Fwebvpn.neu.edu.cn%2Fusers%2Fauth%2Fcas%2Fcallback%3Furl"
+		} else {
+			// 定向到portal
+			reqUrl += "https%3A%2F%2Fportal.neu.edu.cn%2Ftp_up%2F"
+		}
+	}
 	return
 }
 

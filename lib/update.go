@@ -115,6 +115,35 @@ func GetDownloadUrl(u string, i *Ver) string {
 	return u
 }
 
+// 拼接获取工具下载路径
+// u为tool的根目录，如neu.ee/tools/teemo
+func GetToolDownloadUrl(u, toolName string, i *Ver) string {
+	// 检查本机arch是否存在于预编译版本arch中
+	if _, ok := i.Arch[runtime.GOARCH]; !ok {
+		// 若不存在
+		Fatal(failArchNotSupported)
+	}
+
+	// 版本号接入Release地址
+	u += "/" + i.Latest
+
+	// 检查os是否存在于预编译版本os中
+	s, ok := i.OS[runtime.GOOS]
+	if !ok {
+		// 若不存在
+		Fatal(failOSNotSupported)
+	}
+
+	// os接入Release地址
+	u += "/" + s
+
+	// 文件名接入Release地址
+	u += "/" + toolName + ".zip"
+
+	// 拼接完成
+	return u
+}
+
 // 输出更新日志，v为当前版本
 func PrintChangelog(local string, i *Ver) {
 	InfoLine()
@@ -148,7 +177,7 @@ func IsAPICompatible(v string) bool {
 }
 
 // 获取Tools列表
-func GetTools() *Tools {
+func GetOnlineToolList() *Tools {
 	// 实例化一个客户端
 	client := &http.Client{Timeout: 3 * time.Second}
 	// 请求工具列表
