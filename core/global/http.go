@@ -19,7 +19,7 @@ func SendRequestCustomText(c *ctx.Ctx, r *http.Request, errText, fatalText strin
 		if !c.Option.Mute && ctx.FullView {
 			ErrorF(errText, err)
 		}
-		Fatal(fatalText)
+		FatalL(fatalText)
 	}
 	c.Response = resp
 }

@@ -13,16 +13,16 @@ func LoginStatusFilterUP(body string) {
 	titleExp := regexp.MustCompile(`<title>(.+?)</title>`)
 	title := titleExp.FindAllStringSubmatch(body, -1)
 	if len(title) < 1 {
-		Fatal(failGetResp)
+		FatalL(failGetResp)
 	}
 
 	switch title[0][1] {
 	case "智慧东大--统一身份认证":
-		Fatal(failWrongUOrP)
+		FatalL(failWrongUOrP)
 	case "智慧东大":
-		Fatal(failWrongSetting)
+		FatalL(failWrongSetting)
 	case "系统提示":
-		Fatal(failBanned)
+		FatalL(failBanned)
 	}
 }
 
@@ -32,12 +32,12 @@ func LoginStatusFilterC(body string) (ok bool) {
 	titleExp := regexp.MustCompile(`<title>(.+?)</title>`)
 	title := titleExp.FindAllStringSubmatch(body, -1)
 	if len(title) < 1 {
-		Error(failGetResp)
+		ErrorL(failGetResp)
 		return false
 	}
 
 	if title[0][1] == "智慧东大--统一身份认证" {
-		Error(failCookieExpired)
+		ErrorL(failCookieExpired)
 		return false
 	}
 

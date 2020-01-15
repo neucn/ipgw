@@ -28,7 +28,7 @@ func Kick(c *ctx.Ctx, sid string) (ok bool) {
 	result := ReadBody(c.Response)
 	if !c.Option.Mute && ctx.FullView {
 		// 输出响应信息
-		InfoLine(result)
+		InfoL(result)
 	}
 
 	// 判断是否成功
@@ -65,7 +65,7 @@ func Replace(c *ctx.Ctx, id, sid string) {
 func GetNetInfo(c *ctx.Ctx) {
 	mute := c.Option.Mute
 	if !mute && ctx.FullView {
-		InfoLine(infoFetchingNetInfo)
+		InfoL(infoFetchingNetInfo)
 	}
 
 	// 构造请求
@@ -89,7 +89,7 @@ func GetNetInfo(c *ctx.Ctx) {
 
 	// 可能有登陆异常的情况
 	if len(split) != 6 {
-		Error(errState)
+		ErrorL(errState)
 		return
 	}
 
@@ -99,6 +99,6 @@ func GetNetInfo(c *ctx.Ctx) {
 	c.Net.Balance, _ = strconv.ParseFloat(split[2], 64)
 
 	if !mute && ctx.FullView {
-		InfoLine(successGetInfo)
+		InfoL(successGetInfo)
 	}
 }

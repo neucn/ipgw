@@ -10,7 +10,7 @@ import (
 // 检查并更新所有的
 func updateAll(toolNames []string, force bool) {
 	// 提示必须关闭正在运行中的工具
-	InfoLine(infoCloseRunning)
+	InfoL(infoCloseRunning)
 
 	// 获取本地tools.json内容
 	toolList := &Tools{}

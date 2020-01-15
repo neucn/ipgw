@@ -8,6 +8,10 @@ import (
 )
 
 func Error(msg ...interface{}) {
+	_, _ = fmt.Fprint(os.Stderr, msg...)
+}
+
+func ErrorL(msg ...interface{}) {
 	_, _ = fmt.Fprintln(os.Stderr, msg...)
 }
 
@@ -16,6 +20,11 @@ func ErrorF(format string, msg ...interface{}) {
 }
 
 func Fatal(msg ...interface{}) {
+	_, _ = fmt.Fprint(os.Stderr, msg...)
+	os.Exit(2)
+}
+
+func FatalL(msg ...interface{}) {
 	_, _ = fmt.Fprintln(os.Stderr, msg...)
 	os.Exit(2)
 }
@@ -29,7 +38,7 @@ func Info(msg ...interface{}) {
 	fmt.Print(msg...)
 }
 
-func InfoLine(msg ...interface{}) {
+func InfoL(msg ...interface{}) {
 	fmt.Println(msg...)
 }
 

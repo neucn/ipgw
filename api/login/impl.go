@@ -19,7 +19,7 @@ func getCookieAfterLoginWithUP(c *ctx.Ctx, vpn bool) {
 	}
 
 	// 输出cookie
-	InfoLine(cookie)
+	Info(cookie)
 }
 
 func getCookieAfterLoginWithC(c *ctx.Ctx, vpn bool) {
@@ -27,7 +27,7 @@ func getCookieAfterLoginWithC(c *ctx.Ctx, vpn bool) {
 	LoginWithC(c, "", vpn)
 	// 如果成功通过了过滤，说明登陆成功
 	// 输出Cookie
-	InfoLine(c.User.Cookie.Value)
+	Info(c.User.Cookie.Value)
 }
 
 func getCookie(c *ctx.Ctx, vpn bool) (cookie string) {

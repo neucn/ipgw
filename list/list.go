@@ -96,7 +96,7 @@ func runList(cmd *Command, args []string) {
 		// 如果使用账号登陆
 		if p == "" {
 			// 必须要密码
-			Error(mustUsePWhenUseU)
+			ErrorL(mustUsePWhenUseU)
 			return
 		}
 		x.User.Username = u
@@ -110,7 +110,7 @@ func runList(cmd *Command, args []string) {
 		// 使用保存的账号登陆
 		x.Load()
 		if x.User.Username == "" {
-			Fatal(noStoredAccount)
+			FatalL(noStoredAccount)
 		}
 		ib = fetchIndexBodyByUP(x)
 	} else if a || i || d || h || b || r {
@@ -160,7 +160,7 @@ func runList(cmd *Command, args []string) {
 			p, e := strconv.Atoi(cmd.Flag.Args()[0])
 			if e != nil {
 				// 检验页数是否为整形
-				Error(wrongPageNotInt)
+				ErrorL(wrongPageNotInt)
 			}
 			hb = fetchHistoryBody(x, p)
 		}

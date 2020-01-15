@@ -30,7 +30,7 @@ func (i *Tools) Load() {
 	// 读取
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
-		Fatal(fatalLoadToolInfo)
+		FatalL(fatalLoadToolInfo)
 	}
 
 	// 反序列化
@@ -44,7 +44,7 @@ func (i *Tools) Save() {
 	// 序列化
 	bytes, err := json.Marshal(i.List)
 	if err != nil {
-		Fatal(fatalSaveToolInfo)
+		FatalL(fatalSaveToolInfo)
 	}
 
 	// 打开
@@ -54,12 +54,12 @@ func (i *Tools) Save() {
 		_ = f.Close()
 	}()
 	if err != nil {
-		Fatal(fatalSaveToolInfo)
+		FatalL(fatalSaveToolInfo)
 	}
 
 	// 写入
 	if _, err = f.Write(bytes); err != nil {
-		Fatal(fatalSaveToolInfo)
+		FatalL(fatalSaveToolInfo)
 	}
 }
 

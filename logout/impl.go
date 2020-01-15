@@ -33,7 +33,7 @@ func logoutWithSID(c *ctx.Ctx) (ok bool) {
 		return false
 	}
 
-	InfoLine(successLogoutBySID)
+	InfoL(successLogoutBySID)
 	return true
 }
 
@@ -88,7 +88,7 @@ func logoutWithUP(c *ctx.Ctx) {
 	sid, _ := gw.GetSIDAndIP(body)
 	// 若获取失败
 	if len(sid) < 1 {
-		Fatal(failGetInfo)
+		FatalL(failGetInfo)
 	}
 
 	// 踢下线
@@ -167,7 +167,7 @@ func logoutWithC(c *ctx.Ctx) (ok bool) {
 	sid, _ := gw.GetSIDAndIP(body)
 	// 若获取失败
 	if len(sid) < 1 {
-		Error(failGetInfo)
+		ErrorL(failGetInfo)
 		return false
 	}
 

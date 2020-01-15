@@ -48,7 +48,7 @@ func runLogout(cmd *Command, args []string) {
 
 	if len(u) > 0 {
 		if len(p) == 0 {
-			Fatal(mustUsePWhenUseU)
+			FatalL(mustUsePWhenUseU)
 		}
 		x.User.Username = u
 		x.User.Password = p
@@ -73,7 +73,7 @@ func runLogout(cmd *Command, args []string) {
 		}
 
 		if x.User.Username == "" {
-			Fatal(noStoredAccount)
+			FatalL(noStoredAccount)
 		}
 		// 若cookie失效，则使用账号密码
 		logoutWithUP(x)

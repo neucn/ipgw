@@ -68,7 +68,7 @@ func runLogin(cmd *Command, args []string) {
 
 	if len(u) > 0 {
 		if len(p) == 0 {
-			Fatal(mustUsePWhenUseU)
+			FatalL(mustUsePWhenUseU)
 		}
 		x.User.Username = u
 		x.User.Password = p
@@ -82,7 +82,7 @@ func runLogin(cmd *Command, args []string) {
 		x.Load()
 		// 没有保存的账号
 		if x.User.Username == "" {
-			Fatal(noStoredAccount)
+			FatalL(noStoredAccount)
 		}
 		loginWithUP(x)
 	}

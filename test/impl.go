@@ -13,7 +13,7 @@ func test() {
 	client := &http.Client{Timeout: time.Second}
 
 	if ctx.FullView {
-		InfoLine(testingNet)
+		InfoL(testingNet)
 	}
 
 	// 测试是否连接上校园网
@@ -25,21 +25,21 @@ func test() {
 		}
 		if strings.Contains(err.Error(), "no such host") {
 			// 没有联网
-			InfoLine(noInternet)
+			InfoL(noInternet)
 			return
 		} else if strings.Contains(err.Error(), "Client.Timeout") {
 			// 没有连校园网
-			InfoLine(notConnect)
+			InfoL(notConnect)
 			return
 		}
 		ErrorF(errUnexpected, err)
 		return
 	}
 
-	InfoLine(connected)
+	InfoL(connected)
 
 	if ctx.FullView {
-		InfoLine(testingLogin)
+		InfoL(testingLogin)
 	}
 
 	// 测试是否登陆校园网
@@ -52,12 +52,12 @@ func test() {
 		// todo 还有可能证书错误，再观望观望
 		if strings.Contains(err.Error(), "Client.Timeout") {
 			// 未登陆
-			InfoLine(notLoggedIn)
+			InfoL(notLoggedIn)
 			return
 		}
 		ErrorF(errUnexpected, err)
 		return
 	}
 
-	InfoLine(loggedIn)
+	InfoL(loggedIn)
 }

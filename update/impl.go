@@ -14,7 +14,7 @@ func checkVersion() (v *Ver) {
 	//  1. 速度有待商榷；
 	//  2.就算通过Github获取了新版本信息，由于没有对应的下载实现，等于无用
 
-	InfoLine(querying)
+	InfoL(querying)
 
 	// 查询信息解析为Ver
 	v = ParseVer(ReleasePath)
@@ -22,7 +22,7 @@ func checkVersion() (v *Ver) {
 	// 判断是否是更新版本
 	if !IsNewer(v.Latest, Version) {
 		// 本地已是最新
-		InfoLine(alreadyLatest)
+		InfoL(alreadyLatest)
 		return v
 	}
 	// 本地不是最新
@@ -41,13 +41,13 @@ func update(v *Ver) {
 	// 下载
 	Download(GetDownloadUrl(ReleasePath, v), tmpName)
 
-	InfoLine(updating)
+	InfoL(updating)
 
 	// 修改下载的文件权限
 	_ = os.Chmod(tmpName, 0777)
 
 	if ctx.FullView {
-		InfoLine(removing)
+		InfoL(removing)
 	}
 
 	// 将当前运行的版本改名为ipgw.old
@@ -55,14 +55,14 @@ func update(v *Ver) {
 	fatalHandler(err, failUpdate)
 
 	if ctx.FullView {
-		InfoLine(covering)
+		InfoL(covering)
 	}
 
 	// 将下载的新版本改名为正确名字
 	err = os.Rename(tmpName, dir+v.Name[runtime.GOOS])
 	fatalHandler(err, failUpdate)
 
-	InfoLine(successUpdate)
+	InfoL(successUpdate)
 }
 
 // 处理err
@@ -71,6 +71,6 @@ func fatalHandler(err error, fatalText string) {
 		if ctx.FullView {
 			ErrorF(errReason, err)
 		}
-		Fatal(fatalText)
+		FatalL(fatalText)
 	}
 }

@@ -1,13 +1,13 @@
 package fix
 
 import (
-	"fmt"
+	. "ipgw/base"
 	"ipgw/ctx"
 )
 
 func fix() {
-	fmt.Println(fixing)
+	InfoL(fixing)
 	c := ctx.NewCtx()
 	c.SaveAll()
-	fmt.Println(successFix)
+	InfoL(successFix)
 }

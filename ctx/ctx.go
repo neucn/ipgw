@@ -27,17 +27,17 @@ type Ctx struct {
 
 // 从配置文件中解析出用户配置
 func (i *Ctx) Load() {
-	InfoLine(infoLoading)
+	InfoL(infoLoading)
 	// 准备读取
 	path, err := GetConfigPath(SavePath)
 	if err != nil {
-		Fatal(fatalGetPath)
+		FatalL(fatalGetPath)
 	}
 
 	// 读取
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
-		Fatal(fatalLoadInfo)
+		FatalL(fatalLoadInfo)
 	}
 	content := string(bytes)
 
@@ -49,13 +49,13 @@ func (i *Ctx) Load() {
 	// 分割
 	lines := strings.Split(content, LineDelimiter)
 	if len(lines) < 2 {
-		Fatal(fatalInfoFormat)
+		FatalL(fatalInfoFormat)
 	}
 
 	// 载入用户信息部分
 	user := strings.Split(lines[0], PartDelimiter)
 	if len(user) < 3 {
-		Fatal(fatalInfoFormat)
+		FatalL(fatalInfoFormat)
 	}
 
 	// [b64(username), b64(password), CAS Cookie]
@@ -70,7 +70,7 @@ func (i *Ctx) Load() {
 	// 载入网关信息部分
 	net := strings.Split(lines[1], PartDelimiter)
 	if len(net) < 2 {
-		Fatal(fatalInfoFormat)
+		FatalL(fatalInfoFormat)
 	}
 
 	// [SID, ipgw Cookie]
@@ -81,11 +81,11 @@ func (i *Ctx) Load() {
 
 // 向配置文件中写入用户配置
 func (i *Ctx) SaveAll() {
-	InfoLine(infoSaving)
+	InfoL(infoSaving)
 	// 准备存储
 	path, err := GetConfigPath(SavePath)
 	if err != nil {
-		Fatal(fatalGetPath)
+		FatalL(fatalGetPath)
 	}
 
 	// 打开
@@ -95,7 +95,7 @@ func (i *Ctx) SaveAll() {
 		_ = f.Close()
 	}()
 	if err != nil {
-		Fatal(fatalOpenFile)
+		FatalL(fatalOpenFile)
 	}
 
 	// 写入
@@ -111,7 +111,7 @@ func (i *Ctx) SaveAll() {
 		sid + PartDelimiter + netCookie)
 
 	if err != nil {
-		Fatal(fatalSaveInfo)
+		FatalL(fatalSaveInfo)
 	}
 
 	// 输出成功提示
@@ -171,7 +171,7 @@ func (i *Ctx) ExtractNetCookie() {
 		Host:   "ipgw.neu.edu.cn",
 	})
 	if len(cookie) == 0 {
-		Error(errGetCookie)
+		ErrorL(errGetCookie)
 	} else {
 		i.Net.Cookie = cookie[0]
 		if !i.Option.Mute && FullView {

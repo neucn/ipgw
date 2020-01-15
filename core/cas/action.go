@@ -31,7 +31,7 @@ func GetArgs(c *ctx.Ctx, reqUrl string) (lt, postUrl string) {
 	postUrls := postUrlExp.FindAllStringSubmatch(body, -1)
 
 	if len(lts) < 1 || len(postUrls) < 1 {
-		Fatal(failGetArgs)
+		FatalL(failGetArgs)
 	}
 	lt = lts[0][1]
 	postUrl = postUrls[0][1]
@@ -47,7 +47,7 @@ func GetArgs(c *ctx.Ctx, reqUrl string) (lt, postUrl string) {
 func LoginCAS(c *ctx.Ctx, r *http.Request) {
 	// 输出提示
 	if !c.Option.Mute && ctx.FullView {
-		InfoLine(infoSendingLoginRequest)
+		InfoL(infoSendingLoginRequest)
 	}
 
 	// 发送请求

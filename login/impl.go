@@ -41,14 +41,14 @@ func loginWithUP(c *ctx.Ctx) {
 	// 判断是否欠费
 	overdue := gw.IsOverdue(body)
 	if overdue {
-		Fatal(failOverdue)
+		FatalL(failOverdue)
 	}
 
 	// 获取SID和IP
 	// 获取失败即登陆失败
 	ok := getSIDAndIP(c, body)
 	if !ok {
-		Fatal(failLogin)
+		FatalL(failLogin)
 	}
 	// 提取Cookie
 	c.ExtractNetCookie()
@@ -69,7 +69,7 @@ func loginWithC(c *ctx.Ctx) {
 	}, []*http.Cookie{c.Net.Cookie})
 
 	if ctx.FullView {
-		InfoLine(sendingRequest)
+		InfoL(sendingRequest)
 	}
 
 	// 构造请求
@@ -107,14 +107,14 @@ func loginWithC(c *ctx.Ctx) {
 	// 判断是否欠费
 	overdue := gw.IsOverdue(body)
 	if overdue {
-		Fatal(failOverdue)
+		FatalL(failOverdue)
 	}
 
 	// 读取SID
 	// 获取失败即登录失败
 	ok = getSIDAndIP(c, body)
 	if !ok {
-		Fatal(failLogin)
+		FatalL(failLogin)
 	}
 
 	// 提取Cookie
@@ -152,7 +152,7 @@ func getSIDAndIP(c *ctx.Ctx, body string) (ok bool) {
 func getID(c *ctx.Ctx, body string) {
 	id := gw.GetID(body)
 	if len(id) < 1 {
-		Error(failGetInfo)
+		ErrorL(failGetInfo)
 	} else {
 		c.User.Username = id
 		if ctx.FullView {

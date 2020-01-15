@@ -31,6 +31,6 @@ func runVersion(cmd *Command, args []string) {
 版本: %s-API%s`, Title, Version, API)
 
 	if l {
-		InfoLine(detail)
+		InfoL(detail)
 	}
 }

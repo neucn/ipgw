@@ -24,7 +24,7 @@ func fetchIndexBodyByC(c *ctx.Ctx) (ib string) {
 	}, []*http.Cookie{c.User.Cookie})
 
 	if ctx.FullView {
-		InfoLine(fetchingIndexByCAS)
+		InfoL(fetchingIndexByCAS)
 	}
 
 	// 构造请求
@@ -39,7 +39,7 @@ func fetchIndexBodyByC(c *ctx.Ctx) (ib string) {
 	cas.LoginStatusFilterC(ib)
 
 	if ctx.FullView {
-		InfoLine(successFetch)
+		InfoL(successFetch)
 	}
 
 	return
@@ -49,7 +49,7 @@ func fetchIndexBodyByC(c *ctx.Ctx) (ib string) {
 func fetchIndexBodyByUP(c *ctx.Ctx) (ib string) {
 	reqUrl := "https://pass.neu.edu.cn/tpass/login?service=http://ipgw.neu.edu.cn:8800/sso/default/neusoft"
 	if ctx.FullView {
-		InfoLine(fetchingIndexByUP, c.User.Username)
+		InfoL(fetchingIndexByUP, c.User.Username)
 	}
 
 	// 登陆流程
@@ -69,7 +69,7 @@ func fetchIndexBodyByUP(c *ctx.Ctx) (ib string) {
 	cas.LoginStatusFilterUP(ib)
 
 	if ctx.FullView {
-		InfoLine(successFetch)
+		InfoL(successFetch)
 	}
 
 	return
@@ -78,14 +78,14 @@ func fetchIndexBodyByUP(c *ctx.Ctx) (ib string) {
 // 获取扣款记录
 func fetchBillBody(c *ctx.Ctx) (bb string) {
 	if ctx.FullView {
-		InfoLine(fetchingBill)
+		InfoL(fetchingBill)
 	}
 	req, _ := http.NewRequest("GET", "http://ipgw.neu.edu.cn:8800/financial/checkout/list", nil)
 
 	SendRequest(c, req)
 
 	if ctx.FullView {
-		InfoLine(successFetch)
+		InfoL(successFetch)
 	}
 	return ReadBody(c.Response)
 }
@@ -93,13 +93,13 @@ func fetchBillBody(c *ctx.Ctx) (bb string) {
 // 获取充值记录
 func fetchRechargeBody(c *ctx.Ctx) (rb string) {
 	if ctx.FullView {
-		InfoLine(fetchingRecharge)
+		InfoL(fetchingRecharge)
 	}
 	req, _ := http.NewRequest("GET", "http://ipgw.neu.edu.cn:8800/financial/pay/list", nil)
 	SendRequest(c, req)
 
 	if ctx.FullView {
-		InfoLine(successFetch)
+		InfoL(successFetch)
 	}
 	return ReadBody(c.Response)
 }
@@ -107,7 +107,7 @@ func fetchRechargeBody(c *ctx.Ctx) (rb string) {
 // 获取使用日志
 func fetchHistoryBody(c *ctx.Ctx, p int) (hb string) {
 	if ctx.FullView {
-		InfoLine(fetchingHistory)
+		InfoL(fetchingHistory)
 	}
 
 	req, _ := http.NewRequest("GET", fmt.Sprintf("http://ipgw.neu.edu.cn:8800/log/detail/index?page=%d&per-page=20", p), nil)
@@ -115,7 +115,7 @@ func fetchHistoryBody(c *ctx.Ctx, p int) (hb string) {
 	SendRequest(c, req)
 
 	if ctx.FullView {
-		InfoLine(successFetch)
+		InfoL(successFetch)
 	}
 	return ReadBody(c.Response)
 }
@@ -123,20 +123,20 @@ func fetchHistoryBody(c *ctx.Ctx, p int) (hb string) {
 // 打印id和name
 func processUser(body string) {
 
-	InfoLine("# 基本信息")
+	InfoL("# 基本信息")
 	idExp := regexp.MustCompile(`账号</label>\s+(\d+)\s+`)
 	nameExp := regexp.MustCompile(`姓名</label>\s+(.+?)\s+`)
 	ids := idExp.FindAllStringSubmatch(body, -1)
 	names := nameExp.FindAllStringSubmatch(body, -1)
 	if len(ids) < 1 || len(names) < 1 {
-		Error(failToFetch)
+		ErrorL(failToFetch)
 		return
 	}
 	InfoF(`   姓名	%s
    学号	%s
 `, names[0][1], ids[0][1])
 
-	InfoLine()
+	InfoL()
 
 }
 
@@ -144,7 +144,7 @@ func processUser(body string) {
 func processDevice(body string) {
 	// 取出device
 
-	InfoLine("# 登陆设备")
+	InfoL("# 登陆设备")
 	dExp := regexp.MustCompile(`<td>\d+</td>\W+?<td>(.+?)</td>\W+?<td>.+?</td>\W+?<td>(.+?)</td>\W+?<td>(.+?)</td>\W+?<td><a id="(\d+)".+?下线</a></td>`)
 	ds := dExp.FindAllStringSubmatch(body, -1)
 
@@ -163,17 +163,17 @@ func processDevice(body string) {
 		}
 	}
 
-	InfoLine()
+	InfoL()
 }
 
 // 打印套餐信息
 func processInfo(body string) {
 
-	InfoLine("# 套餐信息")
+	InfoL("# 套餐信息")
 	infoExp := regexp.MustCompile(`<td>\W+.+?(\d+?)G下行流量(.+?)元?/.+?</td>\W+<td>\W+(.+?)\W+</td>\W+<td>(.+?)</td>\W+<td>(.+?)</td>\W+<td>.+?</td>\W+<td>(.+?)</td>\W+<td>.+?</td>`)
 	infos := infoExp.FindAllStringSubmatch(body, -1)
 	if len(infos) < 1 {
-		Error(failToFetch)
+		ErrorL(failToFetch)
 		return
 	}
 
@@ -205,16 +205,16 @@ func processInfo(body string) {
    状态	%s
 `, infos[0][1], infos[0][2], infos[0][3], infos[0][4], infos[0][5], infos[0][6], status)
 
-	InfoLine()
+	InfoL()
 }
 
 // 打印付款账单
 func processBill(body string) {
-	InfoLine("# 扣款记录")
+	InfoL("# 扣款记录")
 	tExp := regexp.MustCompile(`<title>(.+?)</title>`)
 	t := tExp.FindAllStringSubmatch(body, -1)
 	if len(t) < 1 || t[0][1] != "结算清单" {
-		Error(failToFetch)
+		ErrorL(failToFetch)
 		return
 	}
 
@@ -236,16 +236,16 @@ func processBill(body string) {
 		}
 	}
 
-	InfoLine()
+	InfoL()
 }
 
 // 打印使用日志
 func processHistory(body string) {
-	InfoLine("# 使用记录")
+	InfoL("# 使用记录")
 	tExp := regexp.MustCompile(`<title>(.+?)</title>`)
 	t := tExp.FindAllStringSubmatch(body, -1)
 	if len(t) < 1 || t[0][1] != "上网明细" {
-		Error(failToFetch)
+		ErrorL(failToFetch)
 		return
 	}
 
@@ -256,16 +256,16 @@ func processHistory(body string) {
 		InfoF("   %s - %s\t%s\t%s\n", h[1], h[2], h[3], h[4])
 	}
 
-	InfoLine()
+	InfoL()
 }
 
 // 打印充值记录
 func processRecharge(body string) {
-	InfoLine("# 充值记录")
+	InfoL("# 充值记录")
 	tExp := regexp.MustCompile(`<title>(.+?)</title>`)
 	t := tExp.FindAllStringSubmatch(body, -1)
 	if len(t) < 1 || t[0][1] != "缴费清单" {
-		Error(failToFetch)
+		ErrorL(failToFetch)
 		return
 	}
 
@@ -286,12 +286,12 @@ func processRecharge(body string) {
 		}
 	}
 
-	InfoLine()
+	InfoL()
 }
 
 // 打印本地信息
 func processLocal(x *ctx.Ctx) {
-	InfoLine("# 本地信息")
+	InfoL("# 本地信息")
 
 	if x.User.Username != "" {
 		InfoF("   已保存账号\t%s\n", x.User.Username)
@@ -311,5 +311,5 @@ func processLocal(x *ctx.Ctx) {
 		InfoF("   网关Cookie\t%s\n", "无")
 	}
 
-	InfoLine()
+	InfoL()
 }

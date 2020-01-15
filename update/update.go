@@ -39,7 +39,7 @@ func runUpdate(cmd *Command, args []string) {
 	// 如果有更新或者强制更新
 	if f || v.Update {
 		if f {
-			InfoLine(forcing)
+			InfoL(forcing)
 		} else {
 			PrintChangelog(Version, v)
 		}

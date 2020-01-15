@@ -20,7 +20,7 @@ func ParseVer(u string) (v *Ver) {
 	// 使用/info.json获取版本信息
 	resp, err := client.Get(u + "/info.json")
 	if err != nil {
-		Fatal(errNetwork)
+		FatalL(errNetwork)
 	}
 	// 因为json.Unmarshal，所以这里不适用ReadBody
 	res, _ := ioutil.ReadAll(resp.Body)
@@ -31,7 +31,7 @@ func ParseVer(u string) (v *Ver) {
 
 	// 若解析失败
 	if len(v.Latest) < 1 {
-		Fatal(failQuery)
+		FatalL(failQuery)
 	}
 	return
 }
@@ -49,7 +49,7 @@ func Download(u, dest string) {
 
 	// 若404
 	if resp.StatusCode == http.StatusNotFound {
-		Fatal(wrongUrl)
+		FatalL(wrongUrl)
 	}
 
 	raw := resp.Body
@@ -70,10 +70,10 @@ func Download(u, dest string) {
 	// 简单地使用Copy函数，downloader对象中增加了hook因此能获取到copy的进度
 	_, err = io.Copy(f, d)
 	// 换行
-	InfoLine()
+	InfoL()
 	if err != nil {
 		// 若下载失败
-		Fatal(failDownload)
+		FatalL(failDownload)
 	}
 
 	_ = f.Close()
@@ -85,7 +85,7 @@ func GetDownloadUrl(u string, i *Ver) string {
 	// 检查本机arch是否存在于预编译版本arch中
 	if _, ok := i.Arch[runtime.GOARCH]; !ok {
 		// 若不存在
-		Fatal(failArchNotSupported)
+		FatalL(failArchNotSupported)
 	}
 
 	// 版本号接入Release地址
@@ -95,7 +95,7 @@ func GetDownloadUrl(u string, i *Ver) string {
 	s, ok := i.OS[runtime.GOOS]
 	if !ok {
 		// 若不存在
-		Fatal(failOSNotSupported)
+		FatalL(failOSNotSupported)
 	}
 
 	// os接入Release地址
@@ -105,7 +105,7 @@ func GetDownloadUrl(u string, i *Ver) string {
 	n, ok := i.Name[runtime.GOOS]
 	if !ok {
 		// 若不存在
-		Fatal(failOSNotSupported)
+		FatalL(failOSNotSupported)
 	}
 
 	// 文件名接入Release地址
@@ -121,7 +121,7 @@ func GetToolDownloadUrl(u, toolName string, i *Ver) string {
 	// 检查本机arch是否存在于预编译版本arch中
 	if _, ok := i.Arch[runtime.GOARCH]; !ok {
 		// 若不存在
-		Fatal(failArchNotSupported)
+		FatalL(failArchNotSupported)
 	}
 
 	// 版本号接入Release地址
@@ -131,7 +131,7 @@ func GetToolDownloadUrl(u, toolName string, i *Ver) string {
 	s, ok := i.OS[runtime.GOOS]
 	if !ok {
 		// 若不存在
-		Fatal(failOSNotSupported)
+		FatalL(failOSNotSupported)
 	}
 
 	// os接入Release地址
@@ -146,8 +146,8 @@ func GetToolDownloadUrl(u, toolName string, i *Ver) string {
 
 // 输出更新日志，v为当前版本
 func PrintChangelog(local string, i *Ver) {
-	InfoLine()
-	InfoLine(changelog)
+	InfoL()
+	InfoL(changelog)
 	// 版本排序，由于json反序列化之后map无序，因此需要排序
 	var tmp = make([]string, 0)
 	for k := range i.Changelog {
@@ -168,7 +168,7 @@ func PrintChangelog(local string, i *Ver) {
 			InfoF(changelogContent, l)
 		}
 	}
-	InfoLine()
+	InfoL()
 }
 
 // 简单判断是否兼容
@@ -183,7 +183,7 @@ func GetOnlineToolList() *Tools {
 	// 请求工具列表
 	resp, err := client.Get(ToolReleasePath + "/tools.json")
 	if err != nil {
-		Fatal(errNetwork)
+		FatalL(errNetwork)
 	}
 	// 因为需要用到[]byte所以不ReadBody
 	bytes, _ := ioutil.ReadAll(resp.Body)

@@ -10,7 +10,7 @@ import (
 // 移除所有的工具
 func removeAll(toolNames []string) {
 	// 获取本地列表
-	InfoLine(infoFetchingList)
+	InfoL(infoFetchingList)
 	localList := &Tools{}
 	localList.Load()
 

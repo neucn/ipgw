@@ -10,7 +10,7 @@ import (
 // 下载所有的工具
 func getAll(toolNames []string) {
 	// 先获取工具列表
-	InfoLine(infoFetchingList)
+	InfoL(infoFetchingList)
 	localList, onlineList := fetchList()
 
 	// 遍历参数，下载指定的工具
@@ -34,14 +34,14 @@ func getAll(toolNames []string) {
 
 		// 检查API版本是否兼容
 		if !IsAPICompatible(tool.API) {
-			Error(failAPINotCompatible)
+			ErrorL(failAPINotCompatible)
 			InfoF(infoRequiredAPI, tool.API)
 			InfoF(infoLocalAPI, API)
 			continue
 		}
 
 		// 检查成功，获取工具
-		InfoLine(infoParsingInfo)
+		InfoL(infoParsingInfo)
 		if !getTool(tool) {
 			// 如果没有获取成功则跳到下一个
 			continue
