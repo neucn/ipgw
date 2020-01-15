@@ -2,22 +2,21 @@
     <img src="https://neu.ee/img/logo.png" width="200" alt="ipgw"/>
 </p>
 
-# IPGW Tool
-
-![](https://img.shields.io/github/release-date/iMyOwn/ipgw)
-![](https://img.shields.io/github/license/imyown/ipgw)
-![](https://img.shields.io/github/go-mod/go-version/iMyOwn/ipgw)
-![](https://img.shields.io/github/languages/code-size/iMyOwn/ipgw)
-
-> 东北大学校园网关客户端
-
+<h1 align="center">IPGW Tool</h1>
 <p align="center">
-    <img src="https://neu.ee/img/banner@v1.2.2.png" alt="banner"/>
+<img src="https://img.shields.io/github/release-date/iMyOwn/ipgw" alt="">
+<img src="https://img.shields.io/github/license/imyown/ipgw" alt="">
+<img src="https://img.shields.io/github/go-mod/go-version/iMyOwn/ipgw" alt="">
+<img src="https://img.shields.io/github/languages/code-size/iMyOwn/ipgw" alt="">
 </p>
 
-东北大学目前唯一非官方跨平台校园网关客户端 😛
+> 东北大学目前唯一非官方跨平台校园网关客户端 😛
 
-> 所有的发布版本请见[本仓库Release页面](https://github.com/iMyOwn/ipgw/releases)或 [NEU.ee/release](https://neu.ee/release)
+<p align="center">
+    <img src="https://neu.ee/img/banner@v1.3.0.png" alt="banner"/>
+</p>
+
+
 
 **部分功能仅用以测试网关与一网通，请勿用于违法违纪用途，使用者自行承担责任，后果自负**
 
@@ -34,6 +33,7 @@
   * [登出](#登出)
   * [强制下线](#强制下线)
   * [查询](#查询)
+  * [工具](#工具)
 * [更新](#更新)
 * [命令说明](#命令说明)
   * [Login](#login)
@@ -41,6 +41,11 @@
   * [Kick](#kick)
   * [List](#list)
   * [Test](#test)
+  * [Tool](#Tool)
+    * [Get](#Tool-Get)
+    * [List](#Tool-List)
+    * [Remove](#Tool-Remove)
+    * [Update](#Tool-Update)
   * [Update](#update)
   * [Fix](#fix)
   * [Version](#version)
@@ -55,11 +60,9 @@
 
 # 简介
 
-每次连接校园网之后都要打开网页进行登录，页面的渲染与密码的输入重复枯燥且无聊。
+1. 每次连接校园网之后都要打开网页进行登录，页面的渲染与密码的输入重复枯燥且无聊。
 
-> 为了安全不使用联网的密码管理工具
-
-而对于校内部分Linux服务器，没有图形化界面，无法访问网页，网关操作十分繁琐。
+2. 对于校内部分Linux服务器，没有图形化界面，无法访问网页，网关操作十分繁琐。
 
 为了解决这些问题，`ipgw` 诞生了。
 
@@ -90,6 +93,7 @@
   - 查询扣款记录
   - 查询充值记录
   - 查询使用日志
+- **支持工具扩展**
 
 
 
@@ -104,17 +108,17 @@
 ## Linux or OSX
 ```shell script
 # linux
-wget https://neu.ee/release/v1.2.2/linux/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin && ipgw version
+wget https://neu.ee/release/v1.3.0/linux/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin && ipgw version
 
 # osx
 # 使用terminal
-wget https://neu.ee/release/v1.2.2/osx/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin && ipgw version
+wget https://neu.ee/release/v1.3.0/osx/ipgw && chmod +x ipgw && mv ipgw /usr/local/bin && ipgw version
 ```
 
 若遇到问题请参阅[常见问题](#常见问题)，或[寻找帮助](https://github.com/iMyOwn/ipgw/issues/new)
 ## Win
-1. 下载 [ipgw.exe](https://neu.ee/release/v1.2.2/win/ipgw.exe)
-2. 下载 [配置脚本](https://neu.ee/release/v1.2.2/win/install.bat)
+1. 下载 [ipgw.exe](https://neu.ee/release/v1.3.0/win/ipgw.exe)
+2. 下载 [配置脚本](https://neu.ee/release/v1.3.0/win/install.bat)
 3. 将配置脚本与`ipgw.exe`放置于同一目录下，右键使用**管理员权限**打开配置脚本，会自动配置并弹出`系统属性`设置窗口
 4. 点击`环境变量`打开设置窗口，在**系统环境变量**中找到`Path`，选中后点击`编辑`，在弹出的窗口点击`新建`，输入`%ipgw%`并保存，点击`确认`关闭设置窗口
 5. 打开`cmd`(可通过win+r并输入cmd打开)，输入`ipgw version`，若无报错，即配置成功
@@ -127,7 +131,7 @@ wget https://neu.ee/release/v1.2.2/osx/ipgw && chmod +x ipgw && mv ipgw /usr/loc
 ```shell
 git clone https://github.com/iMyOwn/ipgw.git 
 cd ipgw 
-go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.2.2" -o ipgw 
+go build -ldflags "-w -s -X ipgw/base.Version=v1.3.0" -o ipgw 
 ```
 
 # 快速使用
@@ -214,20 +218,20 @@ go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.2.2" -o ipgw
   ```shell script
   ipgw list -a
   ```
-  
+
 列出**当前登陆账号的已登录设备、账号信息与第一页使用日志**
 
   ```shell script
   ipgw list -d -i -h 1
   ```
-  
+
 列出**当前登陆账号的已登录设备、账号信息与第一页使用日志**，缩写形式
 
   ```shell script
   ipgw list -hid
   ```
 > 默认获取第一页日志，因此1可以省略
-  
+
 可以通过`-s`、`-u -p`、`-c`查询 已保存账号 / 指定账号 / 指定Cookie 的信息，例如
   - 列出已保存账号的第三页使用日志
     ```shell script
@@ -241,6 +245,43 @@ go build -ldflags "-w -s -X ipgw/base/cfg.Version=v1.2.2" -o ipgw
     ```shell script
     ipgw list -c Cookie -h 3
     ```
+
+
+## 工具
+
+`ipgw`自`v1.3.0`开始支持工具扩展。
+
+列出可用工具
+
+  ```shell script
+  ipgw tool list
+  ```
+列出本地工具
+
+  ```shell script
+  ipgw tool list -l
+  ```
+
+下载指定工具
+
+  ```shell script
+  ipgw tool get [tool name]
+  ```
+
+删除指定工具
+
+  ```shell script
+  ipgw tool remove [tool name]
+  ```
+
+更新指定工具
+
+  ```shell script
+  ipgw tool update [tool name]
+  ```
+
+
+
 
 
 # 更新
@@ -484,6 +525,113 @@ ipgw test [-v view all]
 
 
 
+## Tool
+
+### 用法
+
+```shell script
+ipgw tool <command> [arguments]
+```
+
+
+
+### Tool Get
+
+#### 用法
+
+```shell script
+ipgw tool get tool1 tool2 ...
+```
+
+#### 参数列表
+
+无
+
+#### 使用示例
+
+```shell script
+  ipgw tool get teemo
+    # 下载teemo
+```
+
+
+### Tool List
+
+#### 用法
+
+```shell script
+ipgw tool list [-a all] [-l local]
+```
+
+#### 参数列表
+
+```
+  -a    查看所有工具
+  -l    查看本地工具
+```
+
+#### 使用示例
+
+```shell script
+  ipgw tool list
+    # 查看可用工具(API兼容)
+    
+  ipgw tool list -a
+    # 查看所有工具
+    
+  ipgw tool list -l
+    # 查看本地已有的工具
+```
+
+
+### Tool Remove
+
+#### 用法
+
+```shell script
+ipgw tool remove tool1 tool2 ...
+```
+
+#### 参数列表
+
+无
+
+#### 使用示例
+
+```shell script
+  ipgw tool remove teemo
+    # 从本机删除teemo
+```
+
+
+### Tool Update
+
+#### 用法
+
+```shell script
+ipgw tool update [-f force] tool1 tool2 ...
+```
+
+#### 参数列表
+
+```
+  -f    强制更新
+```
+
+#### 使用示例
+
+```shell script
+  ipgw tool update teemo
+    # 检查更新并升级teemo
+    
+  ipgw tool update -f teemo
+    # 强制更新teemo
+```
+
+
+
+
+
 ## Update
 
 ### 用法
@@ -604,10 +752,10 @@ cd ipgw
 
 ```
 # To build
-make all VERSION=v1.2.2
+make all VERSION=v1.3.0
 
 # To release
-make release VERSION=v1.2.2
+make release VERSION=v1.3.0
 ```
 > 加壳需要预先安装UPX
 
@@ -617,20 +765,14 @@ make release VERSION=v1.2.2
 
 基本上所有的输出文本都独立在了各个包中的`text.go`中，方便定制化输出
 
-少部分输出文本在各个包的`impl.go`中
+少部分输出文本在包的`impl.go`中
 
-上下文`Ctx`的输出编写在`base/ctx/ctx`中
+上下文`Ctx`的输出编写在`ctx`包中
 
-help命令比较特殊，为了方便`main.go`使用，它的文本在项目目录下的`text`包中，
+
 
 ## 关于扩展
-添加新功能请新建一个包
-1. 使用`ctx.GetCtx()`获取到全局的上下文
-2. 使用`ctx.GetClient()`获取到Cookie可复用的全局http客户端
-3. 网关的Cookie保存于`Ctx.User.Cookie`中
-4. 一网通的Cookie保存于`Ctx.User.CAS`中
-5. 若该功能需要定制化flag解析，请模仿`list`包的写法，`Cmd`对象中的`CustomFlags`设为`true`,并自行编写一个解析函数于命令开始时解析
-6. 基本的登录函数，通用的参数提取函数都在`share`包下
+To be done.
 
 
 

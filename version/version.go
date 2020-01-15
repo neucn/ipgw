@@ -28,7 +28,7 @@ func init() {
 
 func runVersion(cmd *Command, args []string) {
 	InfoF(`%s
-版本: %s-API%s`, Title, Version, API)
+版本: %s [API %s]`, Title, Version, API)
 
 	if l {
 		InfoL(detail)
