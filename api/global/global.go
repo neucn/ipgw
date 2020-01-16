@@ -10,6 +10,7 @@ import (
 	"ipgw/ctx"
 	. "ipgw/lib"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 )
@@ -110,18 +111,24 @@ func getArgs(c *ctx.Ctx, reqUrl string) (lt, postUrl string) {
 }
 
 // 根据是否webvpn获取请求地址
-func getReqUrl(vpn bool) (reqUrl string) {
+func getReqUrl(serviceUrl string, vpn bool) (reqUrl string) {
 	if vpn {
 		return "https://pass-443.webvpn.neu.edu.cn/tpass/login?service=https%3A%2F%2Fwebvpn.neu.edu.cn%2Fusers%2Fauth%2Fcas%2Fcallback%3Furl"
 	} else {
-		return "https://pass.neu.edu.cn/tpass/login?service=https%3A%2F%2Fportal.neu.edu.cn%2Ftp_up%2F"
+		reqUrl = "https://pass.neu.edu.cn/tpass/login?service="
+		if len(serviceUrl) > 0 {
+			reqUrl += url.QueryEscape(serviceUrl)
+		} else {
+			reqUrl += "https%3A%2F%2Fportal.neu.edu.cn%2Ftp_up%2F"
+		}
+		return
 	}
 }
 
 // 使用Cookie登陆，若失败则直接结束程序并输出错误码，因此不需要返回是否登陆成功
-func LoginWithC(c *ctx.Ctx, vpn bool) {
+func LoginWithC(c *ctx.Ctx, serviceUrl string, vpn bool) {
 	// 获取请求地址
-	reqUrl := getReqUrl(vpn)
+	reqUrl := getReqUrl(serviceUrl, vpn)
 
 	// 构造请求
 	req, _ := http.NewRequest("GET", reqUrl, nil)
@@ -140,9 +147,9 @@ func LoginWithC(c *ctx.Ctx, vpn bool) {
 }
 
 // 使用账号登陆，若失败则直接结束程序并输出错误码，因此不需要返回是否登陆成功
-func LoginWithUP(c *ctx.Ctx, vpn bool) {
+func LoginWithUP(c *ctx.Ctx, serviceUrl string, vpn bool) {
 	// 获取请求地址
-	reqUrl := getReqUrl(vpn)
+	reqUrl := getReqUrl(serviceUrl, vpn)
 
 	// 获取lt和postUrl
 	lt, postUrl := getArgs(c, reqUrl)

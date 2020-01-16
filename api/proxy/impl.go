@@ -21,7 +21,7 @@ type proxyConfig struct {
 // 使用账号密码代理请求
 func proxyWithUP(c *ctx.Ctx, config *proxyConfig) {
 	// 先登录
-	global.LoginWithUP(c, isWebvpn(config.ServiceUrl))
+	global.LoginWithUP(c, config.ServiceUrl, isWebvpn(config.ServiceUrl))
 
 	// 代理请求
 	proxy(c, config)
@@ -29,7 +29,7 @@ func proxyWithUP(c *ctx.Ctx, config *proxyConfig) {
 
 func proxyWithC(c *ctx.Ctx, config *proxyConfig) {
 	// 先登录
-	global.LoginWithC(c, isWebvpn(config.ServiceUrl))
+	global.LoginWithC(c, config.ServiceUrl, isWebvpn(config.ServiceUrl))
 
 	// 代理请求
 	proxy(c, config)
