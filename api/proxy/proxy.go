@@ -10,7 +10,7 @@ import (
 var Proxy = &Command{}
 
 var (
-	u, p, c, s, h, b, m string
+	u, p, c, l, s, h, b, m string
 )
 
 func init() {
@@ -22,6 +22,7 @@ func init() {
 	// 使用指定UA（由于没有完成移动端网页的适配，因此暂时不支持指定UA
 	// 目前来看似乎没有移动端网页上有独有功能的情况
 	//Proxy.Flag.StringVar(&d, "d", "", "")
+	Proxy.Flag.StringVar(&l, "l", "", "")
 	Proxy.Flag.StringVar(&s, "s", "", "")
 	Proxy.Flag.StringVar(&m, "m", "GET", "")
 	Proxy.Flag.StringVar(&h, "h", "{}", "")
@@ -47,6 +48,15 @@ func runAPIProxy(cmd *Command, args []string) {
 	// 新建上下文
 	x := ctx.NewCtx()
 
+	// 新建proxyConfig
+	config := &proxyConfig{
+		LaunchUrl:  l,
+		ServiceUrl: s,
+		Method:     m,
+		Headers:    h,
+		Body:       b,
+	}
+
 	if len(u) > 0 {
 		// 账号密码
 		if len(p) == 0 {
@@ -54,18 +64,18 @@ func runAPIProxy(cmd *Command, args []string) {
 		}
 		x.User.Username = u
 		x.User.Password = p
-		proxyWithUP(x, s, m, h, b)
+		proxyWithUP(x, config)
 	} else if len(c) > 0 {
 		// Cookie
 		x.User.SetCookie(c)
-		proxyWithC(x, s, m, h, b)
+		proxyWithC(x, config)
 	} else {
 		// 保存的账号
 		LoadUser(x)
 		if x.User.Username == "" {
 			Fatal(code.LoginNoStoredUser)
 		}
-		proxyWithUP(x, s, m, h, b)
+		proxyWithUP(x, config)
 	}
 
 }

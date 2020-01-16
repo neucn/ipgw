@@ -10,26 +10,39 @@ import (
 	"strings"
 )
 
+type proxyConfig struct {
+	LaunchUrl  string
+	ServiceUrl string
+	Method     string
+	Headers    string
+	Body       string
+}
+
 // 使用账号密码代理请求
-func proxyWithUP(c *ctx.Ctx, url, method, headers, body string) {
+func proxyWithUP(c *ctx.Ctx, config *proxyConfig) {
 	// 先登录
-	global.LoginWithUP(c, url, isWebvpn(url))
+	global.LoginWithUP(c, isWebvpn(config.ServiceUrl))
 
 	// 代理请求
-	proxy(c, url, method, headers, body)
+	proxy(c, config)
 }
 
-func proxyWithC(c *ctx.Ctx, url, method, headers, body string) {
+func proxyWithC(c *ctx.Ctx, config *proxyConfig) {
 	// 先登录
-	global.LoginWithC(c, url, isWebvpn(url))
+	global.LoginWithC(c, isWebvpn(config.ServiceUrl))
 
 	// 代理请求
-	proxy(c, url, method, headers, body)
+	proxy(c, config)
 }
 
-func proxy(c *ctx.Ctx, url, method, headers, body string) {
-	// 登陆成功，构造请求
-	req := buildRequest(url, method, headers, body)
+func proxy(c *ctx.Ctx, config *proxyConfig) {
+	// 登陆成功，获取平台Cookie
+	if len(config.LaunchUrl) > 0 {
+		_, _ = c.Client.Get(config.LaunchUrl)
+	}
+
+	// 构造服务请求
+	req := buildRequest(config)
 
 	// 访问
 	global.SendRequest(c, req)
@@ -38,18 +51,21 @@ func proxy(c *ctx.Ctx, url, method, headers, body string) {
 }
 
 // 构造请求
-func buildRequest(url string, method string, headers string, body string) *http.Request {
-	// 反序列化headers
-	tmp := &http.Header{}
-	_ = json.Unmarshal([]byte(headers), tmp)
-
+func buildRequest(config *proxyConfig) *http.Request {
 	// Reader化body
-	bodyReader := strings.NewReader(body)
+	bodyReader := strings.NewReader(config.Body)
 
 	// 构造
-	req, _ := http.NewRequest(method, url, bodyReader)
+	req, _ := http.NewRequest(config.Method, config.ServiceUrl, bodyReader)
+
+	// 反序列化headers
+	var tmp map[string][]string
+	_ = json.Unmarshal([]byte(config.Headers), &tmp)
 	// 添加Headers
-	req.Header = *tmp
+	for k, v := range tmp {
+		// 暂时认为header的值数组是没有必要的
+		req.Header.Set(k, v[0])
+	}
 
 	return req
 }

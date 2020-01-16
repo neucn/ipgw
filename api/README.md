@@ -60,8 +60,18 @@ ipgw api v1 proxy
 ```
 -u username -p password -c cookie
 
+-l launch-url
+
 -s service-url -m method -h headers -b body
 ```
+
+该接口流程:
+1. 根据`s`判断是否使用webvpn，并使用指定的登陆方式登陆
+
+2. 若登陆成功且`l`被赋值，则以GET方式访问`l`，获取到对应服务平台的Cookie
+
+3. 以`s`, `m`, `h`, `b` 构造出请求，访问目标服务
+
 
 > `u`, `p`, `c`的规则同`login`命令
 >
@@ -72,6 +82,8 @@ ipgw api v1 proxy
 > `h`的值应为`http.Header`对象使用`json.Marshal()`序列化后的值，即`map[string][]string`类型的json形式
 >
 > `b`为请求携带的请求体
+
+
 
 
 # 返回码
@@ -183,7 +195,6 @@ func execCommand(name string, params ...string) (result string, code int) {
 	}
 	result = string(outbuf.Bytes())
 	c := errbuf.Bytes()
-	c = c[:len(c)-1]
 	code, _ = strconv.Atoi(string(c))
 	return
 }

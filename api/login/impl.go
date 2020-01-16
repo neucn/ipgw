@@ -11,7 +11,7 @@ import (
 
 func getCookieAfterLoginWithUP(c *ctx.Ctx, vpn bool) {
 	// 登陆并过滤登陆失败的情况
-	LoginWithUP(c, "", vpn)
+	LoginWithUP(c, vpn)
 	// 通过筛选，检查cookie
 	cookie := getCookie(c, vpn)
 	if len(cookie) < 1 {
@@ -24,7 +24,7 @@ func getCookieAfterLoginWithUP(c *ctx.Ctx, vpn bool) {
 
 func getCookieAfterLoginWithC(c *ctx.Ctx, vpn bool) {
 	// 登陆并过滤登陆失败的情况
-	LoginWithC(c, "", vpn)
+	LoginWithC(c, vpn)
 	// 如果成功通过了过滤，说明登陆成功
 	// 输出Cookie
 	Info(c.User.Cookie.Value)
