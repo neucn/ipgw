@@ -137,6 +137,7 @@ func Proxy(config *ProxyConfig) (body string, code int) {
 	headers, _ := json.Marshal(config.Headers)
 	return execCommand("ipgw", "api", "v1", "proxy",
 		"-u", config.User.Username, "-p", config.User.Password, "-c", config.User.Cookie,
+		"-l", config.LaunchUrl,
 		"-s", config.ServiceUrl,
 		"-m", config.Method,
 		"-h", string(headers),
@@ -220,6 +221,7 @@ type LoginConfig struct {
 
 type ProxyConfig struct {
 	User       *User
+	LaunchUrl string
 	ServiceUrl string
 	Method     string
 	Headers    *http.Header
