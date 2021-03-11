@@ -1,0 +1,24 @@
+name: release
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    name: publish releases
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Golang
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.16.0'
+      - name: Build and Release
+        run: make release
+      - name: Upload to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
