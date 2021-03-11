@@ -108,7 +108,7 @@ func (u *UpdateHandler) download(url string) (string, error) {
 }
 
 func (u *UpdateHandler) Update() error {
-	url := fmt.Sprintf("https://github.com/%s/releases/latest/download/ipgw_%s_%s.zip", ipgw.Repo, runtime.GOOS, runtime.GOARCH)
+	url := fmt.Sprintf("https://github.com/%s/releases/latest/download/ipgw-%s-%s.zip", ipgw.Repo, runtime.GOOS, runtime.GOARCH)
 	downloaded, err := u.download(url)
 	if err != nil {
 		return err
