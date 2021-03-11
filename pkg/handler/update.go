@@ -99,6 +99,7 @@ func (u *UpdateHandler) download(url string) (string, error) {
 		Reader: raw,
 		total:  resp.ContentLength,
 	})
+	console.InfoL()
 	if err != nil {
 		return "", err
 	}
