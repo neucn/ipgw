@@ -25,7 +25,7 @@ fi
 
 download_url="https://github.com/neucn/ipgw/releases/latest/download/ipgw-${target}.zip"
 
-bin_dir="$HOME/neucn/bin"
+bin_dir="/usr/local/bin"
 target_path="$bin_dir/ipgw"
 
 if [ ! -d "$bin_dir" ]; then
@@ -46,6 +46,6 @@ else
 	*) shell_profile=".bash_profile" ;;
 	esac
 	echo "Manually add the directory to your \$HOME/$shell_profile (or similar)"
-	echo "  export PATH=\"\$HOME/neucn/bin:\$PATH\""
+	echo "  export PATH=\"$bin_dir:\$PATH\""
 	echo "Run '$target_path --help' to get started"
 fi
