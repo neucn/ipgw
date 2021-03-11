@@ -14,7 +14,11 @@ var (
 		Usage: "logout ipgw",
 		Action: func(ctx *cli.Context) error {
 			h := handler.NewIpgwHandler()
-			if !h.IsLoggedIn() {
+			connected, loggedIn := h.IsConnectedAndLoggedIn()
+			if !connected {
+				return errors.New("not in campus network")
+			}
+			if !loggedIn {
 				return errors.New("not logged in yet")
 			}
 			info := h.GetInfo()

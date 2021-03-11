@@ -12,14 +12,15 @@ var (
 		Usage: "test whether is connected to the campus network and whether has logged in ipgw",
 		Action: func(ctx *cli.Context) error {
 			h := handler.NewIpgwHandler()
+			connected, loggedIn := h.IsConnectedAndLoggedIn()
 			console.Info("campus network:   ")
-			if h.IsConnected() {
+			if connected {
 				console.InfoL("connected")
 			} else {
 				console.InfoL("disconnected")
 			}
 			console.Info("ipgw logged in:   ")
-			if h.IsConnected() {
+			if loggedIn {
 				console.InfoL("yes")
 			} else {
 				console.InfoL("no")

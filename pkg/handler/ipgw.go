@@ -32,7 +32,6 @@ func NewIpgwHandler() *IpgwHandler {
 	}
 }
 
-// Login will call FetchBasicInfoWithoutLogin
 func (h *IpgwHandler) Login(account *model.Account) error {
 	if account.Cookie != "" {
 		h.client.Jar.SetCookies(&url.URL{
@@ -129,15 +128,6 @@ func (h *IpgwHandler) FetchBasicInfo() error {
 	return nil
 }
 
-func (h *IpgwHandler) FetchBasicInfoWithoutLogin() error {
-	body, err := h.getRawOldIpgwPage()
-	if err != nil {
-		return err
-	}
-	h.info.Username, h.info.IP = getUsernameAndIPFromOld(body)
-	return nil
-}
-
 func (h *IpgwHandler) Logout() error {
 	req, _ := http.NewRequest("POST", "http://ipgw.neu.edu.cn/srun_portal_pc_succeed.php",
 		strings.NewReader("action=auto_logout&username="+h.info.Username))
@@ -148,19 +138,13 @@ func (h *IpgwHandler) Logout() error {
 	return err
 }
 
-// IsLoggedIn will fetch basic info by calling FetchBasicInfoWithoutLogin
-func (h *IpgwHandler) IsLoggedIn() bool {
-	err := h.FetchBasicInfoWithoutLogin()
-	return err == nil && h.info.Username != ""
-}
-
-func (h *IpgwHandler) IsConnected() bool {
+func (h *IpgwHandler) IsConnectedAndLoggedIn() (connected bool, loggedIn bool) {
 	body, err := h.getRawOldIpgwPage()
 	if err != nil && utils.IsNetworkError(err) {
-		return false
+		return false, false
 	}
-	_, ip := getUsernameAndIPFromOld(body)
-	return ip != ""
+	h.info.Username, h.info.IP = getUsernameAndIPFromOld(body)
+	return h.info.IP != "", h.info.Username != ""
 }
 
 func (h *IpgwHandler) Kick(sid string) (bool, error) {

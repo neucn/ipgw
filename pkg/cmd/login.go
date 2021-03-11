@@ -43,7 +43,11 @@ var (
 		Action: func(ctx *cli.Context) error {
 			h := handler.NewIpgwHandler()
 			// check logged
-			if h.IsLoggedIn() {
+			connected, loggedIn := h.IsConnectedAndLoggedIn()
+			if !connected {
+				return errors.New("not in campus network")
+			}
+			if loggedIn {
 				return fmt.Errorf("already logged in as '%s'", h.GetInfo().Username)
 			}
 
