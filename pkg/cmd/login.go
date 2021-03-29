@@ -86,6 +86,9 @@ var (
 				return fmt.Errorf("fail to login:\n\t%v", err)
 			}
 			info := h.GetInfo()
+			if info.Overdue {
+				return fmt.Errorf("overdue")
+			}
 			if info.Username == "" {
 				return fmt.Errorf("fail to login")
 			}

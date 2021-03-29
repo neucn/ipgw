@@ -74,7 +74,11 @@ func loginUseDefaultAccount(ctx *cli.Context) error {
 	if err = h.Login(account); err != nil {
 		return fmt.Errorf("fail to login:\n\t%v", err)
 	}
-	if h.GetInfo().Username == "" {
+	info := h.GetInfo()
+	if info.Overdue {
+		return fmt.Errorf("overdue")
+	}
+	if info.Username == "" {
 		return fmt.Errorf("fail to login")
 	}
 	console.InfoL("login successfully")
