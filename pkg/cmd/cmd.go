@@ -49,16 +49,6 @@ var (
 )
 
 func loginUseDefaultAccount(ctx *cli.Context) error {
-	h := handler.NewIpgwHandler()
-	// check logged
-	connected, loggedIn := h.IsConnectedAndLoggedIn()
-	if !connected {
-		return errors.New("not in campus network")
-	}
-	if loggedIn {
-		return fmt.Errorf("already logged in as '%s'", h.GetInfo().Username)
-	}
-
 	// login use default account
 	store, err := getStoreHandler(ctx)
 	if err != nil {
@@ -69,19 +59,11 @@ func loginUseDefaultAccount(ctx *cli.Context) error {
 		return errors.New("no account stored")
 	}
 	console.InfoF("using account '%s'\n", account.Username)
-
 	account.Secret = ctx.String("secret")
-	if err = h.Login(account); err != nil {
-		return fmt.Errorf("fail to login:\n\t%v", err)
+
+	if err = login(handler.NewIpgwHandler(), account); err != nil {
+		return fmt.Errorf("login failed: \n\t%v", err)
 	}
-	info := h.GetInfo()
-	if info.Overdue {
-		return fmt.Errorf("overdue")
-	}
-	if info.Username == "" {
-		return fmt.Errorf("fail to login")
-	}
-	console.InfoL("login successfully")
 	return nil
 }
 

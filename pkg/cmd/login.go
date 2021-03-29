@@ -41,16 +41,6 @@ var (
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			h := handler.NewIpgwHandler()
-			// check logged
-			connected, loggedIn := h.IsConnectedAndLoggedIn()
-			if !connected {
-				return errors.New("not in campus network")
-			}
-			if loggedIn {
-				return fmt.Errorf("already logged in as '%s'", h.GetInfo().Username)
-			}
-
 			store, err := getStoreHandler(ctx)
 			if err != nil {
 				return err
@@ -82,18 +72,12 @@ var (
 			}
 			account.Secret = ctx.String("secret")
 
-			if err = h.Login(account); err != nil {
-				return fmt.Errorf("fail to login:\n\t%v", err)
+			h := handler.NewIpgwHandler()
+			if err = login(h, account); err != nil {
+				return fmt.Errorf("login failed: \n\t%v", err)
 			}
-			info := h.GetInfo()
-			if info.Overdue {
-				return fmt.Errorf("overdue")
-			}
-			if info.Username == "" {
-				return fmt.Errorf("fail to login")
-			}
-			console.InfoL("login successfully")
 			if ctx.Bool("info") {
+				info := h.GetInfo()
 				console.InfoF("\tIP\t%16s\n\t余额\t%16s\n\t流量\t%16s\n\t时长\t%16s\n",
 					info.IP,
 					info.FormattedBalance(),
@@ -108,3 +92,26 @@ var (
 		OnUsageError: onUsageError,
 	}
 )
+
+func login(h *handler.IpgwHandler, account *model.Account) error {
+	// check logged
+	connected, loggedIn := h.IsConnectedAndLoggedIn()
+	if !connected {
+		return errors.New("not in campus network")
+	}
+	if loggedIn {
+		return fmt.Errorf("already logged in as '%s'", h.GetInfo().Username)
+	}
+	if err := h.Login(account); err != nil {
+		return err
+	}
+	info := h.GetInfo()
+	if info.Overdue {
+		return fmt.Errorf("overdue")
+	}
+	if info.Username == "" {
+		return fmt.Errorf("unknown reason")
+	}
+	console.InfoL("login successfully")
+	return nil
+}
