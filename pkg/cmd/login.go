@@ -22,7 +22,7 @@ var (
 			&cli.StringFlag{
 				Name:    "password",
 				Aliases: []string{"p"},
-				Usage:   "`password` for pass.neu.edu.cn (required only if account is not stored)",
+				Usage:   "`password` for pass.neu.edu.cn or ipgw.neu.edu.cn if use old login method (required only if account is not stored)",
 			},
 			&cli.StringFlag{
 				Name:    "cookie",
@@ -38,6 +38,11 @@ var (
 				Name:    "info",
 				Aliases: []string{"i"},
 				Usage:   "output account info after login successfully",
+			},
+			&cli.BoolFlag{
+				Name:    "old",
+				Aliases: []string{"o"},
+				Usage:   "use old login method (non-unified)",
 			},
 		},
 		Action: func(ctx *cli.Context) error {
@@ -66,8 +71,9 @@ var (
 			} else {
 				// use username and password
 				account = &model.Account{
-					Username: u,
-					Password: p,
+					Username:   u,
+					Password:   p,
+					NonUnified: ctx.Bool("old"),
 				}
 			}
 			account.Secret = ctx.String("secret")
@@ -77,6 +83,9 @@ var (
 				return fmt.Errorf("login failed: \n\t%v", err)
 			}
 			if ctx.Bool("info") {
+				if err = h.FetchUsageInfo(); err != nil {
+					return fmt.Errorf("fetch info failed: \n\t%v", err)
+				}
 				info := h.GetInfo()
 				console.InfoF("\tIP\t%16s\n\t余额\t%16s\n\t流量\t%16s\n\t时长\t%16s\n",
 					info.IP,

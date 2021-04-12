@@ -44,6 +44,12 @@ curl -fsSL https://raw.githubusercontent.com/neucn/ipgw/master/install.sh | sh
 ipgw config account add -u "学号" -p "密码" --default
 ```
 
+如果账号密码是非统一认证方式下的，请加上 `-o` (old) 参数
+
+```shell
+ipgw config account add -u "学号" -p "密码" -o --default
+```
+
 使用默认账号快速登录，需要先保存至少一个 ipgw 账号在本地
 
 ```shell

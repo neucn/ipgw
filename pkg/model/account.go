@@ -11,6 +11,7 @@ type Account struct {
 	Cookie            string `json:"-"`
 	Secret            string `json:"-"`
 	EncryptedPassword string `json:"encrypted_password"`
+	NonUnified        bool   `json:"non_unified"`
 }
 
 func (a *Account) GetPassword() (string, error) {
