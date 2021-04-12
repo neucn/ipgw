@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"fmt"
 	"github.com/neucn/ipgw/pkg/utils"
 )
 
@@ -36,4 +37,11 @@ func (a *Account) SetPassword(password string, secret []byte) error {
 	}
 	a.EncryptedPassword = result
 	return nil
+}
+
+func (a *Account) String() string {
+	if a.NonUnified {
+		return fmt.Sprintf("%s [non-unified]", a.Username)
+	}
+	return a.Username
 }

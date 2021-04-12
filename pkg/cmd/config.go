@@ -191,7 +191,7 @@ var (
 			}
 
 			for i, account := range store.Config.Accounts {
-				console.InfoF("#%d %s", i, account.Username)
+				console.InfoF("#%d %s", i, account.String())
 				if account.Username == store.Config.DefaultAccount {
 					console.Info(" - default")
 				}
