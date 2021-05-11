@@ -7,6 +7,7 @@
 <p align="center">
 <img src="https://img.shields.io/github/v/release/neucn/ipgw" alt="">
 <img src="https://img.shields.io/github/issues/neucn/ipgw?color=rgb%2877%20199%20166%29" alt="">
+<img src="https://img.shields.io/github/downloads/neucn/ipgw/total?color=ea8f14&label=users" alt="">
 <img src="https://img.shields.io/github/license/neucn/ipgw" alt="">
 </p>
 
