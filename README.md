@@ -75,6 +75,17 @@ ipgw info -a
 ipgw test
 ```
 
+WLAN 连接到 NEU 
+
+```shell
+ipgw connect
+```
+
+连接到名为 mywlan 的无线网络
+```shell
+ipgw connect wywlan
+```
+
 更新工具
 
 ```shell

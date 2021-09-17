@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+
 	"github.com/neucn/ipgw/pkg/console"
 	"github.com/neucn/ipgw/pkg/handler"
 	"github.com/urfave/cli/v2"
@@ -22,6 +23,7 @@ var (
 			TestCommand,
 			VersionCommand,
 			UpdateCommand,
+			ConnectCommand,
 		},
 		Action: func(ctx *cli.Context) error {
 			if ctx.NArg() != 0 {
