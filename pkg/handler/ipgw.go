@@ -73,7 +73,7 @@ func (h *IpgwHandler) loginNonUnified(username, password string) (string, error)
 
 func (h *IpgwHandler) loginCookie(cookie string) (string, error) {
 	h.client.Jar.SetCookies(&url.URL{
-		Scheme: "https",
+		Scheme: "http",
 		Host:   "ipgw.neu.edu.cn",
 	}, []*http.Cookie{{
 		Name:   "session_for%3Asrun_cas_php",
@@ -109,7 +109,7 @@ func (h *IpgwHandler) FetchUsageInfo() error {
 }
 
 func (h *IpgwHandler) getRawIpgwPage() (string, error) {
-	resp, err := h.client.Get("https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
+	resp, err := h.client.Get("http://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
 	if err != nil {
 		return "", err
 	}
@@ -117,10 +117,10 @@ func (h *IpgwHandler) getRawIpgwPage() (string, error) {
 }
 
 func (h *IpgwHandler) getRawUsageInfo() (string, error) {
-	req, _ := http.NewRequest("POST", "https://ipgw.neu.edu.cn/include/auth_action.php",
+	req, _ := http.NewRequest("POST", "http://ipgw.neu.edu.cn/include/auth_action.php",
 		strings.NewReader("action=get_online_info"))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-	req.Header.Add("Referer", "https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
+	req.Header.Add("Referer", "http://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
 
 	resp, err := h.client.Do(req)
 	if err != nil {
@@ -184,10 +184,10 @@ func (h *IpgwHandler) IsConnectedAndLoggedIn() (connected bool, loggedIn bool) {
 }
 
 func (h *IpgwHandler) Kick(sid string) (bool, error) {
-	req, _ := http.NewRequest("POST", "https://ipgw.neu.edu.cn/srun_cas.php",
+	req, _ := http.NewRequest("POST", "http://ipgw.neu.edu.cn/srun_cas.php",
 		strings.NewReader("action=dm&sid="+sid))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("Referer", "https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
+	req.Header.Set("Referer", "http://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
 
 	resp, err := h.client.Do(req)
 	if err != nil {
