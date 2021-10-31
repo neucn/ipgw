@@ -22,6 +22,7 @@ var (
 			TestCommand,
 			VersionCommand,
 			UpdateCommand,
+			NightCommand,
 		},
 		Action: func(ctx *cli.Context) error {
 			if ctx.NArg() != 0 {
