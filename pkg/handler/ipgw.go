@@ -1,16 +1,17 @@
 package handler
 
 import (
+	"encoding/json"
 	"errors"
-	"fmt"
-	"github.com/neucn/ipgw/pkg/model"
-	"github.com/neucn/ipgw/pkg/utils"
-	"github.com/neucn/neugo"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/neucn/ipgw/pkg/model"
+	"github.com/neucn/ipgw/pkg/utils"
+	"github.com/neucn/neugo"
 )
 
 type IpgwHandler struct {
@@ -34,41 +35,25 @@ func NewIpgwHandler() *IpgwHandler {
 }
 
 func (h *IpgwHandler) Login(account *model.Account) error {
-	var err error
-	var body string
+	var (
+		password string
+		err      error
+	)
 	if account.Cookie != "" {
-		body, err = h.loginCookie(account.Cookie)
-		return h.ParseBasicInfo(body, false)
-	}
-
-	var password string
-	password, err = account.GetPassword()
-	if err != nil {
-		return err
-	}
-	if account.NonUnified {
-		body, err = h.loginNonUnified(account.Username, password)
+		_, err = h.loginCookie(account.Cookie) // 通过cookie登录
 	} else {
-		body, err = h.loginUnified(account.Username, password)
+		password, err = account.GetPassword()
+		if err != nil {
+			return err
+		}
+		_, err = h.login(account.Username, password) // 通过用户名、密码登录
 	}
 
 	if err != nil {
 		return err
 	}
 
-	return h.ParseBasicInfo(body, account.NonUnified)
-}
-
-func (h *IpgwHandler) loginNonUnified(username, password string) (string, error) {
-	req, _ := http.NewRequest(http.MethodPost, "http://ipgw.neu.edu.cn/srun_portal_pc.php?ac_id=1&", strings.NewReader(
-		fmt.Sprintf("action=login&ac_id=1&user_ip=&nas_ip=&user_mac=&url=&username=%s&password=%s&save_me=0",
-			username, url.QueryEscape(password))))
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	resp, err := h.client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	return utils.ReadBody(resp), nil
+	return h.ParseBasicInfo() // 解析信息
 }
 
 func (h *IpgwHandler) loginCookie(cookie string) (string, error) {
@@ -80,14 +65,14 @@ func (h *IpgwHandler) loginCookie(cookie string) (string, error) {
 		Value:  cookie,
 		Domain: "ipgw.neu.edu.cn",
 	}})
-	return h.getRawIpgwPage()
+	return h.requestLoginApi()
 }
 
-func (h *IpgwHandler) loginUnified(username, password string) (string, error) {
+func (h *IpgwHandler) login(username, password string) (string, error) {
 	if err := neugo.Use(h.client).WithAuth(username, password).Login(neugo.CAS); err != nil {
 		return "", err
 	}
-	return h.getRawIpgwPage()
+	return h.requestLoginApi()
 }
 
 func (h *IpgwHandler) FetchUsageInfo() error {
@@ -108,11 +93,15 @@ func (h *IpgwHandler) FetchUsageInfo() error {
 	return nil
 }
 
-func (h *IpgwHandler) getRawIpgwPage() (string, error) {
-	resp, err := h.client.Get("https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
+func (h *IpgwHandler) requestLoginApi() (string, error) {
+	// 统一认证拿到ticket
+	resp, err := h.client.Get("https://pass.neu.edu.cn/tpass/login?service=http://ipgw.neu.edu.cn/srun_portal_sso?ac_id=1")
 	if err != nil {
 		return "", err
 	}
+	// 使用ticket调用api登录
+	req, _ := http.NewRequest("GET", "https://ipgw.neu.edu.cn/v1"+resp.Request.URL.RequestURI(), nil)
+	resp, _ = h.client.Do(req)
 	return utils.ReadBody(resp), nil
 }
 
@@ -129,57 +118,50 @@ func (h *IpgwHandler) getRawUsageInfo() (string, error) {
 	return utils.ReadBody(resp), nil
 }
 
-func (h *IpgwHandler) getRawOldIpgwPage() (string, error) {
-	resp, err := h.client.Get("http://ipgw.neu.edu.cn/srun_portal_pc_succeed.php")
+func (h *IpgwHandler) getJsonIpgwData() (string, error) {
+	req, _ := http.NewRequest("GET", "https://ipgw.neu.edu.cn/cgi-bin/rad_user_info", nil)
+	req.Header.Set("Accept", "application/json;")
+	resp, err := h.client.Do(req)
 	if err != nil {
 		return "", err
 	}
 	return utils.ReadBody(resp), nil
 }
 
-func getUsernameAndIPFromOld(body string) (username, ip string) {
-	username, _ = utils.MatchSingle(regexp.MustCompile(`name="username" value="(.+?)"`), body)
-	ip, _ = utils.MatchSingle(regexp.MustCompile(`name="user_ip" value="(.+?)"`), body)
-	return
-}
-
-func getUsernameAndIP(body string) (username, ip string) {
-	username, _ = utils.MatchSingle(regexp.MustCompile(`id="user_name".*?>(.+?)</span>`), body)
-	ip, _ = utils.MatchSingle(regexp.MustCompile(`id="user_ip".*?>(.+?)</span>`), body)
-	return
+func getUsernameAndIPFromJson(body string) (username, ip string) {
+	data := make(map[string]interface{})
+	json.Unmarshal([]byte(body), &data)
+	if data["error"].(string) != "ok" {
+		return "", data["client_ip"].(string)
+	}
+	return data["user_name"].(string), data["online_ip"].(string)
 }
 
 func isOverdue(body string) (out bool) {
 	return regexp.MustCompile(`余额不足月租`).MatchString(body)
 }
 
-func (h *IpgwHandler) ParseBasicInfo(body string, nonUnified bool) error {
-	if nonUnified {
-		// the result of non-unified method is embedded from the old ipgw page so use getUsernameAndIPFromOld to parse
-		h.info.Username, h.info.IP = getUsernameAndIPFromOld(body)
-	} else {
-		h.info.Username, h.info.IP = getUsernameAndIP(body)
-	}
+func (h *IpgwHandler) ParseBasicInfo() error {
+	body, _ := h.getJsonIpgwData()
+	h.info.Username, h.info.IP = getUsernameAndIPFromJson(body)
 	h.info.Overdue = isOverdue(body)
 	return nil
 }
 
 func (h *IpgwHandler) Logout() error {
-	req, _ := http.NewRequest("POST", "http://ipgw.neu.edu.cn/srun_portal_pc_succeed.php",
-		strings.NewReader("action=auto_logout&username="+h.info.Username))
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Referer", "http://ipgw.neu.edu.cn/srun_portal_pc_succeed.php")
-
+	req, _ := http.NewRequest("GET", "https://ipgw.neu.edu.cn/cgi-bin/srun_portal?action=logout&username="+h.info.Username, nil)
+	req.Header.Add("Referer", "http://ipgw.neu.edu.cn/srun_portal_success?ac_id=1")
 	_, err := h.client.Do(req)
 	return err
 }
 
 func (h *IpgwHandler) IsConnectedAndLoggedIn() (connected bool, loggedIn bool) {
-	body, err := h.getRawOldIpgwPage()
+	// 调用ipgw信息api
+	body, err := h.getJsonIpgwData()
 	if err != nil && utils.IsNetworkError(err) {
 		return false, false
 	}
-	h.info.Username, h.info.IP = getUsernameAndIPFromOld(body)
+	h.info.Username, h.info.IP = getUsernameAndIPFromJson(body)
 	return h.info.IP != "", h.info.Username != ""
 }
 

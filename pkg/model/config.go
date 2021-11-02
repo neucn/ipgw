@@ -15,7 +15,6 @@ func (c *Config) AddAccount(username, password, secret string, nonUnified bool) 
 	c.Accounts = append(c.Accounts, &Account{
 		Username:          username,
 		EncryptedPassword: encryptedPassword,
-		NonUnified:        nonUnified,
 	})
 	return nil
 }

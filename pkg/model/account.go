@@ -2,7 +2,7 @@ package model
 
 import (
 	"errors"
-	"fmt"
+
 	"github.com/neucn/ipgw/pkg/utils"
 )
 
@@ -12,7 +12,6 @@ type Account struct {
 	Cookie            string `json:"-"`
 	Secret            string `json:"-"`
 	EncryptedPassword string `json:"encrypted_password"`
-	NonUnified        bool   `json:"non_unified"`
 }
 
 func (a *Account) GetPassword() (string, error) {
@@ -40,8 +39,5 @@ func (a *Account) SetPassword(password string, secret []byte) error {
 }
 
 func (a *Account) String() string {
-	if a.NonUnified {
-		return fmt.Sprintf("%s [non-unified]", a.Username)
-	}
 	return a.Username
 }

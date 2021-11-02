@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+
 	"github.com/neucn/ipgw/pkg/console"
 	"github.com/neucn/ipgw/pkg/handler"
 	"github.com/neucn/ipgw/pkg/model"
@@ -39,11 +40,6 @@ var (
 				Aliases: []string{"i"},
 				Usage:   "output account info after login successfully",
 			},
-			&cli.BoolFlag{
-				Name:    "old",
-				Aliases: []string{"o"},
-				Usage:   "use old login method (non-unified)",
-			},
 		},
 		Action: func(ctx *cli.Context) error {
 			store, err := getStoreHandler(ctx)
@@ -71,9 +67,8 @@ var (
 			} else {
 				// use username and password
 				account = &model.Account{
-					Username:   u,
-					Password:   p,
-					NonUnified: ctx.Bool("old"),
+					Username: u,
+					Password: p,
 				}
 			}
 			account.Secret = ctx.String("secret")

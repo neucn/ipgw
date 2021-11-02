@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+
 	"github.com/neucn/ipgw/pkg/console"
 	"github.com/urfave/cli/v2"
 )
@@ -161,10 +162,6 @@ var (
 				if err = account.SetPassword(ctx.String("password"), []byte(ctx.String("secret"))); err != nil {
 					return fmt.Errorf("fail to set account:\n\t'%s' not found", username)
 				}
-			}
-
-			if ctx.IsSet("old") {
-				account.NonUnified = ctx.Bool("old")
 			}
 
 			if ctx.Bool("default") {
