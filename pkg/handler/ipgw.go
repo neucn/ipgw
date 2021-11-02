@@ -2,11 +2,9 @@ package handler
 
 import (
 	"encoding/json"
-	"errors"
+	"io/ioutil"
 	"net/http"
 	"net/url"
-	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/neucn/ipgw/pkg/model"
@@ -15,8 +13,9 @@ import (
 )
 
 type IpgwHandler struct {
-	info   *model.Info
-	client *http.Client
+	info    *model.Info
+	client  *http.Client
+	oriInfo map[string]interface{}
 }
 
 func (h *IpgwHandler) GetInfo() *model.Info {
@@ -29,8 +28,9 @@ func (h *IpgwHandler) GetClient() *http.Client {
 
 func NewIpgwHandler() *IpgwHandler {
 	return &IpgwHandler{
-		info:   &model.Info{},
-		client: neugo.NewSession(),
+		info:    &model.Info{},
+		client:  neugo.NewSession(),
+		oriInfo: make(map[string]interface{}),
 	}
 }
 
@@ -76,19 +76,14 @@ func (h *IpgwHandler) login(username, password string) (string, error) {
 }
 
 func (h *IpgwHandler) FetchUsageInfo() error {
-	body, err := h.getRawUsageInfo()
+	err := h.getJsonIpgwData()
 	if err != nil {
 		return err
 	}
-	items := strings.Split(body, ",")
 
-	if len(items) != 6 {
-		return errors.New("usage info is incomplete")
-	}
-
-	h.info.Traffic, _ = strconv.Atoi(items[0])
-	h.info.UsedTime, _ = strconv.Atoi(items[1])
-	h.info.Balance, _ = strconv.ParseFloat(items[2], 64)
+	h.info.Traffic = int(h.oriInfo["sum_bytes"].(float64))
+	h.info.UsedTime = int(h.oriInfo["sum_seconds"].(float64))
+	h.info.Balance, _ = h.oriInfo["user_balance"].(float64)
 
 	return nil
 }
@@ -105,46 +100,29 @@ func (h *IpgwHandler) requestLoginApi() (string, error) {
 	return utils.ReadBody(resp), nil
 }
 
-func (h *IpgwHandler) getRawUsageInfo() (string, error) {
-	req, _ := http.NewRequest("POST", "https://ipgw.neu.edu.cn/include/auth_action.php",
-		strings.NewReader("action=get_online_info"))
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-	req.Header.Add("Referer", "https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
-
-	resp, err := h.client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	return utils.ReadBody(resp), nil
-}
-
-func (h *IpgwHandler) getJsonIpgwData() (string, error) {
+func (h *IpgwHandler) getJsonIpgwData() error {
 	req, _ := http.NewRequest("GET", "https://ipgw.neu.edu.cn/cgi-bin/rad_user_info", nil)
 	req.Header.Set("Accept", "application/json;")
 	resp, err := h.client.Do(req)
 	if err != nil {
-		return "", err
+		return err
 	}
-	return utils.ReadBody(resp), nil
+	oriInfoBytes, _ := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	return json.Unmarshal(oriInfoBytes, &h.oriInfo)
 }
 
-func getUsernameAndIPFromJson(body string) (username, ip string) {
-	data := make(map[string]interface{})
-	json.Unmarshal([]byte(body), &data)
+func getUsernameAndIPFromJson(data map[string]interface{}) (username, ip string) {
 	if data["error"].(string) != "ok" {
 		return "", data["client_ip"].(string)
 	}
 	return data["user_name"].(string), data["online_ip"].(string)
 }
 
-func isOverdue(body string) (out bool) {
-	return regexp.MustCompile(`余额不足月租`).MatchString(body)
-}
-
 func (h *IpgwHandler) ParseBasicInfo() error {
-	body, _ := h.getJsonIpgwData()
-	h.info.Username, h.info.IP = getUsernameAndIPFromJson(body)
-	h.info.Overdue = isOverdue(body)
+	h.getJsonIpgwData()
+	h.info.Username, h.info.IP = getUsernameAndIPFromJson(h.oriInfo)
+	h.info.Overdue = h.oriInfo["user_balance"].(float64) < 0
 	return nil
 }
 
@@ -157,11 +135,11 @@ func (h *IpgwHandler) Logout() error {
 
 func (h *IpgwHandler) IsConnectedAndLoggedIn() (connected bool, loggedIn bool) {
 	// 调用ipgw信息api
-	body, err := h.getJsonIpgwData()
+	err := h.getJsonIpgwData()
 	if err != nil && utils.IsNetworkError(err) {
 		return false, false
 	}
-	h.info.Username, h.info.IP = getUsernameAndIPFromJson(body)
+	h.info.Username, h.info.IP = getUsernameAndIPFromJson(h.oriInfo)
 	return h.info.IP != "", h.info.Username != ""
 }
 
