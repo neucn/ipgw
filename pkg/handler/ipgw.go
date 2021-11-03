@@ -113,7 +113,11 @@ func (h *IpgwHandler) getJsonIpgwData() error {
 }
 
 func getUsernameAndIPFromJson(data map[string]interface{}) (username, ip string) {
-	if data["error"].(string) != "ok" {
+	errorMsg, ok := data["error"].(string)
+	if !ok {
+		return "", ""
+	}
+	if errorMsg != "ok" {
 		return "", data["client_ip"].(string)
 	}
 	return data["user_name"].(string), data["online_ip"].(string)
