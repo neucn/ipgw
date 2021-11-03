@@ -32,7 +32,7 @@ func (d *DashboardHandler) Login(account *model.Account) error {
 	if err != nil {
 		return err
 	}
-	_, err = d.client.Get("https://pass.neu.edu.cn/tpass/login?service=http://ipgw.neu.edu.cn:8800/sso/neusoft/index") // 统一认证获取cookie
+	_, err = d.client.Get("http://ipgw.neu.edu.cn:8800/sso/neusoft/index") // 统一认证获取cookie
 	if err != nil {
 		return err
 	}

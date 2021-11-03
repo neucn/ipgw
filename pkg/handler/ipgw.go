@@ -160,7 +160,7 @@ func (h *IpgwHandler) IsConnectedAndLoggedIn() (connected bool, loggedIn bool) {
 
 func (h *IpgwHandler) Kick(sid string) (bool, error) {
 	once.Do(func() {
-		h.client.Get("https://pass.neu.edu.cn/tpass/login?service=http://ipgw.neu.edu.cn:8800/sso/neusoft/index")
+		h.client.Get("http://ipgw.neu.edu.cn:8800/sso/neusoft/index")
 	})
 	// 请求主页
 	resp, err := h.client.Get("http://ipgw.neu.edu.cn:8800/home")
