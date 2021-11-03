@@ -42,37 +42,10 @@ var (
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			store, err := getStoreHandler(ctx)
+			account, err := getAccountByContext(ctx)
 			if err != nil {
 				return err
 			}
-
-			var account *model.Account
-			if c := ctx.String("cookie"); c != "" {
-				// use cookie
-				account = &model.Account{
-					Cookie: c,
-				}
-			} else if u := ctx.String("username"); u == "" {
-				// use stored default account
-				if account = store.Config.GetDefaultAccount(); account == nil {
-					return errors.New("no stored account\n\tplease provide username and password")
-				}
-				console.InfoF("using account '%s'\n", account.Username)
-			} else if p := ctx.String("password"); p == "" {
-				// use stored account
-				if account = store.Config.GetAccount(u); account == nil {
-					return fmt.Errorf("account '%s' not found", u)
-				}
-			} else {
-				// use username and password
-				account = &model.Account{
-					Username: u,
-					Password: p,
-				}
-			}
-			account.Secret = ctx.String("secret")
-
 			h := handler.NewIpgwHandler()
 			if err = login(h, account); err != nil {
 				return fmt.Errorf("login failed: \n\t%v", err)
