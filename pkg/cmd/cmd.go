@@ -3,8 +3,10 @@ package cmd
 import (
 	"errors"
 	"fmt"
+
 	"github.com/neucn/ipgw/pkg/console"
 	"github.com/neucn/ipgw/pkg/handler"
+	"github.com/neucn/ipgw/pkg/model"
 	"github.com/urfave/cli/v2"
 )
 
@@ -65,6 +67,39 @@ func loginUseDefaultAccount(ctx *cli.Context) error {
 		return fmt.Errorf("login failed: \n\t%v", err)
 	}
 	return nil
+}
+
+func getAccountByContext(ctx *cli.Context) (account *model.Account, err error) {
+	store, err := getStoreHandler(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if c := ctx.String("cookie"); c != "" {
+		// use cookie
+		account = &model.Account{
+			Cookie: c,
+		}
+	} else if u := ctx.String("username"); u == "" {
+		// use stored default account
+		if account = store.Config.GetDefaultAccount(); account == nil {
+			return nil, errors.New("no stored account\n\tplease provide username and password")
+		}
+		console.InfoF("using account '%s'\n", account.Username)
+	} else if p := ctx.String("password"); p == "" {
+		// use stored account
+		if account = store.Config.GetAccount(u); account == nil {
+			return nil, fmt.Errorf("account '%s' not found", u)
+		}
+	} else {
+		// use username and password
+		account = &model.Account{
+			Username: u,
+			Password: p,
+		}
+	}
+	account.Secret = ctx.String("secret")
+	return account, nil
 }
 
 func getStoreHandler(ctx *cli.Context) (store *handler.StoreHandler, err error) {
