@@ -23,7 +23,7 @@ var (
 			&cli.StringFlag{
 				Name:    "password",
 				Aliases: []string{"p"},
-				Usage:   "`password` for pass.neu.edu.cn or ipgw.neu.edu.cn if use old login method (required only if account is not stored)",
+				Usage:   "`password` for pass.neu.edu.cn (required only if account is not stored)",
 			},
 			&cli.StringFlag{
 				Name:    "cookie",

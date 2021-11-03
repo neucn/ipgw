@@ -41,17 +41,12 @@ var (
 				Name:     "password",
 				Aliases:  []string{"p"},
 				Required: true,
-				Usage:    "`password` for pass.neu.edu.cn or ipgw.neu.edu.cn if use old login method",
+				Usage:    "`password` for pass.neu.edu.cn",
 			},
 			&cli.StringFlag{
 				Name:    "secret",
 				Aliases: []string{"s"},
 				Usage:   "`secret` for stored account",
-			},
-			&cli.BoolFlag{
-				Name:    "old",
-				Aliases: []string{"o"},
-				Usage:   "use old login method (non-unified)",
 			},
 			&cli.BoolFlag{
 				Name:  "default",
@@ -68,8 +63,7 @@ var (
 			if err = store.Config.AddAccount(
 				username,
 				password,
-				ctx.String("secret"),
-				ctx.Bool("old")); err != nil {
+				ctx.String("secret")); err != nil {
 				return fmt.Errorf("fail to add account:\n\t%v", err)
 			}
 
@@ -135,11 +129,6 @@ var (
 				Name:    "secret",
 				Aliases: []string{"s"},
 				Usage:   "new `secret` for stored account, must be used with --password, -p",
-			},
-			&cli.BoolFlag{
-				Name:    "old",
-				Aliases: []string{"o"},
-				Usage:   "use old login method (non-unified)",
 			},
 			&cli.BoolFlag{
 				Name:  "default",
