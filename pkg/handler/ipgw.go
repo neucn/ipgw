@@ -5,11 +5,17 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/neucn/ipgw/pkg/model"
 	"github.com/neucn/ipgw/pkg/utils"
 	"github.com/neucn/neugo"
+)
+
+var (
+	once sync.Once
 )
 
 type IpgwHandler struct {
@@ -68,8 +74,13 @@ func (h *IpgwHandler) loginCookie(cookie string) (string, error) {
 	return h.requestLoginApi()
 }
 
+func (h *IpgwHandler) NEUAuth(username, password string) error {
+	// 仅登录统一认证
+	return neugo.Use(h.client).WithAuth(username, password).Login(neugo.CAS)
+}
+
 func (h *IpgwHandler) login(username, password string) (string, error) {
-	if err := neugo.Use(h.client).WithAuth(username, password).Login(neugo.CAS); err != nil {
+	if err := h.NEUAuth(username, password); err != nil {
 		return "", err
 	}
 	return h.requestLoginApi()
@@ -148,15 +159,26 @@ func (h *IpgwHandler) IsConnectedAndLoggedIn() (connected bool, loggedIn bool) {
 }
 
 func (h *IpgwHandler) Kick(sid string) (bool, error) {
-	req, _ := http.NewRequest("POST", "https://ipgw.neu.edu.cn/srun_cas.php",
-		strings.NewReader("action=dm&sid="+sid))
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("Referer", "https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
+	once.Do(func() {
+		h.client.Get("https://pass.neu.edu.cn/tpass/login?service=http://ipgw.neu.edu.cn:8800/sso/neusoft/index")
+	})
+	// 请求主页
+	resp, err := h.client.Get("http://ipgw.neu.edu.cn:8800/home")
+	if err != nil {
+		return false, err
+	}
+	body := utils.ReadBody(resp)
+	// 获取csrf-token
+	token, _ := utils.MatchSingle(regexp.MustCompile(`<meta name="csrf-token" content="(.+?)">`), body)
 
-	resp, err := h.client.Do(req)
+	req, _ := http.NewRequest("POST", "http://ipgw.neu.edu.cn:8800/home/delete?id="+sid, strings.NewReader("_csrf-8800="+token))
+	req.Header.Set("Referer", "http://ipgw.neu.edu.cn:8800/home/index")
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err = h.client.Do(req)
 	if err != nil {
 		return false, err
 	}
 	result := utils.ReadBody(resp)
-	return result == "下线请求已发送", nil
+	return strings.Contains(result, "下线请求已发出"), nil
 }
