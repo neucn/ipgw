@@ -1,13 +1,11 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
+
 	"github.com/neucn/ipgw/pkg/console"
 	"github.com/neucn/ipgw/pkg/handler"
-	"github.com/neucn/ipgw/pkg/model"
 	"github.com/urfave/cli/v2"
-	"strings"
 )
 
 var (
@@ -40,29 +38,10 @@ var (
 			&cli.IntFlag{Name: "log", Aliases: []string{"l"}, Value: 1, Usage: "print the specific `page` of usage logs"},
 		},
 		Action: func(ctx *cli.Context) error {
-			store, err := getStoreHandler(ctx)
+			account, err := getAccountByContext(ctx)
 			if err != nil {
 				return err
 			}
-			var account *model.Account
-			if u := ctx.String("username"); u == "" {
-				// use stored default account
-				if account = store.Config.GetDefaultAccount(); account == nil {
-					return errors.New("no stored account\n\tplease provide username and password")
-				}
-			} else if p := ctx.String("password"); p == "" {
-				// use stored account
-				if account = store.Config.GetAccount(u); account == nil {
-					return fmt.Errorf("account '%s' not found", u)
-				}
-			} else {
-				// use username and password
-				account = &model.Account{
-					Username: u,
-					Password: p,
-				}
-			}
-			account.Secret = ctx.String("secret")
 			h := handler.NewDashboardHandler()
 			if err := h.Login(account); err != nil {
 				return fmt.Errorf("fail to login:\n\t%v", err)
@@ -130,18 +109,14 @@ func (i *infoPrinter) PrintPackage() {
 		console.InfoL("\t获取失败")
 		return
 	}
-	status := make([]string, 0, 2)
+	var status string
 	if pkg.Overdue {
-		status = append(status, "已欠费")
+		status = "已欠费"
+	} else {
+		status = "正常"
 	}
-	if pkg.ExcessPackageTraffic {
-		status = append(status, "流量超额")
-	}
-	if len(status) == 0 {
-		status = append(status, "正常")
-	}
-	console.InfoF("\t套餐\t%sG / %sR\n\t已用\t%s\n\t时长\t%s\n\t次数\t%s\n\t余额\t%sR\n\t状态\t%s\n",
-		pkg.PackageTraffic, pkg.PackageCost, pkg.UsedTraffic, pkg.UsedDuration, pkg.UsedTimes, pkg.Balance, strings.Join(status, " "))
+	console.InfoF("\t已用\t%s\n\t时长\t%s\n\t消费\t%sR\n\t余额\t%sR\n\t状态\t%s\n",
+		pkg.UsedTraffic, pkg.UsedDuration, pkg.PackageCost, pkg.Balance, status)
 }
 
 func (i *infoPrinter) PrintDevices() {
@@ -166,7 +141,7 @@ func (i *infoPrinter) PrintRecharges(page int) {
 		return
 	}
 	for _, record := range records {
-		console.InfoF("\t#%8s\t%s\t%sR\t%s\n", record.ID, record.Time, record.Cost, record.Method)
+		console.InfoF("\t#%8s\t%s\t%sR\n", record.ID, record.Time, record.Cost)
 	}
 }
 
@@ -192,6 +167,6 @@ func (i *infoPrinter) PrintBills(page int) {
 		return
 	}
 	for _, record := range records {
-		console.InfoF("\t#%8s\t%s\t%sR\t%s\n", record.ID, record.Date, record.Cost, record.Traffic)
+		console.InfoF("\t#%8s\t%s\t%.2fR\t%s\n", record.ID, record.Date, record.Cost, record.Traffic)
 	}
 }

@@ -7,7 +7,7 @@ type Config struct {
 	Accounts       []*Account `json:"accounts"`
 }
 
-func (c *Config) AddAccount(username, password, secret string, nonUnified bool) error {
+func (c *Config) AddAccount(username, password, secret string) error {
 	encryptedPassword, err := utils.Encrypt([]byte(password), []byte(secret))
 	if err != nil {
 		return err
@@ -15,7 +15,6 @@ func (c *Config) AddAccount(username, password, secret string, nonUnified bool) 
 	c.Accounts = append(c.Accounts, &Account{
 		Username:          username,
 		EncryptedPassword: encryptedPassword,
-		NonUnified:        nonUnified,
 	})
 	return nil
 }

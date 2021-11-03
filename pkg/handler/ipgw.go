@@ -1,21 +1,27 @@
 package handler
 
 import (
-	"errors"
-	"fmt"
-	"github.com/neucn/ipgw/pkg/model"
-	"github.com/neucn/ipgw/pkg/utils"
-	"github.com/neucn/neugo"
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"regexp"
-	"strconv"
 	"strings"
+	"sync"
+
+	"github.com/neucn/ipgw/pkg/model"
+	"github.com/neucn/ipgw/pkg/utils"
+	"github.com/neucn/neugo"
+)
+
+var (
+	once sync.Once
 )
 
 type IpgwHandler struct {
-	info   *model.Info
-	client *http.Client
+	info    *model.Info
+	client  *http.Client
+	oriInfo map[string]interface{}
 }
 
 func (h *IpgwHandler) GetInfo() *model.Info {
@@ -28,47 +34,32 @@ func (h *IpgwHandler) GetClient() *http.Client {
 
 func NewIpgwHandler() *IpgwHandler {
 	return &IpgwHandler{
-		info:   &model.Info{},
-		client: neugo.NewSession(),
+		info:    &model.Info{},
+		client:  neugo.NewSession(),
+		oriInfo: make(map[string]interface{}),
 	}
 }
 
 func (h *IpgwHandler) Login(account *model.Account) error {
-	var err error
-	var body string
+	var (
+		password string
+		err      error
+	)
 	if account.Cookie != "" {
-		body, err = h.loginCookie(account.Cookie)
-		return h.ParseBasicInfo(body, false)
-	}
-
-	var password string
-	password, err = account.GetPassword()
-	if err != nil {
-		return err
-	}
-	if account.NonUnified {
-		body, err = h.loginNonUnified(account.Username, password)
+		_, err = h.loginCookie(account.Cookie) // 通过cookie登录
 	} else {
-		body, err = h.loginUnified(account.Username, password)
+		password, err = account.GetPassword()
+		if err != nil {
+			return err
+		}
+		_, err = h.login(account.Username, password) // 通过用户名、密码登录
 	}
 
 	if err != nil {
 		return err
 	}
 
-	return h.ParseBasicInfo(body, account.NonUnified)
-}
-
-func (h *IpgwHandler) loginNonUnified(username, password string) (string, error) {
-	req, _ := http.NewRequest(http.MethodPost, "http://ipgw.neu.edu.cn/srun_portal_pc.php?ac_id=1&", strings.NewReader(
-		fmt.Sprintf("action=login&ac_id=1&user_ip=&nas_ip=&user_mac=&url=&username=%s&password=%s&save_me=0",
-			username, url.QueryEscape(password))))
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	resp, err := h.client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	return utils.ReadBody(resp), nil
+	return h.ParseBasicInfo() // 解析信息
 }
 
 func (h *IpgwHandler) loginCookie(cookie string) (string, error) {
@@ -80,119 +71,114 @@ func (h *IpgwHandler) loginCookie(cookie string) (string, error) {
 		Value:  cookie,
 		Domain: "ipgw.neu.edu.cn",
 	}})
-	return h.getRawIpgwPage()
+	return h.requestLoginApi()
 }
 
-func (h *IpgwHandler) loginUnified(username, password string) (string, error) {
-	if err := neugo.Use(h.client).WithAuth(username, password).Login(neugo.CAS); err != nil {
+func (h *IpgwHandler) NEUAuth(username, password string) error {
+	// 仅登录统一认证
+	return neugo.Use(h.client).WithAuth(username, password).Login(neugo.CAS)
+}
+
+func (h *IpgwHandler) login(username, password string) (string, error) {
+	if err := h.NEUAuth(username, password); err != nil {
 		return "", err
 	}
-	return h.getRawIpgwPage()
+	return h.requestLoginApi()
 }
 
 func (h *IpgwHandler) FetchUsageInfo() error {
-	body, err := h.getRawUsageInfo()
+	err := h.getJsonIpgwData()
 	if err != nil {
 		return err
 	}
-	items := strings.Split(body, ",")
 
-	if len(items) != 6 {
-		return errors.New("usage info is incomplete")
-	}
-
-	h.info.Traffic, _ = strconv.Atoi(items[0])
-	h.info.UsedTime, _ = strconv.Atoi(items[1])
-	h.info.Balance, _ = strconv.ParseFloat(items[2], 64)
+	h.info.Traffic = int(h.oriInfo["sum_bytes"].(float64))
+	h.info.UsedTime = int(h.oriInfo["sum_seconds"].(float64))
+	h.info.Balance, _ = h.oriInfo["user_balance"].(float64)
 
 	return nil
 }
 
-func (h *IpgwHandler) getRawIpgwPage() (string, error) {
-	resp, err := h.client.Get("https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
+func (h *IpgwHandler) requestLoginApi() (string, error) {
+	// 统一认证拿到ticket
+	resp, err := h.client.Get("https://pass.neu.edu.cn/tpass/login?service=http://ipgw.neu.edu.cn/srun_portal_sso?ac_id=1")
 	if err != nil {
 		return "", err
 	}
+	// 使用ticket调用api登录
+	req, _ := http.NewRequest("GET", "https://ipgw.neu.edu.cn/v1"+resp.Request.URL.RequestURI(), nil)
+	resp, _ = h.client.Do(req)
 	return utils.ReadBody(resp), nil
 }
 
-func (h *IpgwHandler) getRawUsageInfo() (string, error) {
-	req, _ := http.NewRequest("POST", "https://ipgw.neu.edu.cn/include/auth_action.php",
-		strings.NewReader("action=get_online_info"))
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-	req.Header.Add("Referer", "https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
-
+func (h *IpgwHandler) getJsonIpgwData() error {
+	req, _ := http.NewRequest("GET", "https://ipgw.neu.edu.cn/cgi-bin/rad_user_info", nil)
+	req.Header.Set("Accept", "application/json;")
 	resp, err := h.client.Do(req)
 	if err != nil {
-		return "", err
+		return err
 	}
-	return utils.ReadBody(resp), nil
+	oriInfoBytes, _ := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	return json.Unmarshal(oriInfoBytes, &h.oriInfo)
 }
 
-func (h *IpgwHandler) getRawOldIpgwPage() (string, error) {
-	resp, err := h.client.Get("http://ipgw.neu.edu.cn/srun_portal_pc_succeed.php")
-	if err != nil {
-		return "", err
+func getUsernameAndIPFromJson(data map[string]interface{}) (username, ip string) {
+	errorMsg, ok := data["error"].(string)
+	if !ok {
+		return "", ""
 	}
-	return utils.ReadBody(resp), nil
-}
-
-func getUsernameAndIPFromOld(body string) (username, ip string) {
-	username, _ = utils.MatchSingle(regexp.MustCompile(`name="username" value="(.+?)"`), body)
-	ip, _ = utils.MatchSingle(regexp.MustCompile(`name="user_ip" value="(.+?)"`), body)
-	return
-}
-
-func getUsernameAndIP(body string) (username, ip string) {
-	username, _ = utils.MatchSingle(regexp.MustCompile(`id="user_name".*?>(.+?)</span>`), body)
-	ip, _ = utils.MatchSingle(regexp.MustCompile(`id="user_ip".*?>(.+?)</span>`), body)
-	return
-}
-
-func isOverdue(body string) (out bool) {
-	return regexp.MustCompile(`余额不足月租`).MatchString(body)
-}
-
-func (h *IpgwHandler) ParseBasicInfo(body string, nonUnified bool) error {
-	if nonUnified {
-		// the result of non-unified method is embedded from the old ipgw page so use getUsernameAndIPFromOld to parse
-		h.info.Username, h.info.IP = getUsernameAndIPFromOld(body)
-	} else {
-		h.info.Username, h.info.IP = getUsernameAndIP(body)
+	if errorMsg != "ok" {
+		return "", data["client_ip"].(string)
 	}
-	h.info.Overdue = isOverdue(body)
+	return data["user_name"].(string), data["online_ip"].(string)
+}
+
+func (h *IpgwHandler) ParseBasicInfo() error {
+	h.getJsonIpgwData()
+	h.info.Username, h.info.IP = getUsernameAndIPFromJson(h.oriInfo)
+	h.info.Overdue = h.oriInfo["user_balance"].(float64) < 0
 	return nil
 }
 
 func (h *IpgwHandler) Logout() error {
-	req, _ := http.NewRequest("POST", "http://ipgw.neu.edu.cn/srun_portal_pc_succeed.php",
-		strings.NewReader("action=auto_logout&username="+h.info.Username))
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Referer", "http://ipgw.neu.edu.cn/srun_portal_pc_succeed.php")
-
+	req, _ := http.NewRequest("GET", "https://ipgw.neu.edu.cn/cgi-bin/srun_portal?action=logout&username="+h.info.Username, nil)
+	req.Header.Add("Referer", "http://ipgw.neu.edu.cn/srun_portal_success?ac_id=1")
 	_, err := h.client.Do(req)
 	return err
 }
 
 func (h *IpgwHandler) IsConnectedAndLoggedIn() (connected bool, loggedIn bool) {
-	body, err := h.getRawOldIpgwPage()
+	// 调用ipgw信息api
+	err := h.getJsonIpgwData()
 	if err != nil && utils.IsNetworkError(err) {
 		return false, false
 	}
-	h.info.Username, h.info.IP = getUsernameAndIPFromOld(body)
+	h.info.Username, h.info.IP = getUsernameAndIPFromJson(h.oriInfo)
 	return h.info.IP != "", h.info.Username != ""
 }
 
 func (h *IpgwHandler) Kick(sid string) (bool, error) {
-	req, _ := http.NewRequest("POST", "https://ipgw.neu.edu.cn/srun_cas.php",
-		strings.NewReader("action=dm&sid="+sid))
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("Referer", "https://ipgw.neu.edu.cn/srun_cas.php?ac_id=1")
+	once.Do(func() {
+		h.client.Get("http://ipgw.neu.edu.cn:8800/sso/neusoft/index")
+	})
+	// 请求主页
+	resp, err := h.client.Get("http://ipgw.neu.edu.cn:8800/home")
+	if err != nil {
+		return false, err
+	}
+	body := utils.ReadBody(resp)
+	// 获取csrf-token
+	token, _ := utils.MatchSingle(regexp.MustCompile(`<meta name="csrf-token" content="(.+?)">`), body)
 
-	resp, err := h.client.Do(req)
+	req, _ := http.NewRequest("POST", "http://ipgw.neu.edu.cn:8800/home/delete?id="+sid, strings.NewReader("_csrf-8800="+token))
+	req.Header.Set("Referer", "http://ipgw.neu.edu.cn:8800/home/index")
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err = h.client.Do(req)
 	if err != nil {
 		return false, err
 	}
 	result := utils.ReadBody(resp)
-	return result == "下线请求已发送", nil
+	return strings.Contains(result, "下线请求已发出"), nil
 }

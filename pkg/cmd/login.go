@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+
 	"github.com/neucn/ipgw/pkg/console"
 	"github.com/neucn/ipgw/pkg/handler"
 	"github.com/neucn/ipgw/pkg/model"
@@ -22,7 +23,7 @@ var (
 			&cli.StringFlag{
 				Name:    "password",
 				Aliases: []string{"p"},
-				Usage:   "`password` for pass.neu.edu.cn or ipgw.neu.edu.cn if use old login method (required only if account is not stored)",
+				Usage:   "`password` for pass.neu.edu.cn (required only if account is not stored)",
 			},
 			&cli.StringFlag{
 				Name:    "cookie",
@@ -39,45 +40,12 @@ var (
 				Aliases: []string{"i"},
 				Usage:   "output account info after login successfully",
 			},
-			&cli.BoolFlag{
-				Name:    "old",
-				Aliases: []string{"o"},
-				Usage:   "use old login method (non-unified)",
-			},
 		},
 		Action: func(ctx *cli.Context) error {
-			store, err := getStoreHandler(ctx)
+			account, err := getAccountByContext(ctx)
 			if err != nil {
 				return err
 			}
-
-			var account *model.Account
-			if c := ctx.String("cookie"); c != "" {
-				// use cookie
-				account = &model.Account{
-					Cookie: c,
-				}
-			} else if u := ctx.String("username"); u == "" {
-				// use stored default account
-				if account = store.Config.GetDefaultAccount(); account == nil {
-					return errors.New("no stored account\n\tplease provide username and password")
-				}
-				console.InfoF("using account '%s'\n", account.Username)
-			} else if p := ctx.String("password"); p == "" {
-				// use stored account
-				if account = store.Config.GetAccount(u); account == nil {
-					return fmt.Errorf("account '%s' not found", u)
-				}
-			} else {
-				// use username and password
-				account = &model.Account{
-					Username:   u,
-					Password:   p,
-					NonUnified: ctx.Bool("old"),
-				}
-			}
-			account.Secret = ctx.String("secret")
-
 			h := handler.NewIpgwHandler()
 			if err = login(h, account); err != nil {
 				return fmt.Errorf("login failed: \n\t%v", err)

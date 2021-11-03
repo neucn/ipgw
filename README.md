@@ -13,17 +13,20 @@
 
 <p align="center"><a href="#安装">安装</a> | <a href="#快速开始">快速开始</a> | <a href="https://github.com/neucn/ipgw/issues/new">反馈</a></p>
 
-
 # 安装
 
 ## Windows
+
 在 Powershell 中执行以下命令安装
+
 ```powershell
 iwr https://raw.githubusercontent.com/neucn/ipgw/master/install.ps1 -useb | iex
 ```
 
 ## Linux/FreeBSD/OSX
+
 在 shell 中执行以下命令安装
+
 ```shell
 curl -fsSL https://raw.githubusercontent.com/neucn/ipgw/master/install.sh | sh
 ```
@@ -35,20 +38,13 @@ curl -fsSL https://raw.githubusercontent.com/neucn/ipgw/master/install.sh | sh
 # 快速开始
 
 > 须知：本项目的最初目的仅在于满足作者本人的日常使用，因此工具的输出文本中同时存在中英文。
-> 
+>
 > 欢迎有兴趣的同学提起 [Pull Request](https://github.com/neucn/ipgw/pulls) 将输出文本统一为中文 😀
-
 
 保存 ipgw 账号 (密码将被加密存储)
 
 ```shell
 ipgw config account add -u "学号" -p "密码" --default
-```
-
-如果账号密码是非统一认证方式下的，请加上 `-o` (old) 参数
-
-```shell
-ipgw config account add -u "学号" -p "密码" -o --default
 ```
 
 使用默认账号快速登录，需要先保存至少一个 ipgw 账号在本地
@@ -82,4 +78,3 @@ ipgw update
 ```
 
 更多命令及其可配置项请使用 `ipgw help` 与 `ipgw help [command name]` 查看
-

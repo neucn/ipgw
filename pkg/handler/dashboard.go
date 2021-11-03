@@ -3,13 +3,13 @@ package handler
 import (
 	"errors"
 	"fmt"
-	"github.com/neucn/ipgw/pkg/model"
-	"github.com/neucn/ipgw/pkg/utils"
-	"github.com/neucn/neugo"
 	"net/http"
 	"regexp"
 	"strconv"
-	"strings"
+
+	"github.com/neucn/ipgw/pkg/model"
+	"github.com/neucn/ipgw/pkg/utils"
+	"github.com/neucn/neugo"
 )
 
 type DashboardHandler struct {
@@ -32,11 +32,15 @@ func (d *DashboardHandler) Login(account *model.Account) error {
 	if err != nil {
 		return err
 	}
+	_, err = d.client.Get("http://ipgw.neu.edu.cn:8800/sso/neusoft/index") // 统一认证获取cookie
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (d *DashboardHandler) fetchDashboardIndexBody() (string, error) {
-	resp, err := d.client.Get("http://ipgw.neu.edu.cn:8800/sso/default/neusoft")
+	resp, err := d.client.Get("http://ipgw.neu.edu.cn:8800/home")
 	if err != nil {
 		return "", err
 	}
@@ -44,7 +48,7 @@ func (d *DashboardHandler) fetchDashboardIndexBody() (string, error) {
 }
 
 func (d *DashboardHandler) fetchDashboardBillsBody(page int) (string, error) {
-	resp, err := d.client.Get(fmt.Sprintf("http://ipgw.neu.edu.cn:8800/financial/checkout/list?page=%d&per-page=10", page))
+	resp, err := d.client.Get(fmt.Sprintf("http://ipgw.neu.edu.cn:8800/log/check-out?page=%d&per-page=10", page))
 	if err != nil {
 		return "", err
 	}
@@ -52,7 +56,7 @@ func (d *DashboardHandler) fetchDashboardBillsBody(page int) (string, error) {
 }
 
 func (d *DashboardHandler) fetchDashboardRechargeBody(page int) (string, error) {
-	resp, err := d.client.Get(fmt.Sprintf("http://ipgw.neu.edu.cn:8800/financial/pay/list?page=%d&per-page=10", page))
+	resp, err := d.client.Get(fmt.Sprintf("http://ipgw.neu.edu.cn:8800/log/pay?page=%d&per-page=10", page))
 	if err != nil {
 		return "", err
 	}
@@ -60,7 +64,7 @@ func (d *DashboardHandler) fetchDashboardRechargeBody(page int) (string, error) 
 }
 
 func (d *DashboardHandler) fetchDashboardUsageLogBody(page int) (string, error) {
-	resp, err := d.client.Get(fmt.Sprintf("http://ipgw.neu.edu.cn:8800/log/detail/index?page=%d&per-page=20", page))
+	resp, err := d.client.Get(fmt.Sprintf("http://ipgw.neu.edu.cn:8800/log/detail?page=%d&per-page=10", page))
 	if err != nil {
 		return "", err
 	}
@@ -88,8 +92,8 @@ func (d *DashboardHandler) GetBasic() (*Basic, error) {
 	if err != nil {
 		return nil, err
 	}
-	id, _ := utils.MatchSingle(regexp.MustCompile(`账号</label>\s+(\d+)\s+`), body)
-	name, _ := utils.MatchSingle(regexp.MustCompile(`姓名</label>\s+(.+?)\s+`), body)
+	id, _ := utils.MatchSingle(regexp.MustCompile(`用户名</label>(.+?)</li>`), body)
+	name, _ := utils.MatchSingle(regexp.MustCompile(`姓名</label>(.+?)</li>`), body)
 	return &Basic{
 		ID:   id,
 		Name: name,
@@ -97,17 +101,12 @@ func (d *DashboardHandler) GetBasic() (*Basic, error) {
 }
 
 type Package struct {
-	// Unit is G
-	PackageTraffic string
-	PackageCost    string
-	UsedTraffic    string
-	UsedDuration   string
-	UsedTimes      string
-	Balance        string
+	PackageCost  string
+	UsedTraffic  string
+	UsedDuration string
+	Balance      string
 	// Balance < 0
 	Overdue bool
-	// UsedTraffic > PackageTraffic
-	ExcessPackageTraffic bool
 }
 
 func (d *DashboardHandler) GetPackage() (*Package, error) {
@@ -116,38 +115,22 @@ func (d *DashboardHandler) GetPackage() (*Package, error) {
 		return nil, err
 	}
 
-	infos, _ := utils.MatchMultiple(regexp.MustCompile(`<td>\W+.+?(\d+?)G下行流量(.+?)元?/.+?</td>\W+<td>\W+(.+?)\W+</td>\W+<td>(.+?)</td>\W+<td>(.+?)</td>\W+<td>.+?</td>\W+<td>(.+?)</td>\W+<td>.+?</td>`), body)
+	infos, _ := utils.MatchMultiple(regexp.MustCompile(`<td data-col-seq="3">(.+?)</td><td data-col-seq="4">(.+?)</td><td data-col-seq="6">(.+?)</td><td data-col-seq="7">(.+?)</td></tr>`), body)
 	if len(infos) < 1 {
 		return nil, errors.New("fail to get package info")
 	}
 	info := infos[0]
 
 	result := &Package{
-		UsedTraffic:  info[3],
-		UsedDuration: info[4],
-		UsedTimes:    info[5],
-		Balance:      info[6],
+		UsedTraffic:  info[1],
+		UsedDuration: info[2],
+		PackageCost:  info[3],
+		Balance:      info[4],
 	}
 
-	b, _ := strconv.ParseFloat(info[6], 32)
+	b, _ := strconv.ParseFloat(info[4], 32)
 	if b < 0 {
 		result.Overdue = true
-	}
-
-	result.PackageTraffic = info[1]
-
-	if info[2] == "免费" {
-		result.PackageCost = "0"
-	} else {
-		result.PackageCost = info[2]
-	}
-
-	if strings.HasSuffix(info[3], "G") {
-		u, _ := strconv.ParseFloat(strings.TrimSuffix(info[6], "G"), 32)
-		t, _ := strconv.ParseFloat(info[1], 32)
-		if u > t {
-			result.ExcessPackageTraffic = true
-		}
 	}
 
 	return result, nil
@@ -165,17 +148,17 @@ func (d *DashboardHandler) GetDevice() ([]Device, error) {
 	if err != nil {
 		return []Device{}, err
 	}
-	ds, _ := utils.MatchMultiple(regexp.MustCompile(`<td>\d+</td>\W+?<td>(.+?)</td>\W+?<td>.+?</td>\W+?<td>(.+?)</td>\W+?<td>.+?</td>\W+?<td><a id="(\d+)".+?下线</a></td>`), body)
+	ds, _ := utils.MatchMultiple(regexp.MustCompile(`<tr data-key="(\d+)"><td data-col-seq="0">\d+</td><td data-col-seq="1">(.+?)</td><td data-col-seq="3">(.+?)</td><td data-col-seq="9"></td>`), body)
 	result := make([]Device, len(ds))
 	for i, device := range ds {
-		result[i] = Device{i, device[1], device[2], device[3]}
+		result[i] = Device{i, device[2], device[3], device[1]}
 	}
 	return result, nil
 }
 
 type BillRecord struct {
 	ID           string
-	Cost         string
+	Cost         float64
 	Traffic      string
 	UsedDuration string
 	Date         string
@@ -191,13 +174,17 @@ func (d *DashboardHandler) GetBill(page int) ([]BillRecord, error) {
 		return []BillRecord{}, errors.New("error occurs when parsing bill page")
 	}
 
-	bills, _ := utils.MatchMultiple(regexp.MustCompile(`<td>(\d+?)</td><td>\d+?</td><td>(\d+?)</td><td>.+?</td><td>.+?</td><td>(.+?)</td><td>(.+?)</td><td>.+?</td><td>(.+?)</td>`), body)
+	bills, _ := utils.MatchMultiple(regexp.MustCompile(`<td data-col-seq="0">(\d+)</td><td data-col-seq="1">.+?</td><td data-col-seq="2">(.+?)</td><td data-col-seq="3">(.+?)</td><td style="display: none;" data-col-seq="6">.+?</td><td data-col-seq="7">(.+?)</td><td data-col-seq="10">(\d+)</td><td data-col-seq="12">(.+?)</td></tr>`), body)
 
 	// b1   b2    b3       b4    b5
 	// id  cost  traffic  time  date
 	result := make([]BillRecord, len(bills))
+
 	for i, b := range bills {
-		result[i] = BillRecord{b[1], b[2], b[3], b[4], strings.Split(b[5], " ")[0]}
+		// 总消费为固定费用+实时费用
+		fixedCost, _ := strconv.ParseFloat(b[2], 32)
+		realtimeCost, _ := strconv.ParseFloat(b[3], 32)
+		result[i] = BillRecord{b[1], fixedCost + realtimeCost, b[4], b[5], b[6]}
 	}
 	return result, nil
 }
@@ -220,7 +207,7 @@ func (d *DashboardHandler) GetUsageRecords(page int) ([]UsageRecord, error) {
 		return []UsageRecord{}, errors.New("error occurs when parsing usage log page")
 	}
 
-	hs, _ := utils.MatchMultiple(regexp.MustCompile(`<td>\d+?</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>(.+?)</td><td>.+?</td></tr>`), body)
+	hs, _ := utils.MatchMultiple(regexp.MustCompile(`<td data-col-seq="1">(.+?)</td><td data-col-seq="2">(.+?)</td><td data-col-seq="5">(.+?)</td><td data-col-seq="10">.+?</td><td data-col-seq="12">.+?</td><td style="display: none;" data-col-seq="14">.+?</td><td data-col-seq="15">(.+?)</td><td style="display: none;" data-col-seq="16">.+?</td><td data-col-seq="17">(.+?)</td><td data-col-seq="18">.+?</td></tr>`), body)
 	result := make([]UsageRecord, len(hs))
 	for i, h := range hs {
 		result[i] = UsageRecord{h[1], h[2], h[3], h[4], h[5]}
@@ -229,10 +216,9 @@ func (d *DashboardHandler) GetUsageRecords(page int) ([]UsageRecord, error) {
 }
 
 type RechargeRecord struct {
-	ID     string
-	Cost   string
-	Method string
-	Time   string
+	ID   string
+	Cost string
+	Time string
 }
 
 func (d *DashboardHandler) GetRecharge(page int) ([]RechargeRecord, error) {
@@ -245,13 +231,13 @@ func (d *DashboardHandler) GetRecharge(page int) ([]RechargeRecord, error) {
 		return []RechargeRecord{}, errors.New("error occurs when parsing recharge page")
 	}
 
-	rs, _ := utils.MatchMultiple(regexp.MustCompile(`<td>(\d+?)</td><td>\d+?</td><td>(\d+?)</td><td>.+?</td><td>(.+?)</td><td>.+?</td><td>(.+?)</td><td>.+?</td>`), body)
+	rs, _ := utils.MatchMultiple(regexp.MustCompile(`<td data-col-seq="0">(.+?)</td><td data-col-seq="1">\d+</td><td data-col-seq="2">(.+?)</td><td data-col-seq="3">.+?</td><td data-col-seq="6">(.+?)</td></tr>`), body)
 
 	result := make([]RechargeRecord, len(rs))
-	// r1  r2     r3      r4
-	// id  cost  method  time
+	// r1  r2     r3
+	// id  cost  time
 	for i, r := range rs {
-		result[i] = RechargeRecord{r[1], r[2], r[3], r[4]}
+		result[i] = RechargeRecord{r[1], r[2], r[3]}
 	}
 	return result, nil
 }

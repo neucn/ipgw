@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+
 	"github.com/neucn/ipgw/pkg/console"
 	"github.com/urfave/cli/v2"
 )
@@ -40,17 +41,12 @@ var (
 				Name:     "password",
 				Aliases:  []string{"p"},
 				Required: true,
-				Usage:    "`password` for pass.neu.edu.cn or ipgw.neu.edu.cn if use old login method",
+				Usage:    "`password` for pass.neu.edu.cn",
 			},
 			&cli.StringFlag{
 				Name:    "secret",
 				Aliases: []string{"s"},
 				Usage:   "`secret` for stored account",
-			},
-			&cli.BoolFlag{
-				Name:    "old",
-				Aliases: []string{"o"},
-				Usage:   "use old login method (non-unified)",
 			},
 			&cli.BoolFlag{
 				Name:  "default",
@@ -67,8 +63,7 @@ var (
 			if err = store.Config.AddAccount(
 				username,
 				password,
-				ctx.String("secret"),
-				ctx.Bool("old")); err != nil {
+				ctx.String("secret")); err != nil {
 				return fmt.Errorf("fail to add account:\n\t%v", err)
 			}
 
@@ -136,11 +131,6 @@ var (
 				Usage:   "new `secret` for stored account, must be used with --password, -p",
 			},
 			&cli.BoolFlag{
-				Name:    "old",
-				Aliases: []string{"o"},
-				Usage:   "use old login method (non-unified)",
-			},
-			&cli.BoolFlag{
 				Name:  "default",
 				Usage: "set the account as the default one",
 			},
@@ -161,10 +151,6 @@ var (
 				if err = account.SetPassword(ctx.String("password"), []byte(ctx.String("secret"))); err != nil {
 					return fmt.Errorf("fail to set account:\n\t'%s' not found", username)
 				}
-			}
-
-			if ctx.IsSet("old") {
-				account.NonUnified = ctx.Bool("old")
 			}
 
 			if ctx.Bool("default") {
