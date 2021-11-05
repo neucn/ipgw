@@ -143,7 +143,7 @@ func (h *IpgwHandler) ParseBasicInfo() error {
 
 func (h *IpgwHandler) Logout() error {
 	req, _ := http.NewRequest("GET", "https://ipgw.neu.edu.cn/cgi-bin/srun_portal?action=logout&username="+h.info.Username, nil)
-	req.Header.Add("Referer", "http://ipgw.neu.edu.cn/srun_portal_success?ac_id=1")
+	req.Header.Add("Referer", "https://ipgw.neu.edu.cn/srun_portal_success?ac_id=1")
 	_, err := h.client.Do(req)
 	return err
 }
@@ -160,10 +160,10 @@ func (h *IpgwHandler) IsConnectedAndLoggedIn() (connected bool, loggedIn bool) {
 
 func (h *IpgwHandler) Kick(sid string) (bool, error) {
 	once.Do(func() {
-		h.client.Get("http://ipgw.neu.edu.cn:8800/sso/neusoft/index")
+		h.client.Get("https://ipgw.neu.edu.cn:8800/sso/neusoft/index")
 	})
 	// 请求主页
-	resp, err := h.client.Get("http://ipgw.neu.edu.cn:8800/home")
+	resp, err := h.client.Get("https://ipgw.neu.edu.cn:8800/home")
 	if err != nil {
 		return false, err
 	}
@@ -171,8 +171,8 @@ func (h *IpgwHandler) Kick(sid string) (bool, error) {
 	// 获取csrf-token
 	token, _ := utils.MatchSingle(regexp.MustCompile(`<meta name="csrf-token" content="(.+?)">`), body)
 
-	req, _ := http.NewRequest("POST", "http://ipgw.neu.edu.cn:8800/home/delete?id="+sid, strings.NewReader("_csrf-8800="+token))
-	req.Header.Set("Referer", "http://ipgw.neu.edu.cn:8800/home/index")
+	req, _ := http.NewRequest("POST", "https://ipgw.neu.edu.cn:8800/home/delete?id="+sid, strings.NewReader("_csrf-8800="+token))
+	req.Header.Set("Referer", "https://ipgw.neu.edu.cn:8800/home/index")
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err = h.client.Do(req)

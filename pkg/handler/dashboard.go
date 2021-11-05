@@ -32,7 +32,7 @@ func (d *DashboardHandler) Login(account *model.Account) error {
 	if err != nil {
 		return err
 	}
-	_, err = d.client.Get("http://ipgw.neu.edu.cn:8800/sso/neusoft/index") // 统一认证获取cookie
+	_, err = d.client.Get("https://ipgw.neu.edu.cn:8800/sso/neusoft/index") // 统一认证获取cookie
 	if err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func (d *DashboardHandler) Login(account *model.Account) error {
 }
 
 func (d *DashboardHandler) fetchDashboardIndexBody() (string, error) {
-	resp, err := d.client.Get("http://ipgw.neu.edu.cn:8800/home")
+	resp, err := d.client.Get("https://ipgw.neu.edu.cn:8800/home")
 	if err != nil {
 		return "", err
 	}
@@ -48,7 +48,7 @@ func (d *DashboardHandler) fetchDashboardIndexBody() (string, error) {
 }
 
 func (d *DashboardHandler) fetchDashboardBillsBody(page int) (string, error) {
-	resp, err := d.client.Get(fmt.Sprintf("http://ipgw.neu.edu.cn:8800/log/check-out?page=%d&per-page=10", page))
+	resp, err := d.client.Get(fmt.Sprintf("https://ipgw.neu.edu.cn:8800/log/check-out?page=%d&per-page=10", page))
 	if err != nil {
 		return "", err
 	}
@@ -56,7 +56,7 @@ func (d *DashboardHandler) fetchDashboardBillsBody(page int) (string, error) {
 }
 
 func (d *DashboardHandler) fetchDashboardRechargeBody(page int) (string, error) {
-	resp, err := d.client.Get(fmt.Sprintf("http://ipgw.neu.edu.cn:8800/log/pay?page=%d&per-page=10", page))
+	resp, err := d.client.Get(fmt.Sprintf("https://ipgw.neu.edu.cn:8800/log/pay?page=%d&per-page=10", page))
 	if err != nil {
 		return "", err
 	}
@@ -64,7 +64,7 @@ func (d *DashboardHandler) fetchDashboardRechargeBody(page int) (string, error) 
 }
 
 func (d *DashboardHandler) fetchDashboardUsageLogBody(page int) (string, error) {
-	resp, err := d.client.Get(fmt.Sprintf("http://ipgw.neu.edu.cn:8800/log/detail?page=%d&per-page=10", page))
+	resp, err := d.client.Get(fmt.Sprintf("https://ipgw.neu.edu.cn:8800/log/detail?page=%d&per-page=10", page))
 	if err != nil {
 		return "", err
 	}
@@ -148,7 +148,7 @@ func (d *DashboardHandler) GetDevice() ([]Device, error) {
 	if err != nil {
 		return []Device{}, err
 	}
-	ds, _ := utils.MatchMultiple(regexp.MustCompile(`<tr data-key="(\d+)"><td data-col-seq="0">\d+</td><td data-col-seq="1">(.+?)</td><td data-col-seq="3">(.+?)</td><td data-col-seq="9"></td>`), body)
+	ds, _ := utils.MatchMultiple(regexp.MustCompile(`<tr data-key="(\d+)"><td data-col-seq="0">\d+</td><td data-col-seq="1">(.+?)</td><td data-col-seq="3">(.+?)</td><td data-col-seq="9">.+?</td>`), body)
 	result := make([]Device, len(ds))
 	for i, device := range ds {
 		result[i] = Device{i, device[2], device[3], device[1]}
