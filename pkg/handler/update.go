@@ -12,8 +12,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
-	"strconv"
-	"strings"
 	"time"
 )
 
@@ -40,31 +38,6 @@ func NewUpdateHandler() *UpdateHandler {
 	}
 }
 
-// compareVersion compares strings like "v1.1.1", returns true when versionA > versionB
-func (u *UpdateHandler) compareVersion(versionA, versionB string) bool {
-	if versionA == "" {
-		return false
-	}
-	if versionB == "" {
-		return true
-	}
-	aList := strings.Split(versionA[1:], ".")
-	bList := strings.Split(versionB[1:], ".")
-	aLen := len(aList)
-	bLen := len(bList)
-	if aLen != bLen {
-		return aLen > bLen
-	}
-	for i := 0; i < aLen; i++ {
-		a, _ := strconv.Atoi(aList[i])
-		b, _ := strconv.Atoi(bList[i])
-		if a > b {
-			return true
-		}
-	}
-	return false
-}
-
 // CheckLatestVersion returns true when there is a newer version
 func (u *UpdateHandler) CheckLatestVersion() (bool, error) {
 	resp, err := u.client.Get(fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", ipgw.Repo))
@@ -73,7 +46,7 @@ func (u *UpdateHandler) CheckLatestVersion() (bool, error) {
 	}
 	body := utils.ReadBody(resp)
 	latestVersion, _ := utils.MatchSingle(regexp.MustCompile(`"tag_name": *"(.+?)"`), body)
-	return u.compareVersion(latestVersion, ipgw.Version), nil
+	return utils.CompareVersion(utils.ParseVersion(latestVersion), utils.ParseVersion(ipgw.Version)), nil
 }
 
 // download returns downloaded path
