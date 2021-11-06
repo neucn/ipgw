@@ -100,14 +100,22 @@ func (h *IpgwHandler) FetchUsageInfo() error {
 }
 
 func (h *IpgwHandler) requestLoginApi() (string, error) {
+	// 获取当前网络下对应网关url的query参数
+	resp, err := h.client.Get("https://ipgw.neu.edu.cn/")
+	if err != nil {
+		return "", err
+	}
 	// 统一认证拿到ticket
-	resp, err := h.client.Get("https://pass.neu.edu.cn/tpass/login?service=http://ipgw.neu.edu.cn/srun_portal_sso?ac_id=1")
+	resp, err = h.client.Get("https://pass.neu.edu.cn/tpass/login?service=http://ipgw.neu.edu.cn/srun_portal_sso?" + resp.Request.URL.RawQuery)
 	if err != nil {
 		return "", err
 	}
 	// 使用ticket调用api登录
 	req, _ := http.NewRequest("GET", "https://ipgw.neu.edu.cn/v1"+resp.Request.URL.RequestURI(), nil)
-	resp, _ = h.client.Do(req)
+	resp, err = h.client.Do(req)
+	if err != nil {
+		return "", err
+	}
 	return utils.ReadBody(resp), nil
 }
 
