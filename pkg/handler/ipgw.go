@@ -112,7 +112,10 @@ func (h *IpgwHandler) requestLoginApi() (string, error) {
 	}
 	// 使用ticket调用api登录
 	req, _ := http.NewRequest("GET", "https://ipgw.neu.edu.cn/v1"+resp.Request.URL.RequestURI(), nil)
-	resp, _ = h.client.Do(req)
+	resp, err = h.client.Do(req)
+	if err != nil {
+		return "", err
+	}
 	return utils.ReadBody(resp), nil
 }
 
