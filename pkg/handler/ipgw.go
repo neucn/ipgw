@@ -101,7 +101,7 @@ func (h *IpgwHandler) FetchUsageInfo() error {
 
 func (h *IpgwHandler) requestLoginApi() (string, error) {
 	// 获取当前网络下对应网关url的query参数
-	resp, err := h.client.Get("https://ipgw.neu.edu.cn/index_1.html")
+	resp, err := h.client.Get("https://ipgw.neu.edu.cn/")
 	if err != nil {
 		return "", err
 	}
