@@ -9,7 +9,6 @@ type Info struct {
 	IP                string
 	Traffic, UsedTime int
 	Balance           float64
-	Overdue           bool
 }
 
 func (i *Info) FormattedTraffic() string {

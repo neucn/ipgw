@@ -60,9 +60,6 @@ var (
 					info.FormattedBalance(),
 					info.FormattedTraffic(),
 					info.FormattedUsedTime())
-				if info.Overdue {
-					console.InfoL("\t状态\t已欠费")
-				}
 			}
 			return nil
 		},
@@ -83,9 +80,6 @@ func login(h *handler.IpgwHandler, account *model.Account) error {
 		return err
 	}
 	info := h.GetInfo()
-	if info.Overdue {
-		return fmt.Errorf("overdue")
-	}
 	if info.Username == "" {
 		return fmt.Errorf("unknown reason")
 	}
