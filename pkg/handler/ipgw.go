@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -43,20 +44,25 @@ func NewIpgwHandler() *IpgwHandler {
 func (h *IpgwHandler) Login(account *model.Account) error {
 	var (
 		password string
+		body     string
 		err      error
 	)
 	if account.Cookie != "" {
-		_, err = h.loginCookie(account.Cookie) // 通过cookie登录
+		body, err = h.loginCookie(account.Cookie) // 通过cookie登录
 	} else {
 		password, err = account.GetPassword()
 		if err != nil {
 			return err
 		}
-		_, err = h.login(account.Username, password) // 通过用户名、密码登录
+		body, err = h.login(account.Username, password) // 通过用户名、密码登录
 	}
 
 	if err != nil {
 		return err
+	}
+
+	if strings.Contains(body, "Arrearage users") {
+		return fmt.Errorf("overdue")
 	}
 
 	return h.ParseBasicInfo() // 解析信息
@@ -145,7 +151,6 @@ func getUsernameAndIPFromJson(data map[string]interface{}) (username, ip string)
 func (h *IpgwHandler) ParseBasicInfo() error {
 	h.getJsonIpgwData()
 	h.info.Username, h.info.IP = getUsernameAndIPFromJson(h.oriInfo)
-	h.info.Overdue = h.oriInfo["user_balance"].(float64) < 0
 	return nil
 }
 
