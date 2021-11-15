@@ -57,12 +57,12 @@ func (h *IpgwHandler) Login(account *model.Account) error {
 		body, err = h.login(account.Username, password) // 通过用户名、密码登录
 	}
 
-	if strings.Contains(body, "Arrearage users") {
-		return fmt.Errorf("overdue")
-	}
-
 	if err != nil {
 		return err
+	}
+
+	if strings.Contains(body, "Arrearage users") {
+		return fmt.Errorf("overdue")
 	}
 
 	return h.ParseBasicInfo() // 解析信息
