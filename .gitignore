@@ -1,3 +1,5 @@
 .idea/
 build/
 release/
+cmd/.DS_Store
+cmd/ipgw/.DS_Store
