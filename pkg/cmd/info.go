@@ -44,7 +44,7 @@ var (
 			}
 			h := handler.NewDashboardHandler()
 			if err := h.Login(account); err != nil {
-				return fmt.Errorf("fail to login:\n\t%v", err)
+				return fmt.Errorf("无法登陆:\n\t%v", err)
 			}
 			processInfoPrint(ctx, &infoPrinter{h})
 			return nil

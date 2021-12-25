@@ -13,11 +13,11 @@ var (
 		Action: func(ctx *cli.Context) error {
 			h := handler.NewIpgwHandler()
 			connected, loggedIn := h.IsConnectedAndLoggedIn()
-			console.Info("campus network:   ")
+			console.Info("校园网:   ")
 			if connected {
-				console.InfoL("connected")
+				console.InfoL("连接成功")
 			} else {
-				console.InfoL("disconnected")
+				console.InfoL("断开连接")
 			}
 			console.Info("ipgw logged in:   ")
 			if loggedIn {

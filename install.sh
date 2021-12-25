@@ -3,7 +3,7 @@
 set -e
 
 if ! command -v unzip >/dev/null; then
-	echo "Error: unzip is required to install ipgw." 1>&2
+	echo "错误: 需要unzip来安装ipgw。" 1>&2
 	exit 1
 fi
 
@@ -37,15 +37,15 @@ unzip -d "$bin_dir" -o "$target_path.zip"
 chmod +x "$target_path"
 rm "$target_path.zip"
 
-echo "ipgw was installed successfully to $target_path"
+echo "ipgw成功安装到了 $target_path"
 if command -v ipgw >/dev/null; then
-	echo "Run 'ipgw --help' to get started"
+	echo "运行 'ipgw --help' 来开始吧！"
 else
 	case $SHELL in
 	/bin/zsh) shell_profile=".zshrc" ;;
 	*) shell_profile=".bash_profile" ;;
 	esac
-	echo "Manually add the directory to your \$HOME/$shell_profile (or similar)"
+	echo "请手动添加路径到 \$HOME/$shell_profile (或类似)"
 	echo "  export PATH=\"$bin_dir:\$PATH\""
-	echo "Run '$target_path --help' to get started"
+	echo "运行 '$target_path --help' 来开始吧！"
 fi

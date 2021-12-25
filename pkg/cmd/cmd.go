@@ -27,7 +27,7 @@ var (
 		},
 		Action: func(ctx *cli.Context) error {
 			if ctx.NArg() != 0 {
-				console.InfoL("command not found\n")
+				console.InfoL("未找到命令\n")
 				cli.ShowAppHelpAndExit(ctx, 1)
 				return nil
 			}
@@ -58,13 +58,13 @@ func loginUseDefaultAccount(ctx *cli.Context) error {
 	}
 	account := store.Config.GetDefaultAccount()
 	if account == nil {
-		return errors.New("no account stored")
+		return errors.New("无账号储存")
 	}
-	console.InfoF("using account '%s'\n", account.Username)
+	console.InfoF("正在使用账号 '%s'\n", account.Username)
 	account.Secret = ctx.String("secret")
 
 	if err = login(handler.NewIpgwHandler(), account); err != nil {
-		return fmt.Errorf("login failed: \n\t%v", err)
+		return fmt.Errorf("登陆失败: \n\t%v", err)
 	}
 	return nil
 }
@@ -83,13 +83,13 @@ func getAccountByContext(ctx *cli.Context) (account *model.Account, err error) {
 	} else if u := ctx.String("username"); u == "" {
 		// use stored default account
 		if account = store.Config.GetDefaultAccount(); account == nil {
-			return nil, errors.New("no stored account\n\tplease provide username and password")
+			return nil, errors.New("没有储存的账号\n\t请提供账号和密码")
 		}
-		console.InfoF("using account '%s'\n", account.Username)
-	} else if p := ctx.String("password"); p == "" {
+		console.InfoF("正在使用账号 '%s'\n", account.Username)
+	} else if p := ctx.String("密码"); p == "" {
 		// use stored account
 		if account = store.Config.GetAccount(u); account == nil {
-			return nil, fmt.Errorf("account '%s' not found", u)
+			return nil, fmt.Errorf("账号 '%s' 未找到", u)
 		}
 	} else {
 		// use username and password

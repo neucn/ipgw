@@ -64,7 +64,7 @@ var (
 				username,
 				password,
 				ctx.String("secret")); err != nil {
-				return fmt.Errorf("fail to add account:\n\t%v", err)
+				return fmt.Errorf("无法添加账号:\n\t%v", err)
 			}
 
 			if ctx.Bool("default") {
@@ -73,7 +73,7 @@ var (
 			if err = store.Persist(); err != nil {
 				return err
 			}
-			console.InfoF("'%s' added successfully\n", username)
+			console.InfoF("'%s' 添加账号成功\n", username)
 			return nil
 		},
 		OnUsageError: onUsageError,
@@ -98,13 +98,13 @@ var (
 			username := ctx.String("username")
 
 			if !store.Config.DelAccount(username) {
-				return fmt.Errorf("fail to delete account:\n\t'%s' not found", username)
+				return fmt.Errorf("无法删除账号:\n\t'%s' 账号未找到", username)
 			}
 
 			if err = store.Persist(); err != nil {
 				return err
 			}
-			console.InfoF("'%s' deleted successfully\n", username)
+			console.InfoF("'%s' 删除成功\n", username)
 			return nil
 		},
 		OnUsageError: onUsageError,
@@ -143,13 +143,13 @@ var (
 			username := ctx.String("username")
 			account := store.Config.GetAccount(username)
 			if account == nil {
-				return fmt.Errorf("fail to set account:\n\t'%s' not found", username)
+				return fmt.Errorf("无法设置账号:\n\t'%s' 账号未找到", username)
 			}
 
 			password := ctx.String("password")
 			if password != "" {
 				if err = account.SetPassword(ctx.String("password"), []byte(ctx.String("secret"))); err != nil {
-					return fmt.Errorf("fail to set account:\n\t'%s' not found", username)
+					return fmt.Errorf("无法设置账号:\n\t'%s' 账号未找到", username)
 				}
 			}
 
@@ -160,7 +160,7 @@ var (
 			if err = store.Persist(); err != nil {
 				return err
 			}
-			console.InfoF("'%s' edited successfully\n", username)
+			console.InfoF("'%s' 编辑成功\n", username)
 			return nil
 		},
 		OnUsageError: onUsageError,
