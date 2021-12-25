@@ -117,7 +117,7 @@ func (d *DashboardHandler) GetPackage() (*Package, error) {
 
 	infos, _ := utils.MatchMultiple(regexp.MustCompile(`<td data-col-seq="3">(.+?)</td><td data-col-seq="4">(.+?)</td><td data-col-seq="6">(.+?)</td><td data-col-seq="7">(.+?)</td></tr>`), body)
 	if len(infos) < 1 {
-		return nil, errors.New("fail to get package info")
+		return nil, errors.New("无法获取包信息")
 	}
 	info := infos[0]
 
@@ -171,7 +171,7 @@ func (d *DashboardHandler) GetBill(page int) ([]BillRecord, error) {
 	}
 	t, _ := utils.MatchSingle(regexp.MustCompile(`<title>(.+?)</title>`), body)
 	if t != "结算清单" {
-		return []BillRecord{}, errors.New("error occurs when parsing bill page")
+		return []BillRecord{}, errors.New("获取结算清单时发生错误")
 	}
 
 	bills, _ := utils.MatchMultiple(regexp.MustCompile(`<td data-col-seq="0">(\d+)</td><td data-col-seq="1">.+?</td><td data-col-seq="2">(.+?)</td><td data-col-seq="3">(.+?)</td><td style="display: none;" data-col-seq="6">.+?</td><td data-col-seq="7">(.+?)</td><td data-col-seq="10">(\d+)</td><td data-col-seq="12">(.+?)</td></tr>`), body)
@@ -204,7 +204,7 @@ func (d *DashboardHandler) GetUsageRecords(page int) ([]UsageRecord, error) {
 	}
 	t, _ := utils.MatchSingle(regexp.MustCompile(`<title>(.+?)</title>`), body)
 	if t != "上网明细" {
-		return []UsageRecord{}, errors.New("error occurs when parsing usage log page")
+		return []UsageRecord{}, errors.New("获取上网明细时发生错误")
 	}
 
 	hs, _ := utils.MatchMultiple(regexp.MustCompile(`<td data-col-seq="1">(.+?)</td><td data-col-seq="2">(.+?)</td><td data-col-seq="5">(.+?)</td><td data-col-seq="10">.+?</td><td data-col-seq="12">.+?</td><td style="display: none;" data-col-seq="14">.+?</td><td data-col-seq="15">(.+?)</td><td style="display: none;" data-col-seq="16">.+?</td><td data-col-seq="17">(.+?)</td><td data-col-seq="18">.+?</td></tr>`), body)
@@ -228,7 +228,7 @@ func (d *DashboardHandler) GetRecharge(page int) ([]RechargeRecord, error) {
 	}
 	t, _ := utils.MatchSingle(regexp.MustCompile(`<title>(.+?)</title>`), body)
 	if t != "缴费清单" {
-		return []RechargeRecord{}, errors.New("error occurs when parsing recharge page")
+		return []RechargeRecord{}, errors.New("获取缴费清单时发生错误")
 	}
 
 	rs, _ := utils.MatchMultiple(regexp.MustCompile(`<td data-col-seq="0">(.+?)</td><td data-col-seq="1">\d+</td><td data-col-seq="2">(.+?)</td><td data-col-seq="3">.+?</td><td data-col-seq="6">(.+?)</td></tr>`), body)

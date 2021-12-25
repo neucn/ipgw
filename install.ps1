@@ -42,5 +42,5 @@ if (!(";$Path;".ToLower() -like "*;$BinDir;*".ToLower())) {
     $Env:Path += ";$BinDir"
 }
 
-Write-Output "ipgw was installed successfully to $TargetPath"
-Write-Output "Run 'ipgw --help' to get started"
+Write-Output "ipgw成功安装至 $TargetPath"
+Write-Output "运行 'ipgw --help' 来获取帮助"

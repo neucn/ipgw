@@ -19,7 +19,7 @@ func (a *Account) GetPassword() (string, error) {
 		return a.Password, nil
 	}
 	if a.EncryptedPassword == "" {
-		return "", errors.New("no password stored")
+		return "", errors.New("未储存密码")
 	}
 	result, err := utils.Decrypt(a.EncryptedPassword, []byte(a.Secret))
 	if err != nil {

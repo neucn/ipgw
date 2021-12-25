@@ -16,16 +16,16 @@ var (
 			h := handler.NewIpgwHandler()
 			connected, loggedIn := h.IsConnectedAndLoggedIn()
 			if !connected {
-				return errors.New("not in campus network")
+				return errors.New("未连接到校园网")
 			}
 			if !loggedIn {
-				return errors.New("not logged in yet")
+				return errors.New("未登陆")
 			}
 			info := h.GetInfo()
 			if err := h.Logout(); err != nil {
-				return fmt.Errorf("fail to logout account '%s':\n\t%v", info.Username, err)
+				return fmt.Errorf("无法退出登陆账户 '%s':\n\t%v", info.Username, err)
 			}
-			console.InfoF("logout account '%s' successfully\n", info.Username)
+			console.InfoF("退出登陆 '%s' 成功\n", info.Username)
 			return nil
 		},
 		OnUsageError: onUsageError,

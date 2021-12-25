@@ -10,7 +10,7 @@ import (
 var (
 	UpdateCommand = &cli.Command{
 		Name:  "update",
-		Usage: "check latest version of ipgw and update",
+		Usage: "检查程序版本",
 		Action: func(ctx *cli.Context) error {
 			h := handler.NewUpdateHandler()
 			newer, err := h.CheckLatestVersion()
@@ -18,14 +18,14 @@ var (
 				return err
 			}
 			if !newer {
-				console.InfoL("already the latest version")
+				console.InfoL("已是最新版本")
 				return nil
 			}
 			err = h.Update()
 			if err != nil {
-				return fmt.Errorf("fail to update:\n\t%v", err)
+				return fmt.Errorf("无法更新:\n\t%v", err)
 			}
-			console.InfoL("update successfully")
+			console.InfoL("更新成功")
 			return nil
 		},
 	}

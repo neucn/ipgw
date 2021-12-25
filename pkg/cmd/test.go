@@ -9,21 +9,21 @@ import (
 var (
 	TestCommand = &cli.Command{
 		Name:  "test",
-		Usage: "test whether is connected to the campus network and whether has logged in ipgw",
+		Usage: "测试是否连接校园网以及登陆网关",
 		Action: func(ctx *cli.Context) error {
 			h := handler.NewIpgwHandler()
 			connected, loggedIn := h.IsConnectedAndLoggedIn()
-			console.Info("campus network:   ")
+			console.Info("校园网:   ")
 			if connected {
-				console.InfoL("connected")
+				console.InfoL("已连接")
 			} else {
-				console.InfoL("disconnected")
+				console.InfoL("未连接")
 			}
-			console.Info("ipgw logged in:   ")
+			console.Info("网关已登陆:   ")
 			if loggedIn {
-				console.InfoL("yes")
+				console.InfoL("是")
 			} else {
-				console.InfoL("no")
+				console.InfoL("否")
 			}
 			return nil
 		},

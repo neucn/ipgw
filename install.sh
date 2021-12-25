@@ -37,15 +37,15 @@ unzip -d "$bin_dir" -o "$target_path.zip"
 chmod +x "$target_path"
 rm "$target_path.zip"
 
-echo "ipgw was installed successfully to $target_path"
+echo "ipgw成功安装至 $target_path"
 if command -v ipgw >/dev/null; then
-	echo "Run 'ipgw --help' to get started"
+	echo "运行 'ipgw --help' 来获取帮助"
 else
 	case $SHELL in
 	/bin/zsh) shell_profile=".zshrc" ;;
 	*) shell_profile=".bash_profile" ;;
 	esac
-	echo "Manually add the directory to your \$HOME/$shell_profile (or similar)"
+	echo "请手动添加目录至 \$HOME/$shell_profile (or similar)"
 	echo "  export PATH=\"$bin_dir:\$PATH\""
-	echo "Run '$target_path --help' to get started"
+	echo "运行 'ipgw --help' 来获取帮助"
 fi
