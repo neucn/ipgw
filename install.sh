@@ -3,7 +3,7 @@
 set -e
 
 if ! command -v unzip >/dev/null; then
-	echo "Error: unzip is required to install ipgw." 1>&2
+	echo "Error: 安装ipgw需要unzip." 1>&2
 	exit 1
 fi
 

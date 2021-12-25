@@ -39,7 +39,7 @@ func homeUnix() (string, error) {
 
 	result := strings.TrimSpace(stdout.String())
 	if result == "" {
-		return "", errors.New("blank output when reading home directory")
+		return "", errors.New("读取主目录时输出为空")
 	}
 
 	return result, nil
@@ -53,7 +53,7 @@ func homeWindows() (string, error) {
 		home = os.Getenv("USERPROFILE")
 	}
 	if home == "" {
-		return "", errors.New("HOMEDRIVE, HOMEPATH, and USERPROFILE are blank")
+		return "", errors.New("HOMEDRIVE, HOMEPATH, 和 USERPROFILE 为空")
 	}
 
 	return home, nil
@@ -74,7 +74,7 @@ func IsFileExist(path string) bool {
 func GetExecutablePathAndDir() (path, dir string, err error) {
 	p, err := os.Executable()
 	if err != nil {
-		return "", "", fmt.Errorf("fail to get executable path: %v", err)
+		return "", "", fmt.Errorf("无法获取可执行路径: %v", err)
 	}
 	path, _ = filepath.Abs(p)
 	dir = filepath.Dir(path)

@@ -22,7 +22,7 @@ var (
 			&cli.StringFlag{
 				Name:    "password",
 				Aliases: []string{"p"},
-				Usage:   "网关登陆密码 (required only if account is not stored)",
+				Usage:   "网关登陆密码 (仅在账户未储存时需要)",
 			},
 			&cli.StringFlag{
 				Name:    "secret",

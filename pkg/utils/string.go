@@ -7,7 +7,7 @@ import (
 	"regexp"
 )
 
-var errorNoMatched = errors.New("no matched")
+var errorNoMatched = errors.New("未匹配到")
 
 func MatchMultiple(re *regexp.Regexp, content string) ([][]string, error) {
 	matched := re.FindAllStringSubmatch(content, -1)
