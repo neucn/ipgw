@@ -10,7 +10,7 @@ import (
 var (
 	ConfigCommand = &cli.Command{
 		Name:  "config",
-		Usage: "manage config",
+		Usage: "管理配置文件",
 		Subcommands: []*cli.Command{
 			{
 				Name:  "account",
@@ -29,7 +29,7 @@ var (
 
 	configAccountAddCommand = &cli.Command{
 		Name:  "add",
-		Usage: "add account into config",
+		Usage: "添加账户至配置文件",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "username",
@@ -81,7 +81,7 @@ var (
 
 	configAccountDelCommand = &cli.Command{
 		Name:  "del",
-		Usage: "delete account from config",
+		Usage: "从配置文件中删除账号",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "username",
@@ -112,7 +112,7 @@ var (
 
 	configAccountSetCommand = &cli.Command{
 		Name:  "set",
-		Usage: "edit account in config",
+		Usage: "编辑配置文件中的账号",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "username",
@@ -169,7 +169,7 @@ var (
 	configAccountListCommand = &cli.Command{
 		Name:    "list",
 		Aliases: []string{"ls"},
-		Usage:   "list accounts in config",
+		Usage:   "显示在配置文件中的账号",
 		Action: func(ctx *cli.Context) error {
 			store, err := getStoreHandler(ctx)
 			if err != nil {

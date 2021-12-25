@@ -13,7 +13,7 @@ import (
 var (
 	LoginCommand = &cli.Command{
 		Name:  "login",
-		Usage: "login ipgw",
+		Usage: "登陆网关",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "username",

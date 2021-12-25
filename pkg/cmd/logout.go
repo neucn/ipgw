@@ -11,7 +11,7 @@ import (
 var (
 	LogoutCommand = &cli.Command{
 		Name:  "logout",
-		Usage: "logout ipgw",
+		Usage: "注销网关",
 		Action: func(ctx *cli.Context) error {
 			h := handler.NewIpgwHandler()
 			connected, loggedIn := h.IsConnectedAndLoggedIn()

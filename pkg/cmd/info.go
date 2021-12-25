@@ -11,7 +11,7 @@ import (
 var (
 	InfoCommand = &cli.Command{
 		Name:                   "info",
-		Usage:                  "list account info",
+		Usage:                  "显示账户信息",
 		UseShortOptionHandling: true,
 		Flags: []cli.Flag{
 			&cli.StringFlag{

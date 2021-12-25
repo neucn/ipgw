@@ -9,7 +9,7 @@ import (
 var (
 	KickCommand = &cli.Command{
 		Name:                   "kick",
-		Usage:                  "logout any specific device by SID",
+		Usage:                  "通过SID注销指定的设备",
 		ArgsUsage:              "[sid list]",
 		UseShortOptionHandling: true,
 		Flags: []cli.Flag{

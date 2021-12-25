@@ -10,7 +10,7 @@ import (
 var (
 	UpdateCommand = &cli.Command{
 		Name:  "update",
-		Usage: "check latest version of ipgw and update",
+		Usage: "检查最新版本",
 		Action: func(ctx *cli.Context) error {
 			h := handler.NewUpdateHandler()
 			newer, err := h.CheckLatestVersion()

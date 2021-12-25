@@ -9,7 +9,7 @@ import (
 var (
 	TestCommand = &cli.Command{
 		Name:  "test",
-		Usage: "test whether is connected to the campus network and whether has logged in ipgw",
+		Usage: "测试当前是否处于校园网环境以及是否已经登陆网关",
 		Action: func(ctx *cli.Context) error {
 			h := handler.NewIpgwHandler()
 			connected, loggedIn := h.IsConnectedAndLoggedIn()
