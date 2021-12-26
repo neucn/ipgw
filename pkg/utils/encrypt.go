@@ -27,7 +27,7 @@ func DESEncrypt(source []byte, secret []byte) ([]byte, error) {
 func DESDecrypt(encrypted []byte, secret []byte) (result []byte, err error) {
 	defer func() {
 		if e := recover(); e != nil {
-			err = errors.New("wrong secret")
+			err = errors.New("密保问题错误")
 		}
 	}()
 	key := sha(secret)

@@ -9,7 +9,7 @@ import (
 var (
 	KickCommand = &cli.Command{
 		Name:                   "kick",
-		Usage:                  "logout any specific device by SID",
+		Usage:                  "通过SID使特定设备下线",
 		ArgsUsage:              "[sid list]",
 		UseShortOptionHandling: true,
 		Flags: []cli.Flag{
@@ -26,7 +26,7 @@ var (
 			&cli.StringFlag{
 				Name:    "secret",
 				Aliases: []string{"s"},
-				Usage:   "`secret` for stored account (required only if secret is not empty)",
+				Usage:   "账户密保问题（仅在未设置时需要）",
 			},
 		},
 		Action: func(ctx *cli.Context) error {
