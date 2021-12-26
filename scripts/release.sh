@@ -15,4 +15,4 @@ do
     cd "$target" && zip -q "$name-$target.zip" ./* && mv "$name-$target.zip" "$release_dir" && cd ..
 done
 
-echo "解压完成."
+echo "解压完成。"
