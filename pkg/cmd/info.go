@@ -27,7 +27,7 @@ var (
 			&cli.StringFlag{
 				Name:    "secret",
 				Aliases: []string{"s"},
-				Usage:   "`secret` for stored account (required only if secret is not empty)",
+				Usage:   "账户密保问题（仅在未设置时需要）",
 			},
 			&cli.BoolFlag{Name: "all", Aliases: []string{"a"}, Usage: "list all kind of info, equivalent to -lbird"},
 
