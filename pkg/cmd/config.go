@@ -64,7 +64,7 @@ var (
 				username,
 				password,
 				ctx.String("secret")); err != nil {
-				return fmt.Errorf("无法添加账户:\n\t%v", err)
+				return fmt.Errorf("无法添加账户：\n\t%v", err)
 			}
 
 			if ctx.Bool("default") {
@@ -98,7 +98,7 @@ var (
 			username := ctx.String("username")
 
 			if !store.Config.DelAccount(username) {
-				return fmt.Errorf("无法删除账户:\n\t'%s' 账户没有找到", username)
+				return fmt.Errorf("无法删除账户：\n\t'%s' 账户没有找到", username)
 			}
 
 			if err = store.Persist(); err != nil {
@@ -143,13 +143,13 @@ var (
 			username := ctx.String("username")
 			account := store.Config.GetAccount(username)
 			if account == nil {
-				return fmt.Errorf("无法设置账户:\n\t'%s' 账户没有找到", username)
+				return fmt.Errorf("无法设置账户：\n\t'%s' 账户没有找到", username)
 			}
 
 			password := ctx.String("password")
 			if password != "" {
 				if err = account.SetPassword(ctx.String("password"), []byte(ctx.String("secret"))); err != nil {
-					return fmt.Errorf("无法设置账户:\n\t'%s' 账户没有找到", username)
+					return fmt.Errorf("无法设置账户：\n\t'%s' 账户没有找到", username)
 				}
 			}
 

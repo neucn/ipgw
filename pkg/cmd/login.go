@@ -18,12 +18,12 @@ var (
 			&cli.StringFlag{
 				Name:    "username",
 				Aliases: []string{"u"},
-				Usage:   "学号 (仅在使用非默认账户或者首次储存默认账户时使用)",
+				Usage:   "学号（仅在使用非默认账户或者首次储存默认账户时使用）",
 			},
 			&cli.StringFlag{
 				Name:    "password",
 				Aliases: []string{"p"},
-				Usage:   "网关登陆密码 (required only if account is not stored)",
+				Usage:   "网关登陆密码（仅在账户未储存时需要）",
 			},
 			&cli.StringFlag{
 				Name:    "cookie",
@@ -48,11 +48,11 @@ var (
 			}
 			h := handler.NewIpgwHandler()
 			if err = login(h, account); err != nil {
-				return fmt.Errorf("登陆失败: \n\t%v", err)
+				return fmt.Errorf("登陆失败： \n\t%v", err)
 			}
 			if ctx.Bool("info") {
 				if err = h.FetchUsageInfo(); err != nil {
-					return fmt.Errorf("获取信息失败: \n\t%v", err)
+					return fmt.Errorf("获取信息失败： \n\t%v", err)
 				}
 				info := h.GetInfo()
 				console.InfoF("\tIP\t%16s\n\t余额\t%16s\n\t流量\t%16s\n\t时长\t%16s\n",

@@ -74,7 +74,7 @@ func IsFileExist(path string) bool {
 func GetExecutablePathAndDir() (path, dir string, err error) {
 	p, err := os.Executable()
 	if err != nil {
-		return "", "", fmt.Errorf("无法获取可执行路径: %v", err)
+		return "", "", fmt.Errorf("无法获取可执行路径： %v", err)
 	}
 	path, _ = filepath.Abs(p)
 	dir = filepath.Dir(path)

@@ -16,7 +16,7 @@ type StoreHandler struct {
 func NewStoreHandler(path string) (*StoreHandler, error) {
 	path, err := getConfigPath(path)
 	if err != nil {
-		return nil, fmt.Errorf("无法打开配置文件:\n\t%s", err)
+		return nil, fmt.Errorf("无法打开配置文件：\n\t%s", err)
 	}
 	return &StoreHandler{
 		Path: path,
@@ -40,7 +40,7 @@ func getConfigPath(path string) (string, error) {
 func (h *StoreHandler) Persist() error {
 	content, err := json.Marshal(h.Config)
 	if err != nil {
-		return fmt.Errorf("无法保存配置:\n\t%v", err)
+		return fmt.Errorf("无法保存配置：\n\t%v", err)
 	}
 	return os.WriteFile(h.Path, content, 0666)
 }
@@ -48,12 +48,12 @@ func (h *StoreHandler) Persist() error {
 func (h *StoreHandler) Load() error {
 	content, err := os.ReadFile(h.Path)
 	if err != nil {
-		return fmt.Errorf("无法加载配置:\n\t%v", err)
+		return fmt.Errorf("无法加载配置：\n\t%v", err)
 	}
 	h.Config = &model.Config{}
 	err = json.Unmarshal(content, &h.Config)
 	if err == nil || err.Error() == "unexpected end of JSON input" {
 		return nil
 	}
-	return fmt.Errorf("无法保存配置:\n\t%v", err)
+	return fmt.Errorf("无法保存配置：\n\t%v", err)
 }

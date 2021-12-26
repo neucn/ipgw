@@ -17,12 +17,12 @@ var (
 			&cli.StringFlag{
 				Name:    "username",
 				Aliases: []string{"u"},
-				Usage:   "学号 (仅在使用非默认账户或者首次储存默认账户时使用)",
+				Usage:   "学号（仅在使用非默认账户或者首次储存默认账户时使用）",
 			},
 			&cli.StringFlag{
 				Name:    "password",
 				Aliases: []string{"p"},
-				Usage:   "网关登陆密码 (仅在账户未储存时需要)",
+				Usage:   "网关登陆密码（仅在账户未储存时需要）",
 			},
 			&cli.StringFlag{
 				Name:    "secret",
@@ -44,7 +44,7 @@ var (
 			}
 			h := handler.NewDashboardHandler()
 			if err := h.Login(account); err != nil {
-				return fmt.Errorf("无法登陆:\n\t%v", err)
+				return fmt.Errorf("无法登陆：\n\t%v", err)
 			}
 			processInfoPrint(ctx, &infoPrinter{h})
 			return nil

@@ -42,7 +42,7 @@ func NewUpdateHandler() *UpdateHandler {
 func (u *UpdateHandler) CheckLatestVersion() (bool, error) {
 	resp, err := u.client.Get(fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", ipgw.Repo))
 	if err != nil {
-		return false, fmt.Errorf("无法检查最新版本:\n\t%v", err)
+		return false, fmt.Errorf("无法检查最新版本：\n\t%v", err)
 	}
 	body := utils.ReadBody(resp)
 	latestVersion, _ := utils.MatchSingle(regexp.MustCompile(`"tag_name": *"(.+?)"`), body)

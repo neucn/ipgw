@@ -14,7 +14,7 @@ var (
 	App = &cli.App{
 		Name:      "ipgw",
 		HelpName:  "ipgw",
-		Copyright: "主页:\thttps://github.com/neucn/ipgw\nFeedback:\thttps://github.com/neucn/ipgw/issues/new",
+		Copyright: "主页：\thttps://github.com/neucn/ipgw\nFeedback:\thttps://github.com/neucn/ipgw/issues/new",
 		Commands: []*cli.Command{
 			LoginCommand,
 			LogoutCommand,
@@ -64,7 +64,7 @@ func loginUseDefaultAccount(ctx *cli.Context) error {
 	account.Secret = ctx.String("secret")
 
 	if err = login(handler.NewIpgwHandler(), account); err != nil {
-		return fmt.Errorf("登陆失败: \n\t%v", err)
+		return fmt.Errorf("登陆失败：\n\t%v", err)
 	}
 	return nil
 }
@@ -120,46 +120,46 @@ func onUsageError(ctx *cli.Context, err error, isSubcommand bool) error {
 }
 
 func init() {
-	cli.AppHelpTemplate = `用法:
+	cli.AppHelpTemplate = `用法：
    {{.HelpName}} {{if .VisibleFlags}}[global options]{{end}}{{if .Commands}} command [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}
 {{if .Commands}}
-命令:
+命令：
 {{range .Commands}}{{if not .HideHelp}}   {{join .Names ", "}}{{ "\t"}}{{.Usage}}{{ "\n" }}{{end}}{{end}}{{end}}
-选项:
+选项：
    {{range .VisibleFlags}}{{.}}
    {{end}}
 {{.Copyright}}
 `
 	cli.CommandHelpTemplate = `{{.Usage}}
 
-用法:
+用法：
    {{if .UsageText}}{{.UsageText}}{{else}}{{.HelpName}}{{if .VisibleFlags}} [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{end}}{{if .Category}}
 
-目录:
+目录：
    {{.Category}}{{end}}{{if .Description}}
 
-描述:
+描述：
    {{.Description | nindent 3 | trim}}{{end}}{{if .VisibleFlags}}
 
-选项:
+选项：
    {{range .VisibleFlags}}{{.}}
    {{end}}{{end}}
 `
 
 	cli.SubcommandHelpTemplate = `{{.Usage}}
 
-用法:
+用法：
    {{if .UsageText}}{{.UsageText}}{{else}}{{.HelpName}} command{{if .VisibleFlags}} [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{end}}{{if .Description}}
 
-描述:
+描述：
    {{.Description | nindent 3 | trim}}{{end}}
 
-命令:{{range .VisibleCategories}}{{if .Name}}
+命令：{{range .VisibleCategories}}{{if .Name}}
    {{.Name}}:{{range .VisibleCommands}}
      {{join .Names ", "}}{{"\t"}}{{.Usage}}{{end}}{{else}}{{range .VisibleCommands}}
    {{join .Names ", "}}{{"\t"}}{{.Usage}}{{end}}{{end}}{{end}}{{if .VisibleFlags}}
 
-选项:
+选项：
    {{range .VisibleFlags}}{{.}}
    {{end}}{{end}}
 `

@@ -19,7 +19,7 @@ var (
 			} else {
 				console.InfoL("未连接")
 			}
-			console.Info("网关已登陆:   ")
+			console.Info("网关已登陆：  ")
 			if loggedIn {
 				console.InfoL("是")
 			} else {

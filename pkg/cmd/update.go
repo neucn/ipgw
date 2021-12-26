@@ -23,7 +23,7 @@ var (
 			}
 			err = h.Update()
 			if err != nil {
-				return fmt.Errorf("无法更新:\n\t%v", err)
+				return fmt.Errorf("无法更新：\n\t%v", err)
 			}
 			console.InfoL("更新成功")
 			return nil
