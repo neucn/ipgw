@@ -46,7 +46,7 @@ var (
 			&cli.StringFlag{
 				Name:    "secret",
 				Aliases: []string{"s"},
-				Usage:   "`secret` for stored account",
+				Usage:   "密保问题",
 			},
 			&cli.BoolFlag{
 				Name:  "default",
@@ -128,7 +128,7 @@ var (
 			&cli.StringFlag{
 				Name:    "secret",
 				Aliases: []string{"s"},
-				Usage:   "new `secret` for stored account, must be used with --password, -p",
+				Usage:   "为帐户设置新密保，输入格式： --password, -p",
 			},
 			&cli.BoolFlag{
 				Name:  "default",
