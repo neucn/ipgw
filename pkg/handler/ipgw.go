@@ -51,10 +51,9 @@ func (h *IpgwHandler) Login(account *model.Account) error {
 
 	// 修复首次登录失败问题
 	resp, err = h.client.Get("http://198.18.0.1")
-	if err != nil {
-		return err
+	if err == nil {
+	    defer resp.Body.Close()
 	}
-	defer resp.Body.Close()
 
 	if account.Cookie != "" {
 		body, err = h.loginCookie(account.Cookie) // 通过cookie登录
