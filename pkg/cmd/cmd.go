@@ -14,7 +14,7 @@ var (
 	App = &cli.App{
 		Name:      "ipgw",
 		HelpName:  "ipgw",
-		Copyright: "Home page:\thttps://github.com/neucn/ipgw\nFeedback:\thttps://github.com/neucn/ipgw/issues/new",
+		Copyright: "主页：\thttps://github.com/neucn/ipgw\nFeedback:\thttps://github.com/neucn/ipgw/issues/new",
 		Commands: []*cli.Command{
 			LoginCommand,
 			LogoutCommand,
@@ -27,7 +27,7 @@ var (
 		},
 		Action: func(ctx *cli.Context) error {
 			if ctx.NArg() != 0 {
-				console.InfoL("command not found\n")
+				console.InfoL("未找到命令\n")
 				cli.ShowAppHelpAndExit(ctx, 1)
 				return nil
 			}
@@ -43,7 +43,7 @@ var (
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"f"},
-				Usage:   "load configuration from specific `file`",
+				Usage:   "载入配置文件",
 			},
 		},
 		OnUsageError: onUsageError,
@@ -58,13 +58,13 @@ func loginUseDefaultAccount(ctx *cli.Context) error {
 	}
 	account := store.Config.GetDefaultAccount()
 	if account == nil {
-		return errors.New("no account stored")
+		return errors.New("无储存账户")
 	}
-	console.InfoF("using account '%s'\n", account.Username)
+	console.InfoF("正在使用账户 '%s'\n", account.Username)
 	account.Secret = ctx.String("secret")
 
 	if err = login(handler.NewIpgwHandler(), account); err != nil {
-		return fmt.Errorf("login failed: \n\t%v", err)
+		return fmt.Errorf("登陆失败：\n\t%v", err)
 	}
 	return nil
 }
@@ -83,13 +83,13 @@ func getAccountByContext(ctx *cli.Context) (account *model.Account, err error) {
 	} else if u := ctx.String("username"); u == "" {
 		// use stored default account
 		if account = store.Config.GetDefaultAccount(); account == nil {
-			return nil, errors.New("no stored account\n\tplease provide username and password")
+			return nil, errors.New("无储存账户\n\t请提供账号与密码")
 		}
-		console.InfoF("using account '%s'\n", account.Username)
+		console.InfoF("正在使用账户 '%s'\n", account.Username)
 	} else if p := ctx.String("password"); p == "" {
 		// use stored account
 		if account = store.Config.GetAccount(u); account == nil {
-			return nil, fmt.Errorf("account '%s' not found", u)
+			return nil, fmt.Errorf("账号 '%s' 未找到", u)
 		}
 	} else {
 		// use username and password
@@ -120,46 +120,46 @@ func onUsageError(ctx *cli.Context, err error, isSubcommand bool) error {
 }
 
 func init() {
-	cli.AppHelpTemplate = `USAGE:
+	cli.AppHelpTemplate = `用法：
    {{.HelpName}} {{if .VisibleFlags}}[global options]{{end}}{{if .Commands}} command [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}
 {{if .Commands}}
-COMMANDS:
+命令：
 {{range .Commands}}{{if not .HideHelp}}   {{join .Names ", "}}{{ "\t"}}{{.Usage}}{{ "\n" }}{{end}}{{end}}{{end}}
-OPTIONS:
+选项：
    {{range .VisibleFlags}}{{.}}
    {{end}}
 {{.Copyright}}
 `
 	cli.CommandHelpTemplate = `{{.Usage}}
 
-USAGE:
+用法：
    {{if .UsageText}}{{.UsageText}}{{else}}{{.HelpName}}{{if .VisibleFlags}} [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{end}}{{if .Category}}
 
-CATEGORY:
+目录：
    {{.Category}}{{end}}{{if .Description}}
 
-DESCRIPTION:
+描述：
    {{.Description | nindent 3 | trim}}{{end}}{{if .VisibleFlags}}
 
-OPTIONS:
+选项：
    {{range .VisibleFlags}}{{.}}
    {{end}}{{end}}
 `
 
 	cli.SubcommandHelpTemplate = `{{.Usage}}
 
-USAGE:
+用法：
    {{if .UsageText}}{{.UsageText}}{{else}}{{.HelpName}} command{{if .VisibleFlags}} [command options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}[arguments...]{{end}}{{end}}{{if .Description}}
 
-DESCRIPTION:
+描述：
    {{.Description | nindent 3 | trim}}{{end}}
 
-COMMANDS:{{range .VisibleCategories}}{{if .Name}}
+命令：{{range .VisibleCategories}}{{if .Name}}
    {{.Name}}:{{range .VisibleCommands}}
      {{join .Names ", "}}{{"\t"}}{{.Usage}}{{end}}{{else}}{{range .VisibleCommands}}
    {{join .Names ", "}}{{"\t"}}{{.Usage}}{{end}}{{end}}{{end}}{{if .VisibleFlags}}
 
-OPTIONS:
+选项：
    {{range .VisibleFlags}}{{.}}
    {{end}}{{end}}
 `

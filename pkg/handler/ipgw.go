@@ -71,7 +71,7 @@ func (h *IpgwHandler) Login(account *model.Account) error {
 	}
 
 	if strings.Contains(body, "Arrearage users") {
-		return fmt.Errorf("overdue")
+		return fmt.Errorf("已欠费")
 	}
 
 	return h.ParseBasicInfo() // 解析信息

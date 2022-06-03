@@ -11,23 +11,23 @@ import (
 var (
 	InfoCommand = &cli.Command{
 		Name:                   "info",
-		Usage:                  "list account info",
+		Usage:                  "列出账户信息",
 		UseShortOptionHandling: true,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "username",
 				Aliases: []string{"u"},
-				Usage:   "student number `id` (required only if not use the default or first stored account)",
+				Usage:   "学号（仅在使用非默认账户或者首次储存默认账户时使用）",
 			},
 			&cli.StringFlag{
 				Name:    "password",
 				Aliases: []string{"p"},
-				Usage:   "`password` for pass.neu.edu.cn (required only if account is not stored)",
+				Usage:   "网关登陆密码（仅在账户未储存时需要）",
 			},
 			&cli.StringFlag{
 				Name:    "secret",
 				Aliases: []string{"s"},
-				Usage:   "`secret` for stored account (required only if secret is not empty)",
+				Usage:   "账户密保问题（仅在未设置时需要）",
 			},
 			&cli.BoolFlag{Name: "all", Aliases: []string{"a"}, Usage: "list all kind of info, equivalent to -lbird"},
 
@@ -44,7 +44,7 @@ var (
 			}
 			h := handler.NewDashboardHandler()
 			if err := h.Login(account); err != nil {
-				return fmt.Errorf("fail to login:\n\t%v", err)
+				return fmt.Errorf("无法登陆：\n\t%v", err)
 			}
 			processInfoPrint(ctx, &infoPrinter{h})
 			return nil

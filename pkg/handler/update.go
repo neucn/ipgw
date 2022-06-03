@@ -28,7 +28,7 @@ type UpdateHandler struct {
 func (d *downloader) Read(p []byte) (n int, err error) {
 	n, err = d.Reader.Read(p)
 	d.current += int64(n)
-	console.InfoF("\rdownloading %.2f%%", float64(d.current*10000/d.total)/100)
+	console.InfoF("\r下载中 %.2f%%", float64(d.current*10000/d.total)/100)
 	return
 }
 
@@ -42,7 +42,7 @@ func NewUpdateHandler() *UpdateHandler {
 func (u *UpdateHandler) CheckLatestVersion() (bool, error) {
 	resp, err := u.client.Get(fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", ipgw.Repo))
 	if err != nil {
-		return false, fmt.Errorf("fail to check latest version:\n\t%v", err)
+		return false, fmt.Errorf("无法检查最新版本：\n\t%v", err)
 	}
 	body := utils.ReadBody(resp)
 	latestVersion, _ := utils.MatchSingle(regexp.MustCompile(`"tag_name": *"(.+?)"`), body)
@@ -57,7 +57,7 @@ func (u *UpdateHandler) download(url string) (string, error) {
 	}
 	// not found
 	if resp.StatusCode == http.StatusNotFound {
-		return "", errors.New("release not found")
+		return "", errors.New("未找到发布版本")
 	}
 	raw := resp.Body
 	defer raw.Close()
