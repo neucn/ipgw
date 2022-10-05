@@ -140,6 +140,7 @@ type Device struct {
 	ID        int
 	IP        string
 	StartTime string
+	Stage     string
 	SID       string
 }
 
@@ -148,10 +149,10 @@ func (d *DashboardHandler) GetDevice() ([]Device, error) {
 	if err != nil {
 		return []Device{}, err
 	}
-	ds, _ := utils.MatchMultiple(regexp.MustCompile(`<tr data-key="(\d+)"><td data-col-seq="0">\d+</td><td data-col-seq="1">(.+?)</td><td data-col-seq="3">(.+?)</td><td data-col-seq="9">.+?</td>`), body)
+	ds, _ := utils.MatchMultiple(regexp.MustCompile(`<tr data-key="(\d+)"><td data-col-seq="0">\d+</td><td data-col-seq="1">(.+?)</td><td data-col-seq="3">(.+?)</td><td data-col-seq="7">(.+?)</td><td data-col-seq="9">.+?</td>`), body)
 	result := make([]Device, len(ds))
 	for i, device := range ds {
-		result[i] = Device{i, device[2], device[3], device[1]}
+		result[i] = Device{i, device[2], device[3], device[4], device[1]}
 	}
 	return result, nil
 }
