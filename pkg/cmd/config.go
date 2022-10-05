@@ -149,7 +149,7 @@ var (
 			password := ctx.String("password")
 			if password != "" {
 				if err = account.SetPassword(ctx.String("password"), []byte(ctx.String("secret"))); err != nil {
-					return fmt.Errorf("fail to set account:\n\t'%s' not found", username)
+					return fmt.Errorf("fail to set password:\n\t'%v'", err)
 				}
 			}
 
