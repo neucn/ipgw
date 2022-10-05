@@ -115,7 +115,7 @@ func (d *DashboardHandler) GetPackage() (*Package, error) {
 		return nil, err
 	}
 
-	infos, _ := utils.MatchMultiple(regexp.MustCompile(`<td data-col-seq="3">(.+?)</td><td data-col-seq="4">(.+?)</td><td data-col-seq="6">(.+?)</td><td data-col-seq="7">(.+?)</td></tr>`), body)
+	infos, _ := utils.MatchMultiple(regexp.MustCompile(`<td data-col-seq="3">(.+?)</td><td data-col-seq="4">(.+?)</td><td data-col-seq="6">(.+?)</td><td data-col-seq="7">(.+?)</td>`), body)
 	if len(infos) < 1 {
 		return nil, errors.New("fail to get package info")
 	}
@@ -207,7 +207,7 @@ func (d *DashboardHandler) GetUsageRecords(page int) ([]UsageRecord, error) {
 		return []UsageRecord{}, errors.New("error occurs when parsing usage log page")
 	}
 
-	hs, _ := utils.MatchMultiple(regexp.MustCompile(`<td data-col-seq="1">(.+?)</td><td data-col-seq="2">(.+?)</td><td data-col-seq="5">(.+?)</td><td data-col-seq="10">.+?</td><td data-col-seq="12">.+?</td><td style="display: none;" data-col-seq="14">.+?</td><td data-col-seq="15">(.+?)</td><td style="display: none;" data-col-seq="16">.+?</td><td data-col-seq="17">(.+?)</td><td data-col-seq="18">.+?</td></tr>`), body)
+	hs, _ := utils.MatchMultiple(regexp.MustCompile(`<td data-col-seq="0">.+?</td><td data-col-seq="1">(.+?)</td><td data-col-seq="2">(.+?)</td><td data-col-seq="5">(.+?)</td><td data-col-seq="10">.+?</td><td data-col-seq="12">.+?</td><td style="display: none;" data-col-seq="16">.+?</td><td data-col-seq="17">(.+?)</td><td style="display: none;" data-col-seq="18">.+?</td><td data-col-seq="19">(.+?)</td><td data-col-seq="20">.+?</td>`), body)
 	result := make([]UsageRecord, len(hs))
 	for i, h := range hs {
 		result[i] = UsageRecord{h[1], h[2], h[3], h[4], h[5]}
