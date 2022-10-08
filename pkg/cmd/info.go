@@ -128,7 +128,7 @@ func (i *infoPrinter) PrintDevices() {
 		return
 	}
 	for _, device := range devices {
-		console.InfoF("\tNo.%d\t%s\t%s\t%s\n", device.ID, device.IP, device.StartTime, device.SID)
+		console.InfoF("\tNo.%d\t%s\t%s\t%8s\t%s\n", device.ID, device.IP, device.StartTime, device.SID, device.Stage)
 	}
 }
 
@@ -154,7 +154,7 @@ func (i *infoPrinter) PrintLog(page int) {
 		return
 	}
 	for _, record := range records {
-		console.InfoF("\t%s - %s\t%s\t%s\n", record.StartTime, record.EndTime, record.IP, record.Traffic)
+		console.InfoF("\t%s - %s\t%s\t%10s\t%s\n", record.StartTime, record.EndTime, record.IP, record.Traffic, record.UsedDuration)
 	}
 }
 
